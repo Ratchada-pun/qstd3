@@ -1,0 +1,31 @@
+{
+    "name": "firdows/yii2-menu",
+    "description": "menu system",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension","menu","system"],
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Ahamad Jehdu",
+            "email": "ahamad.jedu@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "yiisoft/yii2": "*",
+        "mdmsoft/yii2-admin": "~2.0",
+        "kartik-v/yii2-widgets": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "firdows\\menu\\": ""
+        }
+    },
+    "extra": {
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        }
+    }
+}

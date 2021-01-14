@@ -1,0 +1,3 @@
+1. npm install
+2. แก้ไขที่ไฟล์ .env
+3. แก้ไขที่ไฟล์ index.html ให้เปลี่ยน url ที่ function fetchDataSetting เปลี่ยน host จากเดิม http://queue-pulse.local เป็น host ที่ใช้งานจริง

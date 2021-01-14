@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>LED DISPLAY</title>
+        <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    </head>
+
+    <body>
+        <div id="app">
+            <div class="container">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="text-center">{{ title }}</h1>
+                        <form v-on:submit.prevent="onSubmit">
+                            <div class="form-row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label
+                                            >เลือกชื่อบริการ/แผนก/ห้องตรวจ</label
+                                        >
+                                        <div
+                                            v-for="(service, key) in services"
+                                            :key="key"
+                                            class="form-check"
+                                        >
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                :id="service.serviceid + service.service_name"
+                                                :value="service.serviceid"
+                                                v-model="checkedServices"
+                                                name="service[]"
+                                            />
+                                            <label
+                                                class="form-check-label"
+                                                :for="service.serviceid + service.service_name"
+                                            >
+                                                ({{
+                                                    service.servicegroup_name
+                                                }})
+                                                {{ service.service_name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label>เคาน์เตอร์</label>
+                                        <div
+                                            v-for="(counter, key) in counters"
+                                            :key="key"
+                                            class="form-check"
+                                        >
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                :id="counter.counterserviceid + counter.counterservice_name"
+                                                :value="counter.counterserviceid"
+                                                v-model="checkedCounters"
+                                                name="counter[]"
+                                            />
+                                            <label
+                                                class="form-check-label"
+                                                :for="counter.counterserviceid + counter.counterservice_name"
+                                            >
+                                                {{
+                                                    counter.counterservice_type
+                                                }}
+                                                ({{
+                                                    counter.counterservice_name
+                                                }})
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                Save
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/js/jquery.min.js"></script>
+        <!-- <script src="/js/jquery-3.3.1.slim.min.js"></script> -->
+        <script src="/js/popper.min.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+        <script src="/js/vue.js"></script>
+        <script src="/js/axios.min.js"></script>
+        <!-- app script  -->
+        <script>
+            var app = new Vue({
+                el: '#app',
+                data: {
+                    title: 'LED SETTING',
+                    services: [],
+                    counters: [],
+                    checkedServices: [],
+                    checkedCounters: []
+                },
+                mounted: function() {
+                    this.fetchDataSetting();
+                    this.loadSetting();
+                },
+                methods: {
+                    fetchDataSetting() {
+                        const vm = this;
+                        $.ajax({
+                            method: 'GET',
+                            url: 'http://qpat.local/app/kiosk/led-options',
+                            dataType: 'json',
+                            success: function(response) {
+                                app.services = response.services;
+                                app.counters = response.counters;
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error(errorThrown);
+                            }
+                        });
+                    },
+                    loadSetting() {
+                        axios
+                            .get('/get-settings')
+                            .then(function(response) {
+                                if (!app.isEmpty(response.data.services)) {
+                                    app.checkedServices = JSON.parse(
+                                        response.data.services
+                                    );
+                                }
+                                if (!app.isEmpty(response.data.counters)) {
+                                    app.checkedCounters = JSON.parse(
+                                        response.data.counters
+                                    );
+                                }
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                            });
+                    },
+                    onSubmit() {
+                        axios
+                            .post('/update-settings', {
+                                services: app.checkedServices,
+                                counters: app.checkedCounters
+                            })
+                            .then(function(response) {
+                                alert('บันทึกสำเร็จ');
+                            })
+                            .catch(function(error) {
+                                console.log(error);
+                                alert(error);
+                            });
+                    },
+                    isEmpty(value, trim) {
+                        return (
+                            value === null ||
+                            value === undefined ||
+                            value.length === 0 ||
+                            (trim && value.trim() === '')
+                        );
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,227 @@
+
+	.container {
+		width: auto;
+	}
+
+	@media (max-width: 768px) {
+		table.table-display thead tr th {
+			text-align: center;
+			font-size: 30px;
+		}
+
+		table.table-display tbody tr td {
+			text-align: center;
+			font-size: 40px;
+        }
+        
+        table.table-display2 thead tr th {
+			text-align: center;
+			font-size: 30px;
+		}
+
+		table.table-display2 tbody tr td {
+			text-align: center;
+			font-size: 40px;
+		}
+
+		table.table-hold tbody tr td.td-hold-right{
+			text-align: center;
+			font-size: 40px;
+		}
+
+		table.table-hold tbody tr td.td-hold-left{
+			text-align: center;
+			font-size: 40px;
+		}
+
+		#marquee {
+			font-size: 40px;
+		}
+	}
+	/* Small devices (tablets, 768px and up) */
+	@media (min-width: 768px) {
+		table.table-display thead tr th {
+			text-align: center;
+			font-size: 30px;
+		}
+
+		table.table-display tbody tr td {
+			text-align: center;
+			font-size: 40px;
+        }
+        
+        table.table-display2 thead tr th {
+			text-align: center;
+			font-size: 30px;
+		}
+
+		table.table-display2 tbody tr td {
+			text-align: center;
+			font-size: 40px;
+		}
+
+		table.table-hold tbody tr td.td-hold-right{
+			text-align: center;
+			font-size: 40px;
+		}
+
+		table.table-hold tbody tr td.td-hold-left{
+			text-align: center;
+			font-size: 40px;
+		}
+
+		#marquee {
+			font-size: 40px;
+		}
+	}
+
+	/* Medium devices (desktops, 992px and up) */
+	@media (min-width: 992px) {
+		table.table-display thead tr th {
+			text-align: center;
+			font-size: 40px;
+		}
+
+		table.table-display tbody tr td {
+			text-align: center;
+			font-size: 50px;
+        }
+        
+        table.table-display2 thead tr th {
+			text-align: center;
+			font-size: 40px;
+		}
+
+		table.table-display2 tbody tr td {
+			text-align: center;
+			font-size: 50px;
+		}
+
+		table.table-hold tbody tr td.td-hold-right{
+			text-align: center;
+			font-size: 50px;
+		}
+
+		table.table-hold tbody tr td.td-hold-left{
+			text-align: center;
+			font-size: 50px;
+		}
+
+		#marquee {
+			font-size: 50px;
+		}
+	}
+	/* Large devices (large desktops, 1200px and up) */
+	@media (min-width: 1920px) {
+		table.table-display thead tr th {
+			text-align: center;
+			font-size: 70px;
+		}
+
+		table.table-display tbody tr td {
+			text-align: center;
+			font-size: 80px;
+        }
+        
+        table.table-display2 thead tr th {
+			text-align: center;
+			font-size: 70px;
+		}
+
+		table.table-display2 tbody tr td {
+			text-align: center;
+			font-size: 80px;
+		}
+
+		table.table-hold tbody tr td.td-hold-right{
+			text-align: center;
+			font-size: 80px;
+		}
+
+		table.table-hold tbody tr td.td-hold-left{
+			text-align: center;
+			font-size: 80px;
+		}
+
+		#marquee {
+			font-size: 80px;
+		}
+	}
+	/*table thead tr {
+		width: 50%;
+	    border-radius: 15px;
+	    border: 5px solid white;
+	    background-color: black;
+	    color: white;
+	    font-weight: bold;
+	}
+	table.table-display tbody tr {
+		width: 50%;
+	    border-radius: 15px;
+	    border: 5px solid white;
+	    background-color: rgb(102, 102, 102);
+	    color: white;
+	    font-weight: bold;
+	}*/
+	/*table.table-display tbody tr td.td-left{
+	    border-top: 5px solid white !important;
+	    border-bottom: 5px solid white !important;
+	    border-left: 5px solid white !important;
+	    border-top-left-radius: 10px;
+    	border-bottom-left-radius: 10px;
+	}
+	table.table-display tbody tr td.td-right{
+	    border-top: 5px solid white !important;
+	    border-bottom: 5px solid white !important;
+	    border-right: 5px solid white !important;
+	    border-top-right-radius: 10px;
+    	border-bottom-right-radius: 10px;
+	}
+	table.table-display thead tr th.th-right{
+	    border-top: 5px solid white !important;
+	    border-bottom: 5px solid white !important;
+	    border-right: 5px solid white !important;
+	    border-top-right-radius: 10px;
+    	border-bottom-right-radius: 10px;
+	}
+	table.table-display thead tr th.th-left{
+	    border-top: 5px solid white !important;
+	    border-bottom: 5px solid white !important;
+	    border-left: 5px solid white !important;
+	    border-top-left-radius: 10px;
+    	border-bottom-left-radius: 10px;
+	}*/
+	/*table.table-hold tbody tr td.td-hold-left{
+		width: 50%;
+	    border-top: 5px solid white !important;
+	    border-bottom: 5px solid white !important;
+	    border-right: 5px solid white !important;
+	    border-left: 5px solid white !important;
+	    border-top-right-radius: 10px;
+    	border-bottom-right-radius: 10px;
+    	border-top-left-radius: 10px;
+    	border-bottom-left-radius: 10px;
+    	background-color: rgb(102, 102, 102);
+    	color: white;
+    	vertical-align: middle;
+	}*/
+	table.table-hold tbody tr td.td-hold-right{
+		width: 50%;
+	    border-top: 0px solid white !important;
+	    color: yellow;
+	    font-weight: bold;
+	    vertical-align: middle;
+	}
+	table {
+	    border-spacing: 5px;
+	    border-collapse: unset;
+	    border-spacing: 0 10px;
+	}
+
+	table.table-hold thead {
+		display: none;
+	}
+
+	text.modernBlink {
+		color: yellow;
+	}

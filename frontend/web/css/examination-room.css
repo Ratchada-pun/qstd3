@@ -1,0 +1,44 @@
+.normalheader {
+	display: none;
+}
+html.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown), body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+    overflow-y: unset !important;
+}
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+    border: 1px solid #74d348;
+    border-bottom-color: transparent;
+}
+.modal-open {
+    overflow: unset;
+}
+input[type=search]:focus {
+    background-color: #434a54;
+    color: white;
+}
+table.dataTable span.highlight {
+    background-color: #f0ad4e;
+    color: white;
+}
+.select2-dropdown {
+    z-index: 9999;
+}
+@media (max-width: 1920px) {
+    .radio-inline + .radio-inline, .checkbox-inline + .checkbox-inline {
+        margin-left: 0px;
+    }
+}
+div.dataTables_wrapper div.dataTables_filter{
+    text-align: left;
+}
+div.dataTables_wrapper div.dataTables_length{
+    float: right;
+}
+div.dt-buttons{
+    float: right;
+}
+.btn-recall,
+.btn-hold,
+.btn-end,
+.btn-calling {
+    border-radius: 25px;
+}

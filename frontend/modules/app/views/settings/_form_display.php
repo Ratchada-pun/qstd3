@@ -1,0 +1,273 @@
+<?php
+use yii\helpers\Html;
+use kartik\form\ActiveForm;
+use yii\icons\Icon;
+use kartik\widgets\Select2;
+use frontend\modules\app\models\TbService;
+use frontend\modules\app\models\TbCounterserviceType;
+use yii\helpers\ArrayHelper;
+use kartik\widgets\ColorInput;
+
+$this->registerCss('
+.modal-dialog{
+	width: 90%;
+}
+.modal-header{
+	padding: 10px;
+}
+');
+?>
+
+<?php $form = ActiveForm::begin([
+    'id' => 'form-display', 'type' => ActiveForm::TYPE_HORIZONTAL, 
+    'formConfig' => ['showLabels' => false],
+]);?>
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'display_name', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'display_name',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+	</div>
+
+	<?php /*
+
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'title_left', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'title_left',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+
+	    <?= Html::activeLabel($model, 'title_right', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'title_right',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+	</div>
+
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'table_title_left', ['label' => 'Header Left','class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'table_title_left',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+
+	    <?= Html::activeLabel($model, 'table_title_right', ['label' => 'Header Right','class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'table_title_right',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+	</div>
+
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'display_limit', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'display_limit',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+
+	    <?= Html::activeLabel($model, 'hold_label', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'hold_label',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+	</div>
+
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'header_color', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'header_color')->widget(ColorInput::classname(), [
+			    'options' => ['placeholder' => 'Select color ...'],
+			]) ?>
+	    </div>
+
+	    <?= Html::activeLabel($model, 'column_color', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'column_color')->widget(ColorInput::classname(), [
+			    'options' => ['placeholder' => 'Select color ...'],
+			]) ?>
+	    </div>
+	</div>
+
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'background_color', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'background_color')->widget(ColorInput::classname(), [
+			    'options' => ['placeholder' => 'Select color ...'],
+			]) ?>
+	    </div>
+
+	    <?= Html::activeLabel($model, 'font_color', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'font_color')->widget(ColorInput::classname(), [
+			    'options' => ['placeholder' => 'Select color ...'],
+			]) ?>
+	    </div>
+	</div>
+
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'border_color', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'border_color')->widget(ColorInput::classname(), [
+			    'options' => ['placeholder' => 'Select color ...'],
+			]) ?>
+	    </div>
+
+	    <?= Html::activeLabel($model, 'title_color', ['class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-4">
+	        <?= $form->field($model, 'title_color')->widget(ColorInput::classname(), [
+			    'options' => ['placeholder' => 'Select color ...'],
+			]) ?>
+	    </div>
+	</div>
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'text_marquee', ['label' => 'ข้อความวิ่ง','class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-10">
+            <?= $form->field($model, 'text_marquee',['showLabels'=>false])->textInput() ?>
+        </div>
+	</div>
+	*/?>
+	<?php
+	$model->lab_display = $model->isNewRecord ? 0 : $model['lab_display'];
+	?>
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'lab_display', ['class'=>'col-sm-2 control-label']) ?>
+        <div class="col-sm-4">
+			<?= $form->field($model, 'lab_display',['showLabels'=>false])->RadioList(
+				[0 => 'No', 1 => 'Yes'],[
+            	'inline'=>true,
+				'item' => function($index, $label, $name, $checked, $value) {
+
+					$return = '<div class="radio"><label style="font-size: 1em">';
+					$return .= Html::radio( $name, $checked,['value' => $value]);
+					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+					$return .= '</label></div>';
+
+					return $return;
+				}
+            ]); ?>
+        </div>
+	</div>
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'display_limit', ['label' => 'จำนวนแถวที่แสดง','class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-2">
+	        <?= $form->field($model, 'display_limit',['showLabels'=>false])->textInput([]); ?>
+	    </div>
+	</div>
+
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'counterservice_id', ['label' => 'Counter','class'=>'col-sm-2 control-label']) ?>
+        <div class="col-sm-4">
+			<?= $form->field($model, 'counterservice_id',['showLabels'=>false])->checkBoxList(
+				ArrayHelper::map(TbCounterserviceType::find()->asArray()->all(),'counterservice_typeid','counterservice_type'),[
+            	'inline'=>false,
+				'item' => function($index, $label, $name, $checked, $value) {
+
+					$return = '<div class="checkbox"><label style="font-size: 1em">';
+					$return .= Html::checkbox( $name, $checked,['value' => $value]);
+					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+					$return .= '</label></div>';
+
+					return $return;
+				}
+            ]); ?>
+        </div>
+	</div>
+	<div class="form-group">
+	    <?= Html::activeLabel($model, 'service_id', ['label' => 'กลุ่มบริการ','class'=>'col-sm-2 control-label']) ?>
+	    <div class="col-sm-10">
+            <?= $form->field($model, 'service_id',['showLabels'=>false])->checkBoxList(
+				ArrayHelper::map((new \yii\db\Query())
+				->select(['tb_service.serviceid', 'CONCAT(tb_service.service_prefix,\': \', tb_service.service_name)  as service_name'])
+				->from('tb_service')
+				->where(['service_status' => 1])
+				->all(),'serviceid','service_name')
+				,[
+				'inline'=>false,
+				'item' => function($index, $label, $name, $checked, $value) {
+
+					$return = '<div class="checkbox"><label style="font-size: 1em">';
+					$return .= Html::checkbox( $name, $checked,['value' => $value]);
+					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+					$return .= '</label></div>';
+
+					return $return;
+				}
+            ]); ?>
+        </div>
+	</div>
+
+	<div class="form-group">
+        <?= Html::activeLabel($model, 'display_status', ['label' => 'สถานะ','class'=>'col-sm-2 control-label']) ?>
+        <div class="col-sm-4">
+
+			<?= $form->field($model, 'display_status',['showLabels'=>false])->RadioList(
+				[0 => 'Disabled', 1 => 'Enabled'],
+				[
+            	'inline'=>true,
+				'item' => function($index, $label, $name, $checked, $value) {
+
+					$return = '<div class="radio"><label style="font-size: 1em">';
+					$return .= Html::radio( $name, $checked,['value' => $value]);
+					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+					$return .= '</label></div>';
+
+					return $return;
+				}
+            ]); ?>
+        </div>
+    </div>
+
+	<div class="form-group">
+        <div class="col-sm-12" style="text-align: right;">
+            <?= Html::button(Icon::show('close').'CLOSE',['class' => 'btn btn-default','data-dismiss' => 'modal']); ?>
+            <?= Html::submitButton(Icon::show('save').'SAVE',['class' => 'btn btn-primary']); ?>
+        </div>
+    </div>
+<?php ActiveForm::end(); ?>
+
+<?php
+$this->registerJs(<<<JS
+var table = $('#tb-display').DataTable();
+var \$form = $('#form-display');
+\$form.on('beforeSubmit', function() {
+    var data = new FormData($(\$form)[0]);//\$form.serialize();
+    var \$btn = $('button[type="submit"]').button('loading');//loading btn
+    \$.ajax({
+        url: \$form.attr('action'),
+        type: 'POST',
+        data: data,
+        async: false,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+            if(data.status == '200'){
+                $('#ajaxCrudModal').modal('hide');//hide modal
+                table.ajax.reload();//reload table
+                swal({//alert completed!
+                    type: 'success',
+                    title: 'บันทึกสำเร็จ!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                setTimeout(function(){ 
+                    \$btn.button('reset');
+                }, 1000);//clear button loading
+            }else if(data.validate != null){
+                $.each(data.validate, function(key, val) {
+                    $(\$form).yiiActiveForm('updateAttribute', key, [val]);
+                });
+                \$btn.button('reset');
+            }
+        },
+        error: function(jqXHR, errMsg) {
+            swal('Oops...',errMsg,'error');
+            \$btn.button('reset');
+        }
+    });
+    return false; // prevent default submit
+});
+
+// Initialize iCheck plugin
+/* $('.i-checks').iCheck({
+    checkboxClass: 'icheckbox_square-green',
+    radioClass: 'iradio_square-green'
+}); */
+
+JS
+);
+?>

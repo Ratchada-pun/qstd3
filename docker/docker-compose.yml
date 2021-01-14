@@ -1,0 +1,104 @@
+version: '3'
+services:
+
+  db:
+    image: mariadb
+    container_name: lemp_mariadb
+    command: "mysqld --innodb-buffer-pool-size=20M"
+    restart: always
+    env_file:
+      - ".env"
+    volumes:
+      - ./docker/mysql/initdb/:/docker-entrypoint-initdb.d
+      - ./docker/mysql/data/:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_db
+      - MYSQL_DATABASE=db_banbung
+      - MYSQL_USER=banbung
+      - MYSQL_PASSWORD=123456
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+
+  php:
+    build: ./docker/php
+    container_name: lemp_php-fpm
+    restart: always
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/php-fpm.conf:/usr/local/etc/php-fpm.conf
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+      - ./docker/logs/php-fpm:/var/log/php-fpm
+      #- /etc/localtime:/etc/localtime:ro
+    expose:
+      - "9000"
+    depends_on:
+      - redis
+    networks:
+      - backend
+    
+  nginx:
+    image: nginx:stable-alpine
+    container_name: lemp_nginx
+    restart: always
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/logs/nginx:/var/log/nginx
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - php
+    ports:
+      - 80:80
+    networks:
+      - backend
+      - frontend
+
+  memcached:
+    image: memcached:latest
+    container_name: lemp_memcached
+    ports:
+      - "11211:11211"
+    restart: always
+
+  redis:
+    image: redis
+    container_name: lemp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/data/redis:/data
+    restart: always
+    networks:
+      - backend
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: lemp_phpmyadmin
+    restart: always
+    ports:
+      - "8000:80"
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  node:
+    build: ./docker/node
+    container_name: lemp_node
+    restart: always
+    ports:
+      - "3000:3000"
+    links:
+      - db
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge

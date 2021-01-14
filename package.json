@@ -1,0 +1,28 @@
+{
+  "name": "q-banbung",
+  "version": "1.0.0",
+  "description": "q system banbung hospital",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://M_ComScience@bitbucket.org/M_ComScience/q-banbung.git"
+  },
+  "keywords": [
+    "q-banbung",
+    "yii2-framwork\u001b[D\u001b[D\u001b[D\u001b[De\u001b[C\u001b[C\u001b[C\u001b[C\u001b[D"
+  ],
+  "author": "MComScience",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/M_ComScience/q-banbung#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "bootstrap": "^3.3.7",
+    "express": "^4.16.2",
+    "multiparty": "^4.1.4",
+    "querystring": "^0.2.0",
+    "socket.io": "^2.0.4"
+  }
+}
