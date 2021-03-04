@@ -14,7 +14,7 @@ return [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log','dektrium\user\Bootstrap'],
     'controllerNamespace' => 'frontend\controllers',
-    'name' => 'ระบบคิว รพ. บ้านบึง',
+    'name' => 'ระบบคิว รพ. ชัยนาทนเรนทร',
     'defaultRoute' => '/app/display/display-list',
     'controllerMap' => [
         'file-manager-elfinder' => [

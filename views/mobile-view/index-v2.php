@@ -58,7 +58,7 @@ $this->registerJs('var baseUrl = '.Json::encode(Url::base(true)).'; ',View::POS_
                 <div class="panel-body">
                     <div class="text-center">
                         <?= Html::img(Yii::getAlias('@web').'/img/logo/logo.jpg',['width' => '100px','class' => 'img-responsive center-block']); ?>
-                        <h4 style="line-height: 0;">โรงพยาบาลบ้านบึง</h4>
+                        <h4 style="line-height: 0;">โรงพยาบาลชัยนาทนเรนทร</h4>
                         <h3>แผนกอายุรกรรม</h3>
                     </div>
                     <div class="text-left" style="margin-left: 20px;">

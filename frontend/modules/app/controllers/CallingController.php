@@ -31,6 +31,9 @@ use frontend\modules\app\models\TbCounterservice;
 use frontend\modules\app\models\TbQuequ;
 use frontend\modules\app\models\LabItems;
 use frontend\modules\app\models\TbQtrans;
+use frontend\modules\app\models\QueuesInterface;
+use frontend\modules\app\models\QueuesInterfaceSearch;
+use kartik\form\ActiveForm;
 
 class CallingController extends \yii\web\Controller
 {
@@ -43,7 +46,7 @@ class CallingController extends \yii\web\Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'only' => ['play-sound', 'autoload-media', 'update-status'],
                 'rules' => [
                     [
@@ -73,6 +76,102 @@ class CallingController extends \yii\web\Controller
             'modelForm' => $modelForm,
             'modelProfile' => $modelProfile,
         ]);
+    }
+    public function actionFindStatus()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $query = (new \yii\db\Query())
+            ->select(['count(tb_quequ.q_num) as qnumber'])
+            ->from('tb_quequ')
+            ->where(['tb_quequ.q_status_id' => 1])
+            ->all(\Yii::$app->db);
+        return $this->asJson($query);
+    }
+
+    public function actionFindIdsRecall()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $q_num = $_POST['q_num'];
+        $query = (new \yii\db\Query())
+            ->select(['tb_quequ.q_ids', 'tb_qtrans.ids', 'tb_caller.caller_ids', 'tb_quequ.q_num as qnumber', 'tb_quequ.pt_name', 'tb_quequ.counterserviceid as counter_service_id', 'tb_quequ.serviceid'])
+            ->from('tb_quequ')
+            ->leftJoin('tb_caller', 'tb_quequ.q_ids = tb_caller.q_ids')
+            ->leftJoin('tb_qtrans', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+            ->where(['tb_quequ.q_status_id' => 2, 'tb_quequ.q_num' => $q_num])
+            ->limit(1)
+            ->all(\Yii::$app->db);
+        // $tbqueue = TbQuequ::find()->where(['counterserviceid' => null])->orderBy(['q_ids' => SORT_ASC])->one();
+        return $this->asJson($query);
+    }
+
+    public function actionFindIds()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $counterid = $_POST['counterid'];
+        $query = (new \yii\db\Query())
+            ->select(['tb_quequ.q_ids', 'tb_qtrans.ids', 'tb_caller.caller_ids', 'tb_quequ.q_num as qnumber', 'tb_quequ.pt_name', 'tb_quequ.counterserviceid as counter_service_id', 'tb_quequ.serviceid'])
+            ->from('tb_quequ')
+            ->leftJoin('tb_caller', 'tb_quequ.q_ids = tb_caller.q_ids')
+            ->leftJoin('tb_qtrans', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+            ->where(['tb_quequ.q_status_id' => 1, 'tb_quequ.counterserviceid' => $counterid])
+            ->orderBy(['pt_visit_type_id' => SORT_DESC])
+            ->limit(1)
+            ->all(\Yii::$app->db);
+        // $tbqueue = TbQuequ::find()->where(['counterserviceid' => null])->orderBy(['q_ids' => SORT_ASC])->one();
+        return $this->asJson($query);
+    }
+
+    public function actionFindCounterId()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $q_num = $_POST['q_num'];
+        $query = (new \yii\db\Query())
+            ->select(['tb_quequ.counterserviceid'])
+            ->from('tb_quequ')
+            ->leftJoin('tb_caller', 'tb_quequ.q_ids = tb_caller.q_ids')
+            ->leftJoin('tb_qtrans', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+            ->where(['tb_quequ.q_num' => $q_num])
+            ->limit(1)
+            ->all(\Yii::$app->db);
+        // $tbqueue = TbQuequ::find()->where(['counterserviceid' => null])->orderBy(['q_ids' => SORT_ASC])->one();
+        return $this->asJson($query);
+    }
+
+    public function actionFindCounter()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $counterid = $_POST['counterid'];
+        $query = (new \yii\db\Query())
+            ->select(['tb_counterservice.counterserviceid', 'tb_counterservice.counterservice_name', 'tb_counterservice.counterservice_callnumber'])
+            ->from('tb_counterservice')
+            ->where(['tb_counterservice.counterserviceid' => $counterid])
+            ->all(\Yii::$app->db);
+        // $tbqueue = TbQuequ::find()->where(['counterserviceid' => null])->orderBy(['q_ids' => SORT_ASC])->one();
+        return $this->asJson($query);
+    }
+
+    public function actionDataModelProfile()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $profileid = $_POST['profileid'];
+
+        $modelProfile = new TbServiceProfile();
+        if ($profileid != null) {
+            $modelProfile = $this->findModelServiceProfile($profileid);
+        }
+        return $this->asJson($modelProfile);
+    }
+
+    public function actionDataModelForm()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $profileid = $_POST['profileid'];
+        $counterid = $_POST['counterid'];
+
+        $modelForm = new CallingForm();
+        $modelForm->service_profile = $profileid;
+        $modelForm->counter_service = $counterid;
+        return $this->asJson($modelForm);
     }
 
     public function actionMedical($profileid = null, $counterid = null)
@@ -174,6 +273,7 @@ class CallingController extends \yii\web\Controller
                     'tb_qtrans.service_status_id',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_queue.q_vn',
                     'tb_quequ.pt_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service_status.service_status_name',
@@ -181,17 +281,18 @@ class CallingController extends \yii\web\Controller
                     'tb_service.serviceid',
                     'tb_service.service_prefix',
                     'tb_quequ.quickly'
+
                 ])
                 ->from('tb_qtrans')
+                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
+                ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
                 ->where([
                     'tb_quequ.serviceid' => $services,
                     'tb_quequ.q_status_id' => 1,
                     'tb_qtrans.service_status_id' => 1
                 ])
-                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-                ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
-                ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'checkin_date' => SORT_ASC]);
 
             $dataProvider = new ActiveDataProvider([
@@ -202,7 +303,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -219,9 +320,9 @@ class CallingController extends \yii\web\Controller
                         },
                         'format' => 'raw'
                     ],
-                    [
-                        'attribute' => 'q_hn',
-                    ],
+                    // [
+                    //     'attribute' => 'q_hn',
+                    // ],
                     [
                         'attribute' => 'pt_name',
                     ],
@@ -255,20 +356,20 @@ class CallingController extends \yii\web\Controller
                             return $model['q_num'];
                         },
                     ],
-                    [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
-                            } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     [
                         'attribute' => 'quickly',
                     ],
@@ -285,14 +386,14 @@ class CallingController extends \yii\web\Controller
                         'format' => 'raw',
                     ],
                     [
-                        'class' => ActionTable::className(),
+                        'class' => ActionTable::class,
                         'template' => '{call} {end}',
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
-                                return Html::a('CALL', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/call-screening-room']);
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/call-screening-room']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('END', $url, ['class' => 'btn btn btn-danger btn-end', 'data-url' => '/app/calling/end-wait-screening-room']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn btn-danger btn-end', 'data-url' => '/app/calling/end-wait-screening-room']);
                             },
                         ],
                     ]
@@ -357,7 +458,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'caller_ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -414,35 +515,35 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'service_prefix',
                     ],
-                    [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
-                            } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     [
                         'attribute' => 'quickly',
                     ],
                     [
-                        'class' => ActionTable::className(),
+                        'class' => ActionTable::class,
                         'template' => '{recall} {hold} {end}',
                         'buttons' => [
                             'recall' => function ($url, $model, $key) {
-                                return Html::a('RECALL', $url, ['class' => 'btn btn-success btn-recall', 'title' => 'RECALL', 'data-url' => '/app/calling/recall-screening-room']);
+                                return Html::a('เรียกซ้ำ', $url, ['class' => 'btn btn-success btn-recall', 'title' => 'RECALL', 'data-url' => '/app/calling/recall-screening-room']);
                             },
                             'hold' => function ($url, $model, $key) {
-                                return Html::a('HOLD', $url, ['class' => 'btn btn-warning btn-hold', 'title' => 'HOLD', 'data-url' => '/app/calling/hold-screening-room']);
+                                return Html::a('พักคิว', $url, ['class' => 'btn btn-warning btn-hold', 'title' => 'HOLD', 'data-url' => '/app/calling/hold-screening-room']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('END', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
                         ],
                     ]
@@ -507,7 +608,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'caller_ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -564,32 +665,32 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'quickly',
                     ],
-                    [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
-                            } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     [
                         'attribute' => 'service_prefix',
                     ],
                     [
-                        'class' => ActionTable::className(),
+                        'class' => ActionTable::class,
                         'template' => '{call} {end}',
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
-                                return Html::a('CALL', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/callhold-screening-room']);
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/callhold-screening-room']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('END', $url, ['class' => 'btn btn-danger btn-end', 'data-url' => '/app/calling/endhold-screening-room']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'data-url' => '/app/calling/endhold-screening-room']);
                             },
                         ],
                     ]
@@ -617,28 +718,32 @@ class CallingController extends \yii\web\Controller
                     'tb_qtrans.ids',
                     'tb_qtrans.q_ids',
                     'tb_qtrans.counter_service_id',
-                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                    'DATE_FORMAT(SEC_TO_TIME(tb_quequ.q_appoint_time),\'%H:%i\') as checkin_date',
                     'tb_qtrans.service_status_id',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_vn as VN',
+                    'tb_quequ.pt_visit_type_id',
                     'tb_quequ.pt_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service_status.service_status_name',
                     'tb_service.service_name',
                     'tb_service.serviceid',
-                    'tb_service.service_prefix'
+                    'tb_service.service_prefix',
+                    'SEC_TO_TIME(tb_quequ.q_appoint_time) as appoint_time'
                 ])
                 ->from('tb_qtrans')
+                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
+                ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
                 ->where([
                     'tb_quequ.serviceid' => $services,
                     'tb_qtrans.counter_service_id' => $formData['counter_service'],
                     'tb_qtrans.service_status_id' => 4
                 ])
-                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-                ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
-                ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-                ->orderBy('checkin_date ASC');
+                ->andWhere('DATE(tb_quequ.created_at) = DATE(NOW())')
+                ->orderBy('tb_counterservice.counterserviceid,checkin_date  ASC');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -648,7 +753,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -661,12 +766,15 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'q_num',
                         'value' => function ($model, $key, $index, $column) {
-                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'font-size: 16px;']);
+                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'font-size: 16px;background-color:green;color:#ffffff;']);
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'VN',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -699,28 +807,76 @@ class CallingController extends \yii\web\Controller
                         'attribute' => 'service_prefix',
                     ],
                     [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                        'attribute' => 'lab',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['lab'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['lab'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
                             } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                                return $lab['lab'];
                             }
                         },
                         'format' => 'raw'
                     ],
                     [
-                        'class' => ActionTable::className(),
+                        'attribute' => 'xray',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['xray'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['xray'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else {
+                                return $lab['xray'];
+                            }
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'SP',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['SP'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['SP'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else {
+                                return $lab['SP'];
+                            }
+                        },
+                        'format' => 'raw'
+                    ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    [
+                        'attribute' => 'pt_visit_type_id',
+                        'value' => function ($model) {
+                            return $model['pt_visit_type_id'] === '2' ? 'นัด' : 'มาเอง';
+                        }
+                    ],
+                    [
+                        'class' => ActionTable::class,
                         'template' => '{call} {end}',
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
-                                return Html::a('CALL', $url, ['class' => 'btn btn-success btn-calling']);
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('ส่งไปรับยา', $url, ['class' => 'btn btn-danger btn-end']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end']);
                             },
                         ],
                     ]
@@ -744,24 +900,24 @@ class CallingController extends \yii\web\Controller
             $profileData = $request->post('modelProfile', []);
             $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
             $labItems = $this->findLabs();
-
             $query = (new \yii\db\Query())
                 ->select([
                     'tb_caller.caller_ids',
                     'tb_caller.q_ids',
                     'tb_caller.qtran_ids',
-                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                    'DATE_FORMAT(SEC_TO_TIME(tb_quequ.q_appoint_time),\'%H:%i\') as checkin_date',
                     'tb_caller.servicegroupid',
                     'tb_caller.counter_service_id',
                     'tb_caller.call_timestp',
                     'tb_quequ.q_num',
+                    'tb_quequ.q_vn as VN',
                     'tb_quequ.q_hn',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service.service_name',
                     'tb_service.serviceid',
-                    'tb_service.service_prefix'
+                    'tb_service.service_prefix',
                 ])
                 ->from('tb_caller')
                 ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
@@ -775,7 +931,8 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.call_status' => ['calling', 'callend']
                 ])
                 ->andWhere(['not', ['tb_qtrans.counter_service_id' => null]])
-                ->orderBy('tb_caller.call_timestp ASC');
+                ->andWhere('DATE(tb_quequ.created_at) = DATE(NOW())')
+                ->orderBy('tb_quequ.q_appoint_time ASC');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -785,7 +942,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'caller_ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -798,12 +955,15 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'q_num',
                         'value' => function ($model, $key, $index, $column) {
-                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'font-size: 16px;']);
+                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'background-color:#00BFFF;font-size: 16px;']);
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'VN',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -840,34 +1000,76 @@ class CallingController extends \yii\web\Controller
                         'attribute' => 'service_prefix',
                     ],
                     [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                        'attribute' => 'lab',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['lab'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['lab'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
                             } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                                return $lab['lab'];
                             }
                         },
                         'format' => 'raw'
                     ],
                     [
-                        'class' => ActionTable::className(),
+                        'attribute' => 'xray',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['xray'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['xray'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else {
+                                return $lab['xray'];
+                            }
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'SP',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['SP'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['SP'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else {
+                                return $lab['SP'];
+                            }
+                        },
+                        'format' => 'raw'
+                    ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    [
+                        'class' => ActionTable::class,
                         'template' => '{recall} {hold} {end} {transfer}',
                         'buttons' => [
                             'recall' => function ($url, $model, $key) {
-                                return Html::a('RECALL', $url, ['class' => 'btn btn-success btn-recall']);
+                                return Html::a('เรียกซ้ำ', $url, ['class' => 'btn btn-success btn-recall']);
                             },
                             'hold' => function ($url, $model, $key) {
-                                return Html::a('HOLD', $url, ['class' => 'btn btn-warning btn-hold']);
+                                return Html::a('พักคิว', $url, ['class' => 'btn btn-warning btn-hold']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('END', $url, ['class' => 'btn btn-danger btn-end']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end']);
                             },
                             'transfer' => function ($url, $model, $key) {
-                                return Html::a('Transfer', $url, ['class' => 'btn btn-primary btn-transfer']);
+                                return Html::a('ส่งต่อ', $url, ['class' => 'btn btn-primary btn-transfer']);
                             },
                         ],
                     ]
@@ -897,12 +1099,14 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.caller_ids',
                     'tb_caller.q_ids',
                     'tb_caller.qtran_ids',
-                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                    // 'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                    'DATE_FORMAT(SEC_TO_TIME(tb_quequ.q_appoint_time),\'%H:%i\') as checkin_date',
                     'tb_caller.servicegroupid',
                     'tb_caller.counter_service_id',
                     'tb_caller.call_timestp',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_vn as VN',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
@@ -921,7 +1125,8 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.counter_service_id' => $formData['counter_service'],
                     'tb_caller.call_status' => 'hold'
                 ])
-                ->orderBy('tb_caller.call_timestp ASC');
+                ->andWhere('DATE(tb_quequ.created_at) = DATE(NOW())')
+                ->orderBy('tb_quequ.q_appoint_time ASC');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -931,7 +1136,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'caller_ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -944,12 +1149,15 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'q_num',
                         'value' => function ($model, $key, $index, $column) {
-                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'font-size: 16px;']);
+                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'background-color:#FF4500;font-size: 16px;']);
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'VN',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -986,28 +1194,70 @@ class CallingController extends \yii\web\Controller
                         'attribute' => 'service_prefix',
                     ],
                     [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                        'attribute' => 'lab',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['lab'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['lab'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
                             } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                                return $lab['lab'];
                             }
                         },
                         'format' => 'raw'
                     ],
                     [
-                        'class' => ActionTable::className(),
+                        'attribute' => 'xray',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['xray'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['xray'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else {
+                                return $lab['xray'];
+                            }
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'SP',
+                        'value' => function ($model) {
+                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                            if ($lab['SP'] === 'ผลออกครบ') {
+                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else if ($lab['SP'] === 'รอผล') {
+                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                            } else {
+                                return $lab['SP'];
+                            }
+                        },
+                        'format' => 'raw'
+                    ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    [
+                        'class' => ActionTable::class,
                         'template' => '{call} {end} {transfer}',
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
-                                return Html::a('CALL', $url, ['class' => 'btn btn-success btn-calling']);
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('END', $url, ['class' => 'btn btn-danger btn-end']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end']);
                             },
                             'transfer' => function ($url, $model, $key) {
                                 return Html::a('Transfer', $url, ['class' => 'btn btn-primary btn-transfer']);
@@ -1072,7 +1322,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -1125,26 +1375,26 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'service_prefix',
                     ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
-                            } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'class' => ActionTable::className(),
+                        'class' => ActionTable::class,
                         'template' => '{call} {transfer}',
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
-                                return Html::a('CALL', $url, ['class' => 'btn btn-success btn-calling']);
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling']);
                             },
                             'transfer' => function ($url, $model, $key) {
                                 return Html::a('ส่งกลับห้องตรวจ', $url, ['class' => 'btn btn-primary btn-transfer']);
@@ -1212,7 +1462,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'caller_ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -1266,32 +1516,33 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'service_prefix',
                     ],
+
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
-                            } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'class' => ActionTable::className(),
+                        'class' => ActionTable::class,
                         'template' => '{recall} {hold} {end}',
                         'buttons' => [
                             'recall' => function ($url, $model, $key) {
-                                return Html::a('RECALL', $url, ['class' => 'btn btn-success btn-recall']);
+                                return Html::a('เรียกซ้ำ', $url, ['class' => 'btn btn-success btn-recall']);
                             },
                             'hold' => function ($url, $model, $key) {
-                                return Html::a('HOLD', $url, ['class' => 'btn btn-warning btn-hold']);
+                                return Html::a('พักคิว', $url, ['class' => 'btn btn-warning btn-hold']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('END', $url, ['class' => 'btn btn-danger btn-end']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end']);
                             },
                         ],
                     ]
@@ -1355,7 +1606,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'caller_ids'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -1409,29 +1660,29 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'service_prefix',
                     ],
+                    // [
+                    //     'attribute' => 'lab_confirm',
+                    //     'value' => function ($model, $key, $index, $column) use ($labItems) {
+                    //         $confirm = $this->checkLab($model['q_hn'], $labItems);
+                    //         if ($confirm == 'N') {
+                    //             return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
+                    //         } elseif ($confirm == 'Y') {
+                    //             return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
+                    //         } else {
+                    //             return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     [
-                        'attribute' => 'lab_confirm',
-                        'value' => function ($model, $key, $index, $column) use ($labItems) {
-                            $confirm = $this->checkLab($model['q_hn'], $labItems);
-                            if ($confirm == 'N') {
-                                return Html::tag('span', 'ยังไม่เสร็จ', ['class' => 'text-warning']);
-                            } elseif ($confirm == 'Y') {
-                                return Html::tag('span', 'เสร็จแล้ว', ['class' => 'text-success']);
-                            } else {
-                                return Html::tag('span', 'ไม่มี Lab', ['class' => 'text-danger']);
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'class' => ActionTable::className(),
+                        'class' => ActionTable::class,
                         'template' => '{call} {end}',
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
-                                return Html::a('CALL', $url, ['class' => 'btn btn-success btn-calling']);
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling']);
                             },
                             'end' => function ($url, $model, $key) {
-                                return Html::a('END', $url, ['class' => 'btn btn-danger btn-end']);
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end']);
                             },
                         ],
                     ]
@@ -1828,7 +2079,7 @@ class CallingController extends \yii\web\Controller
         //$counterSound = $counterType->tbSound;
         $servicesound = $counter->soundService;
         $basePath = "/media/" . $modelSound['sound_path_name'];
-        $begin = [$basePath . "/please.wav"];//เชิญหมายเลข
+        $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข
         $end = [
             "/media/" . $servicesound['sound_path_name'] . '/' . $servicesound['sound_name'],
             $basePath . '/' . $modelSound['sound_name'],
@@ -1878,7 +2129,7 @@ class CallingController extends \yii\web\Controller
         if ($request->isAjax) {
             \Yii::$app->response->format = Response::FORMAT_JSON;
             $data = $request->post('CallingForm', []);
-            if($page == 'medicine-room') {
+            if ($page == 'medicine-room') {
                 $key = self::KEY_MEDICINE_SESSION . $data['service_profile'];
             } else {
                 $key = self::KEY_COUNTER_SESSION . $data['service_profile'];
@@ -1907,6 +2158,7 @@ class CallingController extends \yii\web\Controller
                 $modelQ = $this->findModelQuequ($data['q_ids']);
 
                 $model = new TbCaller();
+                $modelQ->q_status_id = 2;
                 $model->q_ids = $data['q_ids'];
                 $model->qtran_ids = $data['ids'];
                 //$model->servicegroupid = $modelProfile['service_groupid'];
@@ -1919,7 +2171,7 @@ class CallingController extends \yii\web\Controller
                 //$modelTrans->servicegroupid = $modelProfile['service_groupid'];
                 $modelTrans->service_status_id = 2;
 
-                if ($model->save() && $modelTrans->save()) {
+                if ($model->save() && $modelTrans->save() && $modelQ->save()) {
                     $transaction->commit();
                     return [
                         'status' => '200',
@@ -2234,12 +2486,14 @@ class CallingController extends \yii\web\Controller
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
             $modelQ = $this->findModelQuequ($data['q_ids']);
-
             $model = $this->findModelCaller($data['caller_ids']);
             $model->counter_service_id = $request->post('value');
+            $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            $modelQtran->counter_service_id = $request->post('value');
+            $modelQtran->service_status_id = 4;
             // $model->call_timestp = new Expression('NOW()');
-            $model->call_status = TbCaller::STATUS_CALLEND;
-            if ($model->save()) {
+            $model->call_status = TbCaller::STATUS_FINISHED;
+            if ($model->save() && $modelQtran->update()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2281,7 +2535,7 @@ class CallingController extends \yii\web\Controller
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $modelQtran->service_status_id = 4;
             $model->call_status = TbCaller::STATUS_CALLEND;
-            if ($model->save() && $modelQtran->save())  {
+            if ($model->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2678,7 +2932,7 @@ class CallingController extends \yii\web\Controller
                 'key' => 'hn'
             ]);
             $columns = Yii::createObject([
-                'class' => ColumnData::className(),
+                'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
                 'columns' => [
@@ -2717,7 +2971,7 @@ class CallingController extends \yii\web\Controller
                         'attribute' => 'lname',
                     ],
                     [
-                        'class' => ActionTable::className(),
+                        'class' => ActionTable::class,
                         'template' => '{action}',
                         'buttons' => [
                             'action' => function ($url, $model, $key) use ($queue, $items) {
@@ -2833,24 +3087,24 @@ class CallingController extends \yii\web\Controller
             if (!$modelQTran) {
                 throw new NotFoundHttpException('The requested page does not exist.');
             }
-            if ($modelQTran['service_status_id'] == 1) {//รอเรียก
-                if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+            if ($modelQTran['service_status_id'] == 1) { //รอเรียก
+                if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
                     return [
                         'success' => true,
                         'message' => 'รอเรียกคิว (จุดลงทะเบียน)'
                     ];
-                } else {//ซักประวัติ
+                } else { //ซักประวัติ
                     return [
                         'success' => true,
                         'message' => 'รอเรียกคิว (ซักประวัติ)'
                     ];
                 }
-            } elseif ($modelQTran['service_status_id'] == 2) {//เรียกคิว
+            } elseif ($modelQTran['service_status_id'] == 2) { //เรียกคิว
                 $modelCaller = TbCaller::findOne(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']]);
                 if (!$modelCaller) {
                     throw new NotFoundHttpException('The requested page does not exist.');
                 }
-                if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+                if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
                     if ($modelCaller['call_status'] == 'calling' || $modelCaller['call_status'] == 'callend') {
                         return [
                             'success' => true,
@@ -2858,7 +3112,7 @@ class CallingController extends \yii\web\Controller
                         ];
                     }
                 }
-                if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) {//
+                if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) { //
                     if ($modelCaller['call_status'] == 'calling' || $modelCaller['call_status'] == 'callend') {
                         return [
                             'success' => true,
@@ -2866,7 +3120,7 @@ class CallingController extends \yii\web\Controller
                         ];
                     }
                 }
-                if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) {//
+                if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) { //
                     $modelCaller = TbCaller::find()->where(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']])->orderBy('caller_ids DESC')->one();
                     if (!$modelCaller) {
                         throw new NotFoundHttpException('The requested page does not exist.');
@@ -2878,12 +3132,12 @@ class CallingController extends \yii\web\Controller
                         ];
                     }
                 }
-            } elseif ($modelQTran['service_status_id'] == 3) {//พักคิว
+            } elseif ($modelQTran['service_status_id'] == 3) { //พักคิว
                 $modelCaller = TbCaller::findOne(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']]);
                 if (!$modelCaller) {
                     throw new NotFoundHttpException('The requested page does not exist.');
                 }
-                if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+                if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
                     if ($modelCaller['call_status'] == 'hold') {
                         return [
                             'success' => true,
@@ -2891,7 +3145,7 @@ class CallingController extends \yii\web\Controller
                         ];
                     }
                 }
-                if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) {//
+                if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) { //
                     if ($modelCaller['call_status'] == 'hold') {
                         return [
                             'success' => true,
@@ -2899,7 +3153,7 @@ class CallingController extends \yii\web\Controller
                         ];
                     }
                 }
-                if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) {//
+                if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) { //
                     $modelCaller = TbCaller::find()->where(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']])->orderBy('caller_ids DESC')->one();
                     if (!$modelCaller) {
                         throw new NotFoundHttpException('The requested page does not exist.');
@@ -2911,27 +3165,27 @@ class CallingController extends \yii\web\Controller
                         ];
                     }
                 }
-            } elseif ($modelQTran['service_status_id'] == 4) {//
-                if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+            } elseif ($modelQTran['service_status_id'] == 4) { //
+                if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
                     return [
                         'success' => true,
                         'message' => 'เสร็จสิ้น (จุดลงทะเบียน)'
                     ];
                 }
-                if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) {//
+                if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) { //
                     return [
                         'success' => true,
                         'message' => 'เสร็จสิ้น (ซักประวัติ)'
                     ];
                 }
-                if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) {//
+                if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) { //
                     return [
                         'success' => true,
                         'message' => 'รอเรียก (ห้องตรวจ)'
                     ];
                 }
             } elseif ($modelQTran['service_status_id'] == 10) {
-                if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+                if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
                     return [
                         'success' => true,
                         'message' => 'เสร็จสิ้น (จุดลงทะเบียน)'
@@ -2954,7 +3208,7 @@ class CallingController extends \yii\web\Controller
             \Yii::$app->response->format = Response::FORMAT_JSON;
             $db = Yii::$app->db;
             $selectedData = $request->post('selectedData');
-            $autoend = $request->post('autoend');// 0 = auto
+            $autoend = $request->post('autoend'); // 0 = auto
             $call_result = [];
             $end_result = [];
             foreach ($selectedData as $data) {
@@ -2976,7 +3230,7 @@ class CallingController extends \yii\web\Controller
                     $modelTrans = $this->findModelQTrans($data['ids']);
                     if ($autoend == 1) {
                         $modelTrans->service_status_id = 2;
-                    } else {//auto end
+                    } else { //auto end
                         $modelTrans->service_status_id = 4;
                         $modelTrans->counter_service_id = $counter['counterserviceid'];
                         $modelCaller->call_status = TbCaller::STATUS_FINISHED;
@@ -3081,7 +3335,7 @@ class CallingController extends \yii\web\Controller
             'key' => 'caller_ids',
         ]);
         $columns = Yii::createObject([
-            'class' => ColumnData::className(),
+            'class' => ColumnData::class,
             'dataProvider' => $dataProvider,
             'formatter' => Yii::$app->getFormatter(),
             'columns' => [

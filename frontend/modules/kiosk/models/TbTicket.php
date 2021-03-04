@@ -158,7 +158,7 @@ class TbTicket extends \yii\db\ActiveRecord
                             <img src="/img/logo/logo.jpg" alt="" class="center-block" style="width: 100px">
                         </div>
                         <div class="col-xs-12" style="padding: 0;">
-                            <h4 class="color" style="margin-top: 0px;margin-bottom: 0px;text-align: center;"><b style="font-weight: bold;">โรงพยาบาลบ้านบึง</b></h4>
+                            <h4 class="color" style="margin-top: 0px;margin-bottom: 0px;text-align: center;"><b style="font-weight: bold;">โรงพยาบาลชัยนาทนเรนทร</b></h4>
                             <h6 class="color" style="margin-top: 4px;margin-bottom: 0px;text-align: center;"><b>งานบริการผู้ป่วยนอก</b></h6>
                         </div>
                         <div class="col-xs-12" style="padding: 3px 0px 10px 0px;;text-align: left;">

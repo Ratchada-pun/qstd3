@@ -4,6 +4,7 @@ namespace frontend\modules\app\models;
 
 use Yii;
 use trntv\filekit\behaviors\UploadBehavior;
+
 /**
  * This is the model class for table "tb_ticket".
  *
@@ -47,7 +48,7 @@ class TbTicket extends \yii\db\ActiveRecord
     {
         return [
             [['hos_name_th', 'status'], 'unique', 'targetAttribute' => ['hos_name_th', 'status']],
-            [['hos_name_th','barcode_type'], 'required'],
+            [['hos_name_th', 'barcode_type'], 'required'],
             [['template', 'default_template'], 'string'],
             [['status'], 'integer'],
             [['logo'], 'safe'],
@@ -82,7 +83,8 @@ class TbTicket extends \yii\db\ActiveRecord
         return new TbTicketQuery(get_called_class());
     }
 
-    public function getDefaultTemplate(){
+    public function getDefaultTemplate()
+    {
         return '<center>
             <div class="x_content">
                 <div class="row" style="width: 80mm;margin: auto;">
@@ -165,7 +167,8 @@ class TbTicket extends \yii\db\ActiveRecord
         </center>';
     }
 
-    public function getExampleTemplate(){
+    public function getExampleTemplate()
+    {
         return '<center>
             <div class="x_content">
                 <div class="row" style="width: 80mm;margin: auto;">
@@ -175,7 +178,7 @@ class TbTicket extends \yii\db\ActiveRecord
                             <img src="/img/logo/logo.jpg" alt="" class="center-block" style="width: 100px">
                         </div>
                         <div class="col-xs-12" style="padding: 0;">
-                            <h4 class="color" style="margin-top: 0px;margin-bottom: 0px;text-align: center;"><b style="font-weight: bold;">โรงพยาบาลบ้านบึง</b></h4>
+                            <h4 class="color" style="margin-top: 0px;margin-bottom: 0px;text-align: center;"><b style="font-weight: bold;">โรงพยาบาลศรีสวรรค์</b></h4>
                             <h6 class="color" style="margin-top: 4px;margin-bottom: 0px;text-align: center;"><b>งานบริการผู้ป่วยนอก</b></h6>
                         </div>
                         <div class="col-xs-12" style="padding: 3px 0px 10px 0px;;text-align: left;">
@@ -248,7 +251,8 @@ class TbTicket extends \yii\db\ActiveRecord
         </center>';
     }
 
-    public function getTicketPreview(){
+    public function getTicketPreview()
+    {
         $y = date('Y') + 543;
         return strtr($this->template, [
             '{hos_name_th}' => $this->hos_name_th,
@@ -257,9 +261,9 @@ class TbTicket extends \yii\db\ActiveRecord
             '{q_num}' => 'A001',
             '{pt_visit_type}' => 'ผู้ป่วยนัดหมาย',
             '{sec_name}' => 'แผนกห้องยา',
-            '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M '.substr($y, 2)).' '.\Yii::$app->formatter->asDate('now','php:H:i').' น.',
+            '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i') . ' น.',
             '{user_print}' => 'Admin Hospital',
-            '/img/logo/logo.jpg' => $this->logo_path ? $this->logo_base_url.'/'.$this->logo_path : '/img/logo/logoBBH.png'
+            '/img/logo/logo.jpg' => $this->logo_path ? $this->logo_base_url . '/' . $this->logo_path : '/img/logo/logoBBH.png'
         ]);
     }
 }

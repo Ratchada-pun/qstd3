@@ -50,7 +50,7 @@ use frontend\modules\app\models\TbKiosk;
 
 class SettingsController extends \yii\web\Controller
 {
-	public function behaviors()
+    public function behaviors()
     {
         return [
             'access' => [
@@ -92,23 +92,23 @@ class SettingsController extends \yii\web\Controller
         ];
     }
 
-    public function actionDeleteServiceGroup($id,$serviceid = null)
+    public function actionDeleteServiceGroup($id, $serviceid = null)
     {
         $request = Yii::$app->request;
-        if($serviceid != null){
+        if ($serviceid != null) {
             TbService::findOne($serviceid)->delete();
         }
-        if(TbService::find()->where(['service_groupid' => $id])->count() == 0){
+        if (TbService::find()->where(['service_groupid' => $id])->count() == 0) {
             TbServicegroup::findOne($id)->delete();
         }
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -120,13 +120,13 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         TbSound::findOne($id)->delete();
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -139,13 +139,13 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         TbDisplayConfig::findOne($id)->delete();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -159,13 +159,13 @@ class SettingsController extends \yii\web\Controller
         TbCounterserviceType::findOne($id)->delete();
         TbCounterservice::deleteAll(['counterservice_type' => $id]);
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -178,13 +178,13 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         TbTicket::findOne($id)->delete();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -197,13 +197,13 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         TbServiceProfile::findOne($id)->delete();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -216,13 +216,13 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         TbSoundStation::findOne($id)->delete();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -234,13 +234,13 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         TbCidStation::findOne($id)->delete();
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -253,13 +253,13 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         TbKiosk::findOne($id)->delete();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true];
-        }else{
+            return ['forceClose' => true];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -272,36 +272,38 @@ class SettingsController extends \yii\web\Controller
         return $this->render('index');
     }
 
-    protected function getBadgeStatus($status){
-        if($status == 0){
-            return kartik::badge(Icon::show('close').' ปิดใช้งาน',['class' => 'badge badge-danger']);
-        }elseif($status == 1){
-            return kartik::badge(Icon::show('check').' เปิดใช้งาน',['class' => 'badge badge-success']);
+    protected function getBadgeStatus($status)
+    {
+        if ($status == 0) {
+            return kartik::badge(Icon::show('close') . ' ปิดใช้งาน', ['class' => 'badge badge-danger']);
+        } elseif ($status == 1) {
+            return kartik::badge(Icon::show('check') . ' เปิดใช้งาน', ['class' => 'badge badge-success']);
         }
     }
 
-    public function actionDataServiceGroup(){
+    public function actionDataServiceGroup()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = (new \yii\db\Query())
-            ->select([
-            	'tb_servicegroup.servicegroupid',
-            	'tb_servicegroup.servicegroup_name',
-            	'tb_servicegroup.servicegroup_order',
-            	'tb_service.serviceid',
-            	'tb_service.service_name',
-            	'tb_service.service_groupid',
-            	'tb_service.service_route',
-            	'tb_service.prn_profileid',
-            	'tb_service.prn_copyqty',
-            	'tb_service.service_prefix',
-            	'tb_service.service_numdigit',
-            	'tb_service.service_status'
-            ])
-            ->from('tb_servicegroup')
-            ->leftJoin('tb_service','tb_service.service_groupid = tb_servicegroup.servicegroupid')
-            ->orderBy('tb_servicegroup.servicegroupid ASC');
+                ->select([
+                    'tb_servicegroup.servicegroupid',
+                    'tb_servicegroup.servicegroup_name',
+                    'tb_servicegroup.servicegroup_order',
+                    'tb_service.serviceid',
+                    'tb_service.service_name',
+                    'tb_service.service_groupid',
+                    'tb_service.service_route',
+                    'tb_service.prn_profileid',
+                    'tb_service.prn_copyqty',
+                    'tb_service.service_prefix',
+                    'tb_service.service_numdigit',
+                    'tb_service.service_status'
+                ])
+                ->from('tb_servicegroup')
+                ->leftJoin('tb_service', 'tb_service.service_groupid = tb_servicegroup.servicegroupid')
+                ->orderBy('tb_servicegroup.servicegroupid ASC');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -350,14 +352,14 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'service_status',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['service_status']);
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'service_status_id',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $model['service_status'];
                         },
                     ],
@@ -370,12 +372,12 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-service-group','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-service-group', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-service-group','id' => $key,'serviceid' => $model['serviceid']]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-service-group', 'id' => $key, 'serviceid' => $model['serviceid']]);
                             }
                         }
                     ]
@@ -383,24 +385,25 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataSound(){
+    public function actionDataSound()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = (new \yii\db\Query())
-            ->select([
-            	'tb_sound.sound_id',
-            	'tb_sound.sound_name',
-            	'tb_sound.sound_path_name',
-            	'tb_sound.sound_th',
-            	'tb_sound.sound_type'
-            ])
-            ->from('tb_sound');
+                ->select([
+                    'tb_sound.sound_id',
+                    'tb_sound.sound_name',
+                    'tb_sound.sound_path_name',
+                    'tb_sound.sound_th',
+                    'tb_sound.sound_type'
+                ])
+                ->from('tb_sound');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -428,7 +431,7 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'sound_type',
-                        'value' => function($model){
+                        'value' => function ($model) {
                             return $model['sound_type'] == 1 ? 'เสียงผู้หญิง' : 'เสียงผู้ชาย';
                         }
                     ],
@@ -441,12 +444,12 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-sound','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-sound', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-sound','id' => $key]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-sound', 'id' => $key]);
                             }
                         }
                     ]
@@ -454,15 +457,16 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataDisplay(){
+    public function actionDataDisplay()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = TbDisplayConfig::find();
 
             $dataProvider = new ActiveDataProvider([
@@ -485,14 +489,14 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'counterservice_id',
-                        'value' => function($model){
+                        'value' => function ($model) {
                             return @$model->counterList;
                         },
                         'format' => 'raw',
                     ],
                     [
                         'attribute' => 'service_id',
-                        'value' => function($model, $key, $index, $column){
+                        'value' => function ($model, $key, $index, $column) {
                             return $model->serviceList;
                         },
                         'format' => 'raw',
@@ -505,8 +509,8 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'title_color',
-                        'value' => function($model, $key, $index, $column){
-                            return Html::tag('span',$model['title_color'],['class' => 'badge','style' => 'background-color: '. $model['title_color']]);
+                        'value' => function ($model, $key, $index, $column) {
+                            return Html::tag('span', $model['title_color'], ['class' => 'badge', 'style' => 'background-color: ' . $model['title_color']]);
                         },
                         'format' => 'raw',
                     ],
@@ -524,36 +528,36 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'header_color',
-                        'value' => function($model, $key, $index, $column){
-                            return Html::tag('span',$model['header_color'],['class' => 'badge','style' => 'background-color: '. $model['header_color']]);
+                        'value' => function ($model, $key, $index, $column) {
+                            return Html::tag('span', $model['header_color'], ['class' => 'badge', 'style' => 'background-color: ' . $model['header_color']]);
                         },
                         'format' => 'raw',
                     ],
                     [
                         'attribute' => 'column_color',
-                        'value' => function($model, $key, $index, $column){
-                            return Html::tag('span',$model['column_color'],['class' => 'badge','style' => 'background-color: '. $model['column_color']]);
+                        'value' => function ($model, $key, $index, $column) {
+                            return Html::tag('span', $model['column_color'], ['class' => 'badge', 'style' => 'background-color: ' . $model['column_color']]);
                         },
                         'format' => 'raw',
                     ],
                     [
                         'attribute' => 'background_color',
-                        'value' => function($model, $key, $index, $column){
-                            return Html::tag('span',$model['background_color'],['class' => 'badge','style' => 'background-color: '. $model['background_color']]);
+                        'value' => function ($model, $key, $index, $column) {
+                            return Html::tag('span', $model['background_color'], ['class' => 'badge', 'style' => 'background-color: ' . $model['background_color']]);
                         },
                         'format' => 'raw',
                     ],
                     [
                         'attribute' => 'font_color',
-                        'value' => function($model, $key, $index, $column){
-                            return Html::tag('span',$model['font_color'],['class' => 'badge','style' => 'background-color: '. $model['font_color']]);
+                        'value' => function ($model, $key, $index, $column) {
+                            return Html::tag('span', $model['font_color'], ['class' => 'badge', 'style' => 'background-color: ' . $model['font_color']]);
                         },
                         'format' => 'raw',
                     ],
                     [
                         'attribute' => 'border_color',
-                        'value' => function($model, $key, $index, $column){
-                            return Html::tag('span',$model['border_color'],['class' => 'badge','style' => 'background-color: '. $model['border_color']]);
+                        'value' => function ($model, $key, $index, $column) {
+                            return Html::tag('span', $model['border_color'], ['class' => 'badge', 'style' => 'background-color: ' . $model['border_color']]);
                         },
                         'format' => 'raw',
                     ],
@@ -569,32 +573,32 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'view'){
-                                return Url::to(['/app/display/index','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'view') {
+                                return Url::to(['/app/display/index', 'id' => $key]);
                             }
-                            if($action == 'display'){
-                                return Url::to(['/app/settings/update-display','id' => $key]);
+                            if ($action == 'display') {
+                                return Url::to(['/app/settings/update-display', 'id' => $key]);
                             }
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-display','id' => $key]);
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-display', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-display','id' => $key]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-display', 'id' => $key]);
                             }
                         },
                         'buttons' => [
-                            'view' => function($url,$model,$key){
-                                return Html::a(Icon::show('eye'),$url,[]);
+                            'view' => function ($url, $model, $key) {
+                                return Html::a(Icon::show('eye'), $url, []);
                             },
-                            'display' => function($url,$model,$key){
-                                return Html::a(Icon::show('television'),$url,[]);
+                            'display' => function ($url, $model, $key) {
+                                return Html::a(Icon::show('television'), $url, []);
                             },
-                            'update' => function($url,$model,$key){
-                                return Html::a(Icon::show('pencil'),$url,['role' => 'modal-remote']);
+                            'update' => function ($url, $model, $key) {
+                                return Html::a(Icon::show('pencil'), $url, ['role' => 'modal-remote']);
                             },
-                            'delete' => function($url,$model,$key){
-                                return Html::a(Icon::show('trash-o'),$url,[
+                            'delete' => function ($url, $model, $key) {
+                                return Html::a(Icon::show('trash-o'), $url, [
                                     'class' => 'text-danger',
                                     'data-pjax' => 0,
                                     'data-confirm' => 'คุณแน่ใจหรือไม่ที่จะลบรายการนี้?',
@@ -607,15 +611,27 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataCounter(){
+    public function fn_return_soundname($tb_counterservice){
+        !empty($tb_counterservice) ?
+        $query = (new \yii\db\Query())
+                ->select(['tb_sound.sound_th'])
+                ->from('tb_sound')
+                ->where(['tb_sound.sound_id' => $tb_counterservice])
+                ->all(\Yii::$app->db):
+        $query = '';
+        return $query;
+    }
+
+    public function actionDataCounter()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $sql = 'SELECT
                         tb_counterservice_type.counterservice_typeid,
                         tb_counterservice_type.counterservice_type,
@@ -634,7 +650,7 @@ class SettingsController extends \yii\web\Controller
                         tb_servicegroup.servicegroup_name,
                         tb_service.service_name,
                         tb_sound.sound_th as sound_name,
-                        fn_return_soundname(tb_counterservice.sound_service_id) as sound_service_name
+                        (select tb_sound.sound_th FROM tb_sound WHERE tb_sound.sound_id = tb_counterservice.sound_service_id) as sound_service_name
                         FROM
                         tb_counterservice_type
                         LEFT JOIN tb_counterservice ON tb_counterservice.counterservice_type = tb_counterservice_type.counterservice_typeid
@@ -685,14 +701,14 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'counterservice_status',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['counterservice_status']);
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'counterservice_status_id',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $model['counterservice_status'];
                         },
                     ],
@@ -719,38 +735,39 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'class' => ActionTable::className(),
-                        'template' => '{update} {delete}',
+                        'template' => '{update}',
                         'updateOptions' => [
                             'role' => 'modal-remote'
                         ],
-                        'deleteOptions' => [
-                            'class' => 'text-danger'
-                        ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-counter','id' => $key]);
+                        // 'deleteOptions' => [
+                        //     'class' => 'text-danger'
+                        // ],
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-counter', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-counter','id' => $key]);
-                            }
+                            // if ($action == 'delete') {
+                            //     return Url::to(['/app/settings/delete-counter', 'id' => $key]);
+                            // }
                         }
                     ]
                 ]
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataTicket(){
+    public function actionDataTicket()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = (new \yii\db\Query())
-            ->select(['tb_ticket.*'])
-            ->from('tb_ticket');
+                ->select(['tb_ticket.*'])
+                ->from('tb_ticket');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -790,7 +807,7 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'status',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['status']);
                         },
                         'format' => 'raw'
@@ -804,12 +821,12 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-ticket','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-ticket', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-ticket','id' => $key]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-ticket', 'id' => $key]);
                             }
                         }
                     ]
@@ -817,15 +834,16 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataServiceProfile(){
+    public function actionDataServiceProfile()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = TbServiceProfile::find();
 
             $dataProvider = new ActiveDataProvider([
@@ -854,21 +872,21 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'servicelist',
-                        'value' => function($model, $key, $index, $column){
+                        'value' => function ($model, $key, $index, $column) {
                             return $model->servieceList;
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'counterservice_type',
-                        'value' => function($model, $key, $index, $column){
+                        'value' => function ($model, $key, $index, $column) {
                             return @$model->tbCounterserviceType->counterservice_type;
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'service_profile_status',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['service_profile_status']);
                         },
                         'format' => 'raw'
@@ -882,12 +900,12 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-service-profile','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-service-profile', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-service-profile','id' => $key]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-service-profile', 'id' => $key]);
                             }
                         }
                     ]
@@ -895,15 +913,16 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataSoundStation(){
+    public function actionDataSoundStation()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = TbSoundStation::find();
 
             $dataProvider = new ActiveDataProvider([
@@ -929,14 +948,14 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'counterlist',
-                        'value' => function($model, $key, $index, $column){
+                        'value' => function ($model, $key, $index, $column) {
                             return $model->counterList;
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'sound_station_status',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['sound_station_status']);
                         },
                         'format' => 'raw'
@@ -950,12 +969,12 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-sound-station','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-sound-station', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-sound-station','id' => $key]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-sound-station', 'id' => $key]);
                             }
                         }
                     ]
@@ -963,18 +982,19 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataCidStation(){
+    public function actionDataCidStation()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = (new \yii\db\Query())
-            ->select(['tb_cid_station.*'])
-            ->from('tb_cid_station');
+                ->select(['tb_cid_station.*'])
+                ->from('tb_cid_station');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -996,7 +1016,7 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'status',
-                        'value' => function($model,$key,$index){
+                        'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['status']);
                         },
                         'format' => 'raw'
@@ -1010,12 +1030,12 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-cid-station','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-cid-station', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-cid-station','id' => $key]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-cid-station', 'id' => $key]);
                             }
                         }
                     ]
@@ -1023,18 +1043,19 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataLab(){
+    public function actionDataLab()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = (new \yii\db\Query())
-            ->select(['lab_items.*'])
-            ->from('lab_items');
+                ->select(['lab_items.*'])
+                ->from('lab_items');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -1056,14 +1077,14 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'confirm',
-                        'value' => function($model, $key, $index, $column){
-                            if($model['confirm'] == 'Y'){
+                        'value' => function ($model, $key, $index, $column) {
+                            if ($model['confirm'] == 'Y') {
                                 $checked = true;
-                            }else{
+                            } else {
                                 $checked = false;
                             }
                             $checkbox = '<div class="checkbox"><label style="font-size: 1em">';
-                            $checkbox .= Html::checkbox( 'confirm', $checked, ['value' => $model['confirm'],'class' => 'activity-lab-confirm','data-key' => $key]);
+                            $checkbox .= Html::checkbox('confirm', $checked, ['value' => $model['confirm'], 'class' => 'activity-lab-confirm', 'data-key' => $key]);
                             $checkbox .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>';
                             $checkbox .= '</label></div>';
                             return $checkbox;
@@ -1079,9 +1100,9 @@ class SettingsController extends \yii\web\Controller
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-lab','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-lab', 'id' => $key]);
                             }
                         }
                     ]
@@ -1089,20 +1110,21 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataKiosk(){
+    public function actionDataKiosk()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = (new \yii\db\Query())
-            ->select([
-            	'tb_kiosk.*',
-            ])
-            ->from('tb_kiosk');
+                ->select([
+                    'tb_kiosk.*',
+                ])
+                ->from('tb_kiosk');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -1124,15 +1146,15 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'service_names',
-                        'value' => function($model){
+                        'value' => function ($model) {
                             return TbKiosk::getServiceList($model['service_ids']);
                         },
                         'format' => 'raw'
                     ],
                     [
                         'attribute' => 'font_size',
-                        'value' => function($model){
-                            return !empty($model['font_size']) ? $model['font_size'].'px' : '';
+                        'value' => function ($model) {
+                            return !empty($model['font_size']) ? $model['font_size'] . 'px' : '';
                         },
                         'format' => 'raw'
                     ],
@@ -1148,19 +1170,19 @@ class SettingsController extends \yii\web\Controller
                             'class' => 'btn btn-sm btn-danger'
                         ],
                         'buttons' => [
-                            'sortinput' => function($url, $model, $key){
-                                return Html::a('<i class="fa fa-sort-numeric-asc"></i>',$url,['class' => 'btn btn-sm btn-success','role' => 'modal-remote','title' => 'จัดเรียงปุ่ม']);
+                            'sortinput' => function ($url, $model, $key) {
+                                return Html::a('<i class="fa fa-sort-numeric-asc"></i>', $url, ['class' => 'btn btn-sm btn-success', 'role' => 'modal-remote', 'title' => 'จัดเรียงปุ่ม']);
                             }
                         ],
-                        'urlCreator' => function ( $action, $model, $key, $index) {
-                            if($action == 'sortinput'){
-                                return Url::to(['/app/settings/sortinput-kiosk','id' => $key]);
+                        'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'sortinput') {
+                                return Url::to(['/app/settings/sortinput-kiosk', 'id' => $key]);
                             }
-                            if($action == 'update'){
-                                return Url::to(['/app/settings/update-kiosk','id' => $key]);
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-kiosk', 'id' => $key]);
                             }
-                            if($action == 'delete'){
-                                return Url::to(['/app/settings/delete-kiosk','id' => $key]);
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-kiosk', 'id' => $key]);
                             }
                         }
                     ]
@@ -1168,47 +1190,48 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionCreateServiceGroup(){
+    public function actionCreateServiceGroup()
+    {
         $request = Yii::$app->request;
         $model = new TbServicegroup();
         $modelServices = [new TbService()];
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
                     'title'     => "จัดการกลุ่มบริการ",
                     'content'   => $this->renderAjax('_form_service_group', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
                     ]),
-                    'footer'=>  ''
+                    'footer' =>  ''
                 ];
-            }elseif($model->load($request->post())){
+            } elseif ($model->load($request->post())) {
                 $oldIDs = ArrayHelper::map($modelServices, 'serviceid', 'serviceid');
-                $modelServices = MultipleModel::createMultiple(TbService::classname(), $modelServices,'serviceid');
+                $modelServices = MultipleModel::createMultiple(TbService::classname(), $modelServices, 'serviceid');
                 MultipleModel::loadMultiple($modelServices, $request->post());
                 $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($modelServices, 'serviceid', 'serviceid')));
 
                 // validate all models
-	            $valid = $model->validate();
-	            $valid = Model::validateMultiple($modelServices) && $valid;
+                $valid = $model->validate();
+                $valid = Model::validateMultiple($modelServices) && $valid;
                 if ($valid) {
                     $transaction = \Yii::$app->db->beginTransaction();
                     try {
                         $model->subservice_status = 1;
                         if ($flag = $model->save(false)) {
-                            if (! empty($deletedIDs)) {
+                            if (!empty($deletedIDs)) {
                                 TbService::deleteAll(['serviceid' => $deletedIDs]);
                             }
                             foreach ($modelServices as $modelService) {
-                            	$modelService->service_groupid = $model['servicegroupid'];
-                                if (! ($flag = $modelService->save(false))) {
+                                $modelService->service_groupid = $model['servicegroupid'];
+                                if (!($flag = $modelService->save(false))) {
                                     $transaction->rollBack();
                                     break;
                                 }
@@ -1217,69 +1240,70 @@ class SettingsController extends \yii\web\Controller
                         if ($flag) {
                             $transaction->commit();
                             return [
-                                'title'=> "จัดการกลุ่มบริการ",
-                                'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                                'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                                'title' => "จัดการกลุ่มบริการ",
+                                'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                                'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                                 'status' => '200'
                             ];
                         }
                     } catch (Exception $e) {
                         $transaction->rollBack();
                     }
-                }else{
+                } else {
                     return [
-                        'title'=> "จัดการกลุ่มบริการ",
+                        'title' => "จัดการกลุ่มบริการ",
                         'content'   => $this->renderAjax('_form_service_group', [
-	                    	'model' => $model,
-	                        'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
-	                    ]),
+                            'model' => $model,
+                            'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
+                        ]),
                         'footer' => '',
-                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices),ActiveForm::validate($model)),
+                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices), ActiveForm::validate($model)),
                         'status' => 'error'
                     ];
                 }
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการกลุ่มบริการ",
+                    'title' => "จัดการกลุ่มบริการ",
                     'content'   => $this->renderAjax('_form_service_group', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
                     ]),
                     'footer' => '',
-                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices),ActiveForm::validate($model)),
+                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices), ActiveForm::validate($model)),
                     'status' => 'error'
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionUpdateServiceGroup($id){
+    public function actionUpdateServiceGroup($id)
+    {
         $request = Yii::$app->request;
         $model = TbServicegroup::findOne($id);
         $modelServices = TbService::find()->where(['service_groupid' => $id])->all();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
                     'title'     => "จัดการกลุ่มบริการ",
                     'content'   => $this->renderAjax('_form_service_group', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
                     ]),
-                    'footer'=>  ''
+                    'footer' =>  ''
                 ];
-            }elseif($model->load($request->post())){
+            } elseif ($model->load($request->post())) {
                 $oldIDs = ArrayHelper::map($modelServices, 'serviceid', 'serviceid');
-                $modelServices = MultipleModel::createMultiple(TbService::classname(), $modelServices,'serviceid');
+                $modelServices = MultipleModel::createMultiple(TbService::classname(), $modelServices, 'serviceid');
                 MultipleModel::loadMultiple($modelServices, $request->post());
                 $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($modelServices, 'serviceid', 'serviceid')));
 
                 // validate all models
-	            $valid = $model->validate();
-	            $valid = Model::validateMultiple($modelServices) && $valid;
+                $valid = $model->validate();
+                $valid = Model::validateMultiple($modelServices) && $valid;
                 if ($valid) {
                     $transaction = \Yii::$app->db->beginTransaction();
                     try {
@@ -1288,8 +1312,8 @@ class SettingsController extends \yii\web\Controller
                                 TbService::deleteAll(['serviceid' => $deletedIDs]);
                             }
                             foreach ($modelServices as $modelService) {
-                            	$modelService->service_groupid = $model['servicegroupid'];
-                                if (! ($flag = $modelService->save(false))) {
+                                $modelService->service_groupid = $model['servicegroupid'];
+                                if (!($flag = $modelService->save(false))) {
                                     $transaction->rollBack();
                                     break;
                                 }
@@ -1298,41 +1322,41 @@ class SettingsController extends \yii\web\Controller
                         if ($flag) {
                             $transaction->commit();
                             return [
-                                'title'=> "จัดการกลุ่มบริการ",
-                                'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                                'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                                'title' => "จัดการกลุ่มบริการ",
+                                'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                                'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                                 'status' => '200'
                             ];
                         }
                     } catch (Exception $e) {
                         $transaction->rollBack();
                     }
-                }else{
+                } else {
                     return [
-                        'title'=> "จัดการกลุ่มบริการ",
+                        'title' => "จัดการกลุ่มบริการ",
                         'content'   => $this->renderAjax('_form_service_group', [
-	                    	'model' => $model,
-	                        'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
-	                    ]),
+                            'model' => $model,
+                            'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
+                        ]),
                         'footer' => '',
-                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices),ActiveForm::validate($model)),
+                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices), ActiveForm::validate($model)),
                         'status' => 'error'
                     ];
                 }
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการกลุ่มบริการ",
+                    'title' => "จัดการกลุ่มบริการ",
                     'content'   => $this->renderAjax('_form_service_group', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelServices' => (empty($modelServices)) ? [new TbService()] : $modelServices,
                     ]),
                     'footer' => '',
-                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices),ActiveForm::validate($model)),
+                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelServices), ActiveForm::validate($model)),
                     'status' => 'error'
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -1341,36 +1365,36 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = new TbSound();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูลไฟล์เสียง",
-                    'content'=>$this->renderAjax('_form_sound', [
+                    'title' => "จัดการข้อมูลไฟล์เสียง",
+                    'content' => $this->renderAjax('_form_sound', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "จัดการข้อมูลไฟล์เสียง",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูลไฟล์เสียง",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูลไฟล์เสียง",
-                    'content'=>$this->renderAjax('_form_sound', [
+                    'title' => "จัดการข้อมูลไฟล์เสียง",
+                    'content' => $this->renderAjax('_form_sound', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -1379,36 +1403,36 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = TbSound::findOne($id);
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูลไฟล์เสียง",
-                    'content'=>$this->renderAjax('_form_sound', [
+                    'title' => "จัดการข้อมูลไฟล์เสียง",
+                    'content' => $this->renderAjax('_form_sound', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "จัดการข้อมูลไฟล์เสียง",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูลไฟล์เสียง",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูลไฟล์เสียง",
-                    'content'=>$this->renderAjax('_form_sound', [
+                    'title' => "จัดการข้อมูลไฟล์เสียง",
+                    'content' => $this->renderAjax('_form_sound', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -1417,42 +1441,42 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = new TbDisplayConfig();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isPost){
-                $data = $request->post('TbDisplayConfig',[]);
+            if ($request->isPost) {
+                $data = $request->post('TbDisplayConfig', []);
                 $model->counterservice_id = isset($data['counterservice_id']) ? $data['counterservice_id'] : null;
                 $model->service_id = isset($data['service_id']) ? $data['service_id'] : null;
             }
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูลจอแสดงผล",
-                    'content'=>$this->renderAjax('_form_display', [
+                    'title' => "จัดการข้อมูลจอแสดงผล",
+                    'content' => $this->renderAjax('_form_display', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "จัดการข้อมูลจอแสดงผล",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูลจอแสดงผล",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->display_ids]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูลจอแสดงผล",
-                    'content'=>$this->renderAjax('_form_display', [
+                    'title' => "จัดการข้อมูลจอแสดงผล",
+                    'content' => $this->renderAjax('_form_display', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             return $this->render('_form_display', [
                 'model' => $model,
             ]);
@@ -1463,52 +1487,52 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $model = TbDisplayConfig::findOne($id);
-        $model->service_id = !empty($model['service_id']) ? explode(",",$model['service_id']) : null;
-        $model->counterservice_id = !empty($model['counterservice_id']) ? explode(",",$model['counterservice_id']) : null;
+        $model->service_id = !empty($model['service_id']) ? explode(",", $model['service_id']) : null;
+        $model->counterservice_id = !empty($model['counterservice_id']) ? explode(",", $model['counterservice_id']) : null;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูลจอแสดงผล",
-                    'content'=>$this->renderAjax('_form_display', [
+                    'title' => "จัดการข้อมูลจอแสดงผล",
+                    'content' => $this->renderAjax('_form_display', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post())){
-                $data = $request->post('TbDisplayConfig',[]);
-                if(isset($data['counterservice_id'])){
+            } else if ($model->load($request->post())) {
+                $data = $request->post('TbDisplayConfig', []);
+                if (isset($data['counterservice_id'])) {
                     $model->counterservice_id = $data['counterservice_id'];
                 }
-                if(isset($data['service_id'])){
+                if (isset($data['service_id'])) {
                     $model->service_id = $data['service_id'];
                 }
-                
-                
+
+
                 $model->save();
                 return [
-                    'title'=> "จัดการข้อมูลจอแสดงผล",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูลจอแสดงผล",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update-display', 'id' => $model->display_ids]),
                     'data' => $data
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูลจอแสดงผล",
-                    'content'=>$this->renderAjax('_form_display', [
+                    'title' => "จัดการข้อมูลจอแสดงผล",
+                    'content' => $this->renderAjax('_form_display', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            if($model->load($request->post())){
+        } else {
+            if ($model->load($request->post())) {
                 $model->attributes = \Yii::$app->request->post('TbDisplayConfig');
             }
             $this->layout = 'display';
@@ -1518,41 +1542,42 @@ class SettingsController extends \yii\web\Controller
         }
     }
 
-    public function actionCreateCounter(){
+    public function actionCreateCounter()
+    {
         $request = Yii::$app->request;
         $model = new TbCounterserviceType();
         $modelCounterservices = [new TbCounterservice()];
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
                     'title'     => "จัดการช่องบริการ",
                     'content'   => $this->renderAjax('_form_counter', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
                     ]),
-                    'footer'=>  ''
+                    'footer' =>  ''
                 ];
-            }elseif($model->load($request->post())){
+            } elseif ($model->load($request->post())) {
                 $oldIDs = ArrayHelper::map($modelCounterservices, 'counterserviceid', 'counterserviceid');
-                $modelCounterservices = MultipleModel::createMultiple(TbCounterservice::classname(), $modelCounterservices,'counterserviceid');
+                $modelCounterservices = MultipleModel::createMultiple(TbCounterservice::classname(), $modelCounterservices, 'counterserviceid');
                 MultipleModel::loadMultiple($modelCounterservices, $request->post());
                 $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($modelCounterservices, 'counterserviceid', 'counterserviceid')));
 
                 // validate all models
-	            $valid = $model->validate();
-	            $valid = Model::validateMultiple($modelCounterservices) && $valid;
+                $valid = $model->validate();
+                $valid = Model::validateMultiple($modelCounterservices) && $valid;
                 if ($valid) {
                     $transaction = \Yii::$app->db->beginTransaction();
                     try {
                         if ($flag = $model->save(false)) {
-                            if (! empty($deletedIDs)) {
+                            if (!empty($deletedIDs)) {
                                 TbCounterservice::deleteAll(['counterserviceid' => $deletedIDs]);
                             }
                             foreach ($modelCounterservices as $modelCounterservice) {
-                            	$modelCounterservice->counterservice_type = $model['counterservice_typeid'];
-                                if (! ($flag = $modelCounterservice->save(false))) {
+                                $modelCounterservice->counterservice_type = $model['counterservice_typeid'];
+                                if (!($flag = $modelCounterservice->save(false))) {
                                     $transaction->rollBack();
                                     break;
                                 }
@@ -1561,101 +1586,103 @@ class SettingsController extends \yii\web\Controller
                         if ($flag) {
                             $transaction->commit();
                             return [
-                                'title'=> "จัดการช่องบริการ",
-                                'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                                'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                                'title' => "จัดการช่องบริการ",
+                                'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                                'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                                 'status' => '200'
                             ];
                         }
                     } catch (Exception $e) {
                         $transaction->rollBack();
                     }
-                }else{
+                } else {
                     return [
-                        'title'=> "จัดการช่องบริการ",
+                        'title' => "จัดการช่องบริการ",
                         'content'   => $this->renderAjax('_form_counter', [
-	                    	'model' => $model,
-	                        'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
-	                    ]),
+                            'model' => $model,
+                            'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
+                        ]),
                         'footer' => '',
-                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices),ActiveForm::validate($model)),
+                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices), ActiveForm::validate($model)),
                         'status' => 'error'
                     ];
                 }
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการช่องบริการ",
+                    'title' => "จัดการช่องบริการ",
                     'content'   => $this->renderAjax('_form_counter', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
                     ]),
                     'footer' => '',
-                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices),ActiveForm::validate($model)),
+                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices), ActiveForm::validate($model)),
                     'status' => 'error'
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionChildServiceGroup() {
-	    $out = [];
-	    if (isset($_POST['depdrop_parents'])) {
-	        $id = end($_POST['depdrop_parents']);
-	        $list = TbService::find()->andWhere(['service_groupid'=>$id])->asArray()->all();
-	        $selected  = null;
-	        if ($id != null && count($list) > 0) {
-	            $selected = '';
-	            foreach ($list as $i => $service) {
-	                $out[] = ['id' => $service['serviceid'], 'name' => $service['service_name']];
-	                if ($i == 0) {
-	                    $selected = $service['serviceid'];
-	                }
-	            }
-	            // Shows how you can preselect a value
-	            echo Json::encode(['output' => $out, 'selected'=>$selected]);
-	            return;
-	        }
-	    }
-	    echo Json::encode(['output' => '', 'selected'=>'']);
-	}
+    public function actionChildServiceGroup()
+    {
+        $out = [];
+        if (isset($_POST['depdrop_parents'])) {
+            $id = end($_POST['depdrop_parents']);
+            $list = TbService::find()->andWhere(['service_groupid' => $id])->asArray()->all();
+            $selected  = null;
+            if ($id != null && count($list) > 0) {
+                $selected = '';
+                foreach ($list as $i => $service) {
+                    $out[] = ['id' => $service['serviceid'], 'name' => $service['service_name']];
+                    if ($i == 0) {
+                        $selected = $service['serviceid'];
+                    }
+                }
+                // Shows how you can preselect a value
+                echo Json::encode(['output' => $out, 'selected' => $selected]);
+                return;
+            }
+        }
+        echo Json::encode(['output' => '', 'selected' => '']);
+    }
 
-	public function actionUpdateCounter($id){
+    public function actionUpdateCounter($id)
+    {
         $request = Yii::$app->request;
         $model = TbCounterserviceType::findOne($id);
         $modelCounterservices = TbCounterservice::find()->where(['counterservice_type' => $id])->all();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
                     'title'     => "จัดการช่องบริการ",
                     'content'   => $this->renderAjax('_form_counter', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
                     ]),
-                    'footer'=>  ''
+                    'footer' =>  ''
                 ];
-            }elseif($model->load($request->post())){
+            } elseif ($model->load($request->post())) {
                 $oldIDs = ArrayHelper::map($modelCounterservices, 'counterserviceid', 'counterserviceid');
-                $modelCounterservices = MultipleModel::createMultiple(TbCounterservice::classname(), $modelCounterservices,'counterserviceid');
+                $modelCounterservices = MultipleModel::createMultiple(TbCounterservice::classname(), $modelCounterservices, 'counterserviceid');
                 MultipleModel::loadMultiple($modelCounterservices, $request->post());
                 $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($modelCounterservices, 'counterserviceid', 'counterserviceid')));
 
                 // validate all models
-	            $valid = $model->validate();
-	            $valid = Model::validateMultiple($modelCounterservices) && $valid;
+                $valid = $model->validate();
+                $valid = Model::validateMultiple($modelCounterservices) && $valid;
                 if ($valid) {
                     $transaction = \Yii::$app->db->beginTransaction();
                     try {
                         if ($flag = $model->save(false)) {
-                            if (! empty($deletedIDs)) {
+                            if (!empty($deletedIDs)) {
                                 TbCounterservice::deleteAll(['counterserviceid' => $deletedIDs]);
                             }
                             foreach ($modelCounterservices as $modelCounterservice) {
-                            	$modelCounterservice->counterservice_type = $model['counterservice_typeid'];
-                                if (! ($flag = $modelCounterservice->save(false))) {
+                                $modelCounterservice->counterservice_type = $model['counterservice_typeid'];
+                                if (!($flag = $modelCounterservice->save(false))) {
                                     $transaction->rollBack();
                                     break;
                                 }
@@ -1664,40 +1691,40 @@ class SettingsController extends \yii\web\Controller
                         if ($flag) {
                             $transaction->commit();
                             return [
-                                'title'=> "จัดการช่องบริการ",
-                                'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                                'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                                'title' => "จัดการช่องบริการ",
+                                'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                                'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                                 'status' => '200'
                             ];
                         }
                     } catch (Exception $e) {
                         $transaction->rollBack();
                     }
-                }else{
+                } else {
                     return [
-                        'title'=> "จัดการช่องบริการ",
+                        'title' => "จัดการช่องบริการ",
                         'content'   => $this->renderAjax('_form_counter', [
-	                    	'model' => $model,
-	                        'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
-	                    ]),
+                            'model' => $model,
+                            'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
+                        ]),
                         'footer' => '',
-                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices),ActiveForm::validate($model)),
+                        'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices), ActiveForm::validate($model)),
                         'status' => 'error'
                     ];
                 }
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการช่องบริการ",
+                    'title' => "จัดการช่องบริการ",
                     'content'   => $this->renderAjax('_form_counter', [
-                    	'model' => $model,
+                        'model' => $model,
                         'modelCounterservices' => (empty($modelCounterservices)) ? [new TbCounterservice()] : $modelCounterservices,
                     ]),
                     'footer' => '',
-                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices),ActiveForm::validate($model)),
+                    'validate' => ArrayHelper::merge(ActiveForm::validateMultiple($modelCounterservices), ActiveForm::validate($model)),
                     'status' => 'error'
                 ];
             }
-        }else{
+        } else {
             throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
@@ -1707,38 +1734,38 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = new TbTicket();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูลบัตรคิว",
-                    'content'=>$this->renderAjax('_form_ticket', [
+                    'title' => "จัดการข้อมูลบัตรคิว",
+                    'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "จัดการข้อมูลบัตรคิว",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูลบัตรคิว",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->ids]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูลบัตรคิว",
-                    'content'=>$this->renderAjax('_form_ticket', [
+                    'title' => "จัดการข้อมูลบัตรคิว",
+                    'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -1747,38 +1774,38 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = TbTicket::findOne($id);
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูลบัตรคิว",
-                    'content'=>$this->renderAjax('_form_ticket', [
+                    'title' => "จัดการข้อมูลบัตรคิว",
+                    'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "จัดการข้อมูลบัตรคิว",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูลบัตรคิว",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->ids]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูลบัตรคิว",
-                    'content'=>$this->renderAjax('_form_ticket', [
+                    'title' => "จัดการข้อมูลบัตรคิว",
+                    'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'error',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -1787,37 +1814,37 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = new TbServiceProfile();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "Service Profile",
-                    'content'=>$this->renderAjax('_form_service_profile', [
+                    'title' => "Service Profile",
+                    'content' => $this->renderAjax('_form_service_profile', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "Service Profile",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "Service Profile",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->service_profile_id]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "Service Profile",
-                    'content'=>$this->renderAjax('_form_service_profile', [
+                    'title' => "Service Profile",
+                    'content' => $this->renderAjax('_form_service_profile', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
@@ -1826,40 +1853,40 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $model = TbServiceProfile::findOne($id);
-        $model->service_id = !empty($model['service_id']) ? explode(",",$model['service_id']) : null;
-        $model->counter_service_ids = !empty($model['counter_service_ids']) ? explode(",",$model['counter_service_ids']) : null;
+        $model->service_id = !empty($model['service_id']) ? explode(",", $model['service_id']) : null;
+        $model->counter_service_ids = !empty($model['counter_service_ids']) ? explode(",", $model['counter_service_ids']) : null;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "Service Profile",
-                    'content'=>$this->renderAjax('_form_service_profile', [
+                    'title' => "Service Profile",
+                    'content' => $this->renderAjax('_form_service_profile', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "Service Profile",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "Service Profile",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->service_profile_id]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "Service Profile",
-                    'content'=>$this->renderAjax('_form_service_profile', [
+                    'title' => "Service Profile",
+                    'content' => $this->renderAjax('_form_service_profile', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
@@ -1869,37 +1896,37 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = new TbSoundStation();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "โปรแกรมเสียง",
-                    'content'=>$this->renderAjax('_form_sound_station', [
+                    'title' => "โปรแกรมเสียง",
+                    'content' => $this->renderAjax('_form_sound_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "โปรแกรมเสียง",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "โปรแกรมเสียง",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->sound_station_id]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "โปรแกรมเสียง",
-                    'content'=>$this->renderAjax('_form_sound_station', [
+                    'title' => "โปรแกรมเสียง",
+                    'content' => $this->renderAjax('_form_sound_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
@@ -1908,50 +1935,51 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $model = TbSoundStation::findOne($id);
-        $model->counterserviceid = !empty($model['counterserviceid']) ? explode(",",$model['counterserviceid']) : null;
+        $model->counterserviceid = !empty($model['counterserviceid']) ? explode(",", $model['counterserviceid']) : null;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "โปรแกรมเสียง",
-                    'content'=>$this->renderAjax('_form_sound_station', [
+                    'title' => "โปรแกรมเสียง",
+                    'content' => $this->renderAjax('_form_sound_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "โปรแกรมเสียง",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "โปรแกรมเสียง",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->sound_station_id]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "โปรแกรมเสียง",
-                    'content'=>$this->renderAjax('_form_sound_station', [
+                    'title' => "โปรแกรมเสียง",
+                    'content' => $this->renderAjax('_form_sound_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionDataQreset(){
+    public function actionDataQreset()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $query = (new \yii\db\Query())
-            ->select(['tb_quequ.*'])
-            ->from('tb_quequ');
+                ->select(['tb_quequ.*'])
+                ->from('tb_quequ');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -1981,15 +2009,16 @@ class SettingsController extends \yii\web\Controller
             ]);
 
             return Json::encode(['data' => $columns->renderDataColumns()]);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionResetQdata(){
+    public function actionResetQdata()
+    {
         $request = Yii::$app->request;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             $modelQueue = TbQuequ::find()->all();
             foreach ($modelQueue as $key => $data) {
                 $model = new TbQuequData();
@@ -2046,95 +2075,101 @@ class SettingsController extends \yii\web\Controller
             TbCaller::deleteAll();
             TbQtrans::deleteAll();
             TbQuequ::deleteAll();
-            return Json::encode(['status' => '200','mesage' => 'success']);
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+            return Json::encode(['status' => '200', 'mesage' => 'success']);
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionSaveStatusServicegroup(){
+    public function actionSaveStatusServicegroup()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $post = $request->post();
             $model = TbService::findOne($post['key']);
             $model->service_status = $post['status'];
             $model->save(false);
             return $model;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionSaveStatusCounterservicestatus(){
+    public function actionSaveStatusCounterservicestatus()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $post = $request->post();
             $model = TbCounterservice::findOne($post['key']);
             $model->counterservice_status = $post['status'];
             $model->save(false);
             return $model;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionSaveStatusTicket(){
+    public function actionSaveStatusTicket()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $post = $request->post();
             $model = TbTicket::findOne($post['key']);
             $model->status = $post['status'];
             $model->save(false);
             return $model;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionSaveStatusProfile(){
+    public function actionSaveStatusProfile()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $post = $request->post();
             $model = TbServiceProfile::findOne($post['key']);
-            $model->service_id = !empty($model['service_id']) ? explode(",",$model['service_id']) : null;
+            $model->service_id = !empty($model['service_id']) ? explode(",", $model['service_id']) : null;
             $model->service_profile_status = $post['status'];
             $model->save(false);
             return $model;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionSaveStatusSoundstation(){
+    public function actionSaveStatusSoundstation()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $post = $request->post();
             $model = TbSoundStation::findOne($post['key']);
-            $model->counterserviceid = !empty($model['counterserviceid']) ? explode(",",$model['counterserviceid']) : null;
+            $model->counterserviceid = !empty($model['counterserviceid']) ? explode(",", $model['counterserviceid']) : null;
             $model->sound_station_status = $post['status'];
             $model->save(false);
             return $model;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionSaveStatusCid(){
+    public function actionSaveStatusCid()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $post = $request->post();
             $model = TbCidStation::findOne($post['key']);
             $model->status = $post['status'];
             $model->save(false);
             return $model;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -2143,37 +2178,37 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = new TbCidStation();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูล",
-                    'content'=>$this->renderAjax('_form_cid_station', [
+                    'title' => "จัดการข้อมูล",
+                    'content' => $this->renderAjax('_form_cid_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "จัดการข้อมูล",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูล",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูล",
-                    'content'=>$this->renderAjax('_form_cid_station', [
+                    'title' => "จัดการข้อมูล",
+                    'content' => $this->renderAjax('_form_cid_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -2182,37 +2217,37 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = TbCidStation::findOne($id);
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "จัดการข้อมูล",
-                    'content'=>$this->renderAjax('_form_cid_station', [
+                    'title' => "จัดการข้อมูล",
+                    'content' => $this->renderAjax('_form_cid_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "จัดการข้อมูล",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดการข้อมูล",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดการข้อมูล",
-                    'content'=>$this->renderAjax('_form_cid_station', [
+                    'title' => "จัดการข้อมูล",
+                    'content' => $this->renderAjax('_form_cid_station', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -2222,78 +2257,80 @@ class SettingsController extends \yii\web\Controller
         $model = new TbCounterservice();
         $data = TbCounterservice::find()->where(['counterservice_type' => $id])->orderBy(['service_order' => SORT_ASC])->all();
         $items = [];
-        foreach($data as $item){
+        foreach ($data as $item) {
             $items[$item['counterserviceid']] = ['content' => $item['counterservice_name']];
         }
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
-                
+            if ($request->isGet) {
+
                 return [
-                    'title'=> "จัดเรียงข้อมูลช่องบริการ",
-                    'content'=>$this->renderAjax('_form_service_order', [
+                    'title' => "จัดเรียงข้อมูลช่องบริการ",
+                    'content' => $this->renderAjax('_form_service_order', [
                         'model' => $model,
                         'items' => $items,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post())){
-                $post = $request->post('TbCounterservice',[]);
-                $arr = explode(",",$post['items_sort']);
+            } else if ($model->load($request->post())) {
+                $post = $request->post('TbCounterservice', []);
+                $arr = explode(",", $post['items_sort']);
                 $i = 1;
-                foreach($arr as $key){
+                foreach ($arr as $key) {
                     $modelSave = TbCounterservice::findOne($key);
                     $modelSave->service_order = $i++;
                     $modelSave->save(false);
                 }
                 return [
-                    'title'=> "จัดเรียงข้อมูลช่องบริการ",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดเรียงข้อมูลช่องบริการ",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดเรียงข้อมูลช่องบริการ",
-                    'content'=>$this->renderAjax('_form_service_order', [
+                    'title' => "จัดเรียงข้อมูลช่องบริการ",
+                    'content' => $this->renderAjax('_form_service_order', [
                         'model' => $model,
                         'items' => $items,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionSaveLab(){
+    public function actionSaveLab()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $post = $request->post();
             $model = LabItems::findOne($post['code']);
             $model->confirm = $post['confirm'];
             $model->save(false);
             return $model;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
-    public function actionImportLab(){
+    public function actionImportLab()
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $labItems = LabItems::find()->all();
-            $oldLabs = ArrayHelper::getColumn($labItems,'lab_items_code');
+            $oldLabs = ArrayHelper::getColumn($labItems, 'lab_items_code');
             $labs = Yii::$app->db_his->createCommand('SELECT * FROM lab_items')->queryAll();
             $count = 0;
-            foreach($labs as $lab){
-                if(!ArrayHelper::isIn($lab['lab_items_code'], $oldLabs)){
+            foreach ($labs as $lab) {
+                if (!ArrayHelper::isIn($lab['lab_items_code'], $oldLabs)) {
                     Yii::$app->db->createCommand()->insert('lab_items', [
                         'lab_items_code' => $lab['lab_items_code'],
                         'lab_items_name' => $lab['lab_items_name'],
@@ -2303,8 +2340,8 @@ class SettingsController extends \yii\web\Controller
                 }
             }
             return $count;
-        }else{
-            throw new MethodNotAllowedHttpException('method not allowed.'); 
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
         }
     }
 
@@ -2314,41 +2351,41 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
         $model = new TbKiosk();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isPost){
-                $data = $request->post('TbKiosk',[]);
+            if ($request->isPost) {
+                $data = $request->post('TbKiosk', []);
                 $model->service_ids = isset($data['service_ids']) ? $data['service_ids'] : null;
             }
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "บันทึกรายการ",
-                    'content'=>$this->renderAjax('_form_kiosk', [
+                    'title' => "บันทึกรายการ",
+                    'content' => $this->renderAjax('_form_kiosk', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "บันทึกรายการ",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "บันทึกรายการ",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->kiosk_id]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "บันทึกรายการ",
-                    'content'=>$this->renderAjax('_form_kiosk', [
+                    'title' => "บันทึกรายการ",
+                    'content' => $this->renderAjax('_form_kiosk', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             return $this->render('_form_kiosk', [
                 'model' => $model,
             ]);
@@ -2359,43 +2396,43 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $model = TbKiosk::findOne($id);
-        $model->service_ids = !empty($model['service_ids']) ? explode(",",$model['service_ids']) : null;
+        $model->service_ids = !empty($model['service_ids']) ? explode(",", $model['service_ids']) : null;
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isPost){
-                $data = $request->post('TbKiosk',[]);
+            if ($request->isPost) {
+                $data = $request->post('TbKiosk', []);
                 $model->service_ids = isset($data['service_ids']) ? $data['service_ids'] : null;
             }
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "บันทึกรายการ",
-                    'content'=>$this->renderAjax('_form_kiosk', [
+                    'title' => "บันทึกรายการ",
+                    'content' => $this->renderAjax('_form_kiosk', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
-                    'title'=> "บันทึกรายการ",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "บันทึกรายการ",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->kiosk_id]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "บันทึกรายการ",
-                    'content'=>$this->renderAjax('_form_kiosk', [
+                    'title' => "บันทึกรายการ",
+                    'content' => $this->renderAjax('_form_kiosk', [
                         'model' => $model,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             return $this->render('_form_kiosk', [
                 'model' => $model,
             ]);
@@ -2406,56 +2443,55 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $model = TbKiosk::findOne($id);
-        $service_ids = !empty($model['service_ids']) ? explode(",",$model['service_ids']) : [];
+        $service_ids = !empty($model['service_ids']) ? explode(",", $model['service_ids']) : [];
         $items = [];
-        
 
-        if($request->isAjax){
+
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
-                foreach($service_ids as $service_id){
+            if ($request->isGet) {
+                foreach ($service_ids as $service_id) {
                     $modelService = TbService::findOne($service_id);
                     $items[$service_id] = [
-                        'content' => $modelService['btn_kiosk_name'].' ('.$modelService['service_name'].')'
+                        'content' => $modelService['btn_kiosk_name'] . ' (' . $modelService['service_name'] . ')'
                     ];
                 }
                 return [
-                    'title'=> "จัดเรียงปุ่ม Kiosk",
-                    'content'=>$this->renderAjax('_form_sortinput_kiosk', [
+                    'title' => "จัดเรียงปุ่ม Kiosk",
+                    'content' => $this->renderAjax('_form_sortinput_kiosk', [
                         'model' => $model,
                         'items' => $items,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
 
                 ];
-            }else if($model->load($request->post()) && $model->save()){
-                $data = $request->post('TbKiosk',[]);
-                Yii::$app->db->createCommand()->update('tb_kiosk', ['service_ids' => (isset($data['service_ids']) ? $data['service_ids'] : null)], 'kiosk_id = '.$id.' ')->execute();
+            } else if ($model->load($request->post()) && $model->save()) {
+                $data = $request->post('TbKiosk', []);
+                Yii::$app->db->createCommand()->update('tb_kiosk', ['service_ids' => (isset($data['service_ids']) ? $data['service_ids'] : null)], 'kiosk_id = ' . $id . ' ')->execute();
                 return [
-                    'title'=> "จัดเรียงปุ่ม Kiosk",
-                    'content'=>'<span class="text-success">บันทึกสำเร็จ!</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default','data-dismiss'=>"modal"]),
+                    'title' => "จัดเรียงปุ่ม Kiosk",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
                     'status' => '200',
                     'url' => Url::to(['update', 'id' => $model->kiosk_id]),
                 ];
-            }else{
+            } else {
                 return [
-                    'title'=> "จัดเรียงปุ่ม Kiosk",
-                    'content'=>$this->renderAjax('_form_sortinput_kiosk', [
+                    'title' => "จัดเรียงปุ่ม Kiosk",
+                    'content' => $this->renderAjax('_form_sortinput_kiosk', [
                         'model' => $model,
                         'items' => $items,
                     ]),
-                    'footer'=> '',
+                    'footer' => '',
                     'status' => 'validate',
                     'validate' => ActiveForm::validate($model),
                 ];
             }
-        }else{
+        } else {
             return $this->render('_form_sortinput_kiosk', [
                 'model' => $model,
                 'items' => $items,
             ]);
         }
     }
-
 }

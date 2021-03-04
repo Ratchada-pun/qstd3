@@ -42,13 +42,17 @@ class TbQuequ extends \yii\db\ActiveRecord
         return 'tb_quequ';
     }
 
-     public function behaviors()
+    public function behaviors()
     {
         return [
             [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at','q_timestp'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => [
+                        'created_at',
+                        'updated_at',
+                        'q_timestp',
+                    ],
                     ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
@@ -64,8 +68,29 @@ class TbQuequ extends \yii\db\ActiveRecord
     {
         return [
             //[['q_hn'], 'required'],
-            [['q_timestp', 'created_at', 'updated_at','vstdate','search_by'], 'safe'],
-            [['pt_id', 'pt_visit_type_id', 'pt_appoint_sec_id', 'serviceid', 'servicegroupid', 'q_status_id', 'doctor_id','quickly'], 'integer'],
+            [
+                [
+                    'q_timestp',
+                    'created_at',
+                    'updated_at',
+                    'vstdate',
+                    'search_by',
+                ],
+                'safe',
+            ],
+            [
+                [
+                    'pt_id',
+                    'pt_visit_type_id',
+                    'pt_appoint_sec_id',
+                    'serviceid',
+                    'servicegroupid',
+                    'q_status_id',
+                    'doctor_id',
+                    'quickly',
+                ],
+                'integer',
+            ],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
             [['pt_name'], 'string', 'max' => 200],
         ];
@@ -81,8 +106,8 @@ class TbQuequ extends \yii\db\ActiveRecord
             'q_num' => 'หมายเลขคิว',
             'q_timestp' => 'วันที่ออกคิว',
             'pt_id' => 'Pt ID',
-            'q_vn' => 'Visit number ของผู้ป่วย',
-            'q_hn' => 'หมายเลข HN ผู้ป่วย',
+            'q_vn' => 'VN',
+            'q_hn' => 'HN',
             'pt_name' => 'ชื่อผู้ป่วย',
             'pt_visit_type_id' => 'ประเภท',
             'pt_appoint_sec_id' => 'แผนกที่นัดหมาย',
@@ -105,100 +130,169 @@ class TbQuequ extends \yii\db\ActiveRecord
         return new TbQuequQuery(get_called_class());
     }
 
-    public function genQnum($service){
+    public function genQnum($service)
+    {
         // $queue = ArrayHelper::map($this->find()->where(['serviceid' => $service['serviceid']])->all(),'q_ids','q_num');
-        $queue = ArrayHelper::map($this->find()->all(),'q_ids','q_num');
+        $queue = ArrayHelper::map($this->find()->all(), 'q_ids', 'q_num');
         $qnums = [];
         $maxqnum = null;
         $qid = null;
-        if(count($queue) > 0){
-            foreach($queue as $key => $q){
-                $qnums[$key] = preg_replace("/[^0-9\.]/", '', $q);
+        if (count($queue) > 0) {
+            foreach ($queue as $key => $q) {
+                $qnums[$key] = preg_replace('/[^0-9\.]/', '', $q);
             }
             $maxqnum = max($qnums);
             $qid = array_search($maxqnum, $qnums);
         }
         $component = \Yii::createObject([
-            'class'     => \common\components\AutoNumber::className(),
-            'prefix'    => 0,//$service ? $service['service_prefix'] : 'A',
-            'number'    => ArrayHelper::getValue($queue,$qid,null),
-            'digit'     => 2//$service ? $service['service_numdigit'] : 3,
+            'class' => \common\components\AutoNumber::className(),
+            'prefix' => 0, //$service ? $service['service_prefix'] : 'A',
+            'number' => ArrayHelper::getValue($queue, $qid, null),
+            'digit' => 2, //$service ? $service['service_numdigit'] : 3,
         ]);
         return $component->generate();
     }
 
-    public function getStatus(){
+    public function getStatus()
+    {
         $modelQ = $this;
         $modelQTran = TbQtrans::findOne(['q_ids' => $this->q_ids]);
-        if($modelQTran['service_status_id'] == 1){//รอเรียก
-            if($modelQ['servicegroupid'] == 1){//ลงทะเบียน
+        if ($modelQTran['service_status_id'] == 1) {
+            //รอเรียก
+            if ($modelQ['servicegroupid'] == 1) {
+                //ลงทะเบียน
                 return 'รอเรียกคิว (จุดลงทะเบียน)';
-            }else{//ซักประวัติ
+            } else {
+                //ซักประวัติ
                 return 'รอเรียกคิว (ซักประวัติ)';
             }
-        }elseif($modelQTran['service_status_id'] == 2){//เรียกคิว
-            $modelCaller = TbCaller::findOne(['qtran_ids' => $modelQTran['ids'],'q_ids' => $modelQ['q_ids']]);
-            if(!$modelCaller){
+        } elseif ($modelQTran['service_status_id'] == 2) {
+            //เรียกคิว
+            $modelCaller = TbCaller::findOne([
+                'qtran_ids' => $modelQTran['ids'],
+                'q_ids' => $modelQ['q_ids'],
+            ]);
+            if (!$modelCaller) {
                 return '-';
             }
-            if($modelQ['servicegroupid'] == 1){//ลงทะเบียน
-                if($modelCaller['call_status'] == 'calling' || $modelCaller['call_status'] == 'callend'){
-                    return 'กำลังเรียก (จุดลงทะเบียน) '.$modelCaller->tbCounterservice->counterservice_name;
+            if ($modelQ['servicegroupid'] == 1) {
+                //ลงทะเบียน
+                if (
+                    $modelCaller['call_status'] == 'calling' ||
+                    $modelCaller['call_status'] == 'callend'
+                ) {
+                    return 'กำลังเรียก (จุดลงทะเบียน) ' .
+                        $modelCaller->tbCounterservice->counterservice_name;
                 }
             }
-            if($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])){//
-                if($modelCaller['call_status'] == 'calling' || $modelCaller['call_status'] == 'callend'){
-                    return 'กำลังเรียก (ซักประวัติ) '.$modelCaller->tbCounterservice->counterservice_name;
+            if (
+                $modelQ['servicegroupid'] == 2 &&
+                empty($modelQTran['counter_service_id'])
+            ) {
+                //
+                if (
+                    $modelCaller['call_status'] == 'calling' ||
+                    $modelCaller['call_status'] == 'callend'
+                ) {
+                    return 'กำลังเรียก (ซักประวัติ) ' .
+                        $modelCaller->tbCounterservice->counterservice_name;
                 }
             }
-            if($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])){//
-                $modelCaller = TbCaller::find()->where(['qtran_ids' => $modelQTran['ids'],'q_ids' => $modelQ['q_ids']])->orderBy('caller_ids DESC')->one();
-                if(!$modelCaller){
+            if (
+                $modelQ['servicegroupid'] == 2 &&
+                !empty($modelQTran['counter_service_id'])
+            ) {
+                //
+                $modelCaller = TbCaller::find()
+                    ->where([
+                        'qtran_ids' => $modelQTran['ids'],
+                        'q_ids' => $modelQ['q_ids'],
+                    ])
+                    ->orderBy('caller_ids DESC')
+                    ->one();
+                if (!$modelCaller) {
                     return '-';
                 }
-                if($modelCaller['call_status'] == 'calling' || $modelCaller['call_status'] == 'callend'){
-                    return 'กำลังเรียก (ห้องตรวจ) '.$modelCaller->tbCounterservice->counterservice_name;
+                if (
+                    $modelCaller['call_status'] == 'calling' ||
+                    $modelCaller['call_status'] == 'callend'
+                ) {
+                    return 'กำลังเรียก (ห้องตรวจ) ' .
+                        $modelCaller->tbCounterservice->counterservice_name;
                 }
             }
-        }elseif($modelQTran['service_status_id'] == 3){//พักคิว
-            $modelCaller = TbCaller::findOne(['qtran_ids' => $modelQTran['ids'],'q_ids' => $modelQ['q_ids']]);
-            if(!$modelCaller){
+        } elseif ($modelQTran['service_status_id'] == 3) {
+            //พักคิว
+            $modelCaller = TbCaller::findOne([
+                'qtran_ids' => $modelQTran['ids'],
+                'q_ids' => $modelQ['q_ids'],
+            ]);
+            if (!$modelCaller) {
                 return '-';
             }
-            if($modelQ['servicegroupid'] == 1){//ลงทะเบียน
-                if($modelCaller['call_status'] == 'hold'){
-                    return 'พักคิว (จุดลงทะเบียน) '.$modelCaller->tbCounterservice->counterservice_name;
+            if ($modelQ['servicegroupid'] == 1) {
+                //ลงทะเบียน
+                if ($modelCaller['call_status'] == 'hold') {
+                    return 'พักคิว (จุดลงทะเบียน) ' .
+                        $modelCaller->tbCounterservice->counterservice_name;
                 }
             }
-            if($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])){//
-                if($modelCaller['call_status'] == 'hold'){
-                    return 'พักคิว (ซักประวัติ) '.$modelCaller->tbCounterservice->counterservice_name;
+            if (
+                $modelQ['servicegroupid'] == 2 &&
+                empty($modelQTran['counter_service_id'])
+            ) {
+                //
+                if ($modelCaller['call_status'] == 'hold') {
+                    return 'พักคิว (ซักประวัติ) ' .
+                        $modelCaller->tbCounterservice->counterservice_name;
                 }
             }
-            if($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])){//
-                $modelCaller = TbCaller::find()->where(['qtran_ids' => $modelQTran['ids'],'q_ids' => $modelQ['q_ids']])->orderBy('caller_ids DESC')->one();
-                if(!$modelCaller){
+            if (
+                $modelQ['servicegroupid'] == 2 &&
+                !empty($modelQTran['counter_service_id'])
+            ) {
+                //
+                $modelCaller = TbCaller::find()
+                    ->where([
+                        'qtran_ids' => $modelQTran['ids'],
+                        'q_ids' => $modelQ['q_ids'],
+                    ])
+                    ->orderBy('caller_ids DESC')
+                    ->one();
+                if (!$modelCaller) {
                     return '-';
                 }
-                if($modelCaller['call_status'] == 'hold'){
-                    return 'พักคิว (ห้องตรวจ) '.$modelCaller->tbCounterservice->counterservice_name;
+                if ($modelCaller['call_status'] == 'hold') {
+                    return 'พักคิว (ห้องตรวจ) ' .
+                        $modelCaller->tbCounterservice->counterservice_name;
                 }
             }
-        }elseif($modelQTran['service_status_id'] == 4){//
-            if($modelQ['servicegroupid'] == 1){//ลงทะเบียน
+        } elseif ($modelQTran['service_status_id'] == 4) {
+            //
+            if ($modelQ['servicegroupid'] == 1) {
+                //ลงทะเบียน
                 return 'เสร็จสิ้น (จุดลงทะเบียน)';
             }
-            if($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])){//
+            if (
+                $modelQ['servicegroupid'] == 2 &&
+                empty($modelQTran['counter_service_id'])
+            ) {
+                //
                 return 'เสร็จสิ้น (ซักประวัติ)';
             }
-            if($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])){//
+            if (
+                $modelQ['servicegroupid'] == 2 &&
+                !empty($modelQTran['counter_service_id'])
+            ) {
+                //
                 return 'รอเรียก (ห้องตรวจ)';
             }
-        }elseif($modelQTran['service_status_id'] == 10){
-            if($modelQ['servicegroupid'] == 1){//ลงทะเบียน
+        } elseif ($modelQTran['service_status_id'] == 10) {
+            if ($modelQ['servicegroupid'] == 1) {
+                //ลงทะเบียน
                 return 'เสร็จสิ้น (จุดลงทะเบียน)';
             }
-            if($modelQ['servicegroupid'] == 2){
+            if ($modelQ['servicegroupid'] == 2) {
                 return 'เสร็จสิ้น (ห้องตรวจ)';
             }
         }

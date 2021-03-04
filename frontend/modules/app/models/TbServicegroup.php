@@ -30,7 +30,7 @@ class TbServicegroup extends \yii\db\ActiveRecord
     {
         return [
             [['servicegroup_order', 'servicegroup_name'], 'required'],
-            [['servicegroup_order'], 'integer'],
+            [['servicegroup_order','servicegroup_status'], 'integer'],
             [['servicegroup_name'], 'string', 'max' => 100],
         ];
     }
@@ -44,6 +44,7 @@ class TbServicegroup extends \yii\db\ActiveRecord
             'servicegroupid' => 'เลขที่กลุ่มบริการ',
             'servicegroup_name' => 'ชื่อกลุ่มบริการ',
             'servicegroup_order' => 'ลำดับการแสดง',
+            'servicegroup_status' => 'สถานะการเปิดกลุ่มบริการ'
         ];
     }
 
