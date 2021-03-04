@@ -56,7 +56,7 @@ $this->registerMetaTag([
     <div class="color-line">
     </div>
     <div id="logo" class="light-version" style="padding-top: 0px;">
-        <?= Html::a(Html::img(Yii::getAlias('@web').\Yii::$app->keyStorage->get('logo-url', '/img/logo/logo.jpg'),['class' => 'img-responsive center-block','width' => '70px']),Url::to(['/site/index']),['style' => 'text-transform: uppercase;']); ?>
+        <?= Html::a(Html::img(Yii::getAlias('@web').\Yii::$app->keyStorage->get('logo-url', '/img/logo/logo.jpg'),['class' => 'img-responsive center-block','width' => '100%']),Url::to(['/site/index']),['style' => 'text-transform: uppercase;']); ?>
     </div>
     <nav role="navigation">
         <div class="header-link hide-menu"><i class="fa fa-bars"></i></div>
