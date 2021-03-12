@@ -172,4 +172,8 @@ class KeyStorage extends Component
         unset($this->values[$key]);
         return call_user_func($this->modelClass . '::deleteAll', ['key' => $key]);
     }
+
+    public function deleteCacheKey($key){
+        Yii::$app->cache->delete($this->getCacheKey($key));
+    }
 }

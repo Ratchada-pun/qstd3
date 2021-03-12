@@ -130,6 +130,7 @@ class KeyStorageController extends Controller
         
                 ];         
             }else if($model->load($request->post()) && $model->save()){
+                Yii::$app->keyStorage->deleteCacheKey($model->key);
                 return [
                     'forceReload'=>'#pjax-index',
                     'title'=> "Update",
