@@ -1,5 +1,5 @@
 var host = 'http://' + window.location.hostname;
-var socket = io(host, {path: '/node/socket.io'});
+var socket = io(host, {path: '/node', transports: ["websocket"]});
 $(function() {
     socket.on('connect', () => {
         console.warn('connect: ' + socket.id);
