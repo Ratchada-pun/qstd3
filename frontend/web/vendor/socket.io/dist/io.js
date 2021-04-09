@@ -1,4 +1,4 @@
-var host = 'http://' + window.location.hostname + ':3000';
+var host = 'http://' + window.location.hostname + '/node';
 var socket = io(host);
 $(function() {
     socket.on('connect', () => {
