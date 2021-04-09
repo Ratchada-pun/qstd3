@@ -35,5 +35,4 @@ phpunit.phar
 /.vagrant
 /composer.lock
 node_modules
-/frontend/web/assets
 .env
