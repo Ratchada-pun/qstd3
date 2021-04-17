@@ -5,7 +5,7 @@ class Service {
 
     }
     static getItembyid(id) {
-        return db.select('*').from('tb_service').where('serviceid', id).first()
+        return db.select('*').from('tb_service').where('service_groupid', id).first()
     }
 
 
