@@ -99,6 +99,14 @@ CSS
                                 echo Html::activeHiddenInput($modelService, "[{$index}]serviceid");
                             }
                         ?>
+                         <div class="form-group">
+                            <?= Html::activeLabel($modelService, "[{$index}]main_dep", ['label' => 'รหัสแผนก','class'=>'col-sm-2 control-label']) ?>
+                            <div class="col-sm-4">
+                                <?= $form->field($modelService, "[{$index}]main_dep",['showLabels'=>false])->textInput([
+                                    'placeholder' => 'รหัสแผนก'
+                                ]); ?>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <?= Html::activeLabel($modelService, "[{$index}]service_name", ['label' => 'ชื่อบริการ','class'=>'col-sm-2 control-label']) ?>
                             <div class="col-sm-4">

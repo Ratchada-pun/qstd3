@@ -44,6 +44,7 @@ class TbService extends \yii\db\ActiveRecord
             [['service_route'], 'string', 'max' => 11],
             [['service_prefix'], 'string', 'max' => 2],
             [['service_status'], 'string', 'max' => 10],
+            [['main_dep'], 'string', 'max' => 50],
             // [['schedules'], 'safe'],
             [['schedules'], 'validateSchedules'],
             [['service_groupid'], 'exist', 'skipOnError' => true, 'targetClass' => TbServicegroup::className(), 'targetAttribute' => ['service_groupid' => 'servicegroupid']],
@@ -71,7 +72,8 @@ class TbService extends \yii\db\ActiveRecord
             'show_on_kiosk' => 'แสดงปุ่ม Kiosk',
             'show_on_mobile' => 'แสดงปุ่ม Mobile',
             'btn_kiosk_name' => 'ชื่อปุ่ม Kiosk',
-            'prn_profileid_quickly' => 'แบบการพิมพ์บัตรคิวด่วน'
+            'prn_profileid_quickly' => 'แบบการพิมพ์บัตรคิวด่วน',
+            'main_dep' => 'รหัสแผนก',
         ];
     }
 

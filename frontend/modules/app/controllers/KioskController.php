@@ -677,10 +677,11 @@ class KioskController extends \yii\web\Controller
 		$patient_info = $params['patient_info']; // ข้อมูลผู้ป่วย pt_name,hn,cid
 		$right = $params['right']; //สิทธิ์
 		$appoint = ArrayHelper::getValue($params, 'appoint', null); //ข้อมูลนัด
-
+		$data_visit = ArrayHelper::getValue($patient_info, 'data_visit', []); //ข้อมูลนัด
 
 		$pt_name = ArrayHelper::getValue($patient_info, 'pt_name', null);
 		$hn = ArrayHelper::getValue($patient_info, 'hn', null);
+		
 		$cid = ArrayHelper::getValue($patient_info, 'cid', null);
 
 		$maininscl_name = ArrayHelper::getValue($right, 'maininscl_name', null); //ชื่อสิทธิ์
@@ -698,6 +699,11 @@ class KioskController extends \yii\web\Controller
 		// data models
 		$modelService = $this->findModelService($serviceid); // กลุ่มบริการ
 		$modelServiceGroup = $this->findModelServiceGroup($servicegroupid); // กลุ่มแผนก
+
+		$visit = array_filter($data_visit, function($v, $k) use ($modelService) {
+			return $v['main_dep'] == $modelService['main_dep'];
+		}, ARRAY_FILTER_USE_BOTH);
+		$vn = ArrayHelper::getValue($visit, '0.vn', null);
 
 		$db = Yii::$app->db;
 		$transaction = $db->beginTransaction();
@@ -723,6 +729,7 @@ class KioskController extends \yii\web\Controller
 				]),
 				'cid' => $cid,
 				'q_hn' => $hn,
+				'q_vn' => $vn,
 				'pt_name' => $pt_name,
 				'appoint_id' => $appoint_id,
 				'servicegroupid' => $servicegroupid, //กลุ่มบริการ
