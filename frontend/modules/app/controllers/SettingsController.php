@@ -47,6 +47,9 @@ use frontend\modules\app\models\TbQtrans;
 use frontend\modules\app\models\TbCidStation;
 use frontend\modules\app\models\LabItems;
 use frontend\modules\app\models\TbKiosk;
+use frontend\modules\app\models\TbServiceTslot;
+use frontend\modules\app\models\TbTokenNhso;
+use yii\web\HttpException;
 
 class SettingsController extends \yii\web\Controller
 {
@@ -59,6 +62,11 @@ class SettingsController extends \yii\web\Controller
                     [
                         'allow' => true,
                         'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['save-nhso-token'],
+                        'allow' => true,
+                        'roles' => ['?'],
                     ],
                 ],
             ],
@@ -77,6 +85,18 @@ class SettingsController extends \yii\web\Controller
                 ],
             ],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeAction($action)
+    {
+        if ($action->id == 'save-nhso-token') {
+            $this->enableCsrfValidation = false;
+        }
+
+        return parent::beforeAction($action);
     }
 
     public function actions()
@@ -299,7 +319,10 @@ class SettingsController extends \yii\web\Controller
                     'tb_service.prn_copyqty',
                     'tb_service.service_prefix',
                     'tb_service.service_numdigit',
-                    'tb_service.service_status'
+                    'tb_service.service_status',
+                    'tb_service.show_on_kiosk',
+                    'tb_service.show_on_mobile'
+
                 ])
                 ->from('tb_servicegroup')
                 ->leftJoin('tb_service', 'tb_service.service_groupid = tb_servicegroup.servicegroupid')
@@ -351,35 +374,50 @@ class SettingsController extends \yii\web\Controller
                         'attribute' => 'service_numdigit',
                     ],
                     [
+                        'attribute' => 'show_on_kiosk',
+                    ],
+                    [
+                        'attribute' => 'show_on_mobile',
+                    ],
+                    [
                         'attribute' => 'service_status',
                         'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['service_status']);
                         },
                         'format' => 'raw'
                     ],
-                    [
-                        'attribute' => 'service_status_id',
-                        'value' => function ($model, $key, $index) {
-                            return $model['service_status'];
-                        },
-                    ],
+                    // [
+                    //     'attribute' => 'service_status_id',
+                    //     'value' => function ($model, $key, $index) {
+                    //         return $model['service_status'];
+                    //     },
+                    // ],
                     [
                         'class' => ActionTable::className(),
-                        'template' => '{update} {delete}',
+                        'template' => '{slot} {update} {delete}',
                         'updateOptions' => [
-                            'role' => 'modal-remote'
+                            'role' => 'modal-remote',
                         ],
                         'deleteOptions' => [
                             'class' => 'text-danger'
                         ],
                         'urlCreator' => function ($action, $model, $key, $index) {
+
+                            if ($action == 'slot') {
+                                return Url::to(['/app/settings/create-service-tslot', 'id' => $model['serviceid']]);
+                            }
                             if ($action == 'update') {
                                 return Url::to(['/app/settings/update-service-group', 'id' => $key]);
                             }
                             if ($action == 'delete') {
                                 return Url::to(['/app/settings/delete-service-group', 'id' => $key, 'serviceid' => $model['serviceid']]);
                             }
-                        }
+                        },
+                        'buttons' => [
+                            'slot' => function ($url, $model, $key) {
+                                return Html::a('<i class="fa fa-calendar"></i>', $url, ['role' => 'modal-remote', 'class' => 'text-info', 'title' => 'บันทึก slot']);
+                            }
+                        ]
                     ]
                 ]
             ]);
@@ -616,14 +654,15 @@ class SettingsController extends \yii\web\Controller
         }
     }
 
-    public function fn_return_soundname($tb_counterservice){
+    public function fn_return_soundname($tb_counterservice)
+    {
         !empty($tb_counterservice) ?
-        $query = (new \yii\db\Query())
-                ->select(['tb_sound.sound_th'])
-                ->from('tb_sound')
-                ->where(['tb_sound.sound_id' => $tb_counterservice])
-                ->all(\Yii::$app->db):
-        $query = '';
+            $query = (new \yii\db\Query())
+            ->select(['tb_sound.sound_th'])
+            ->from('tb_sound')
+            ->where(['tb_sound.sound_id' => $tb_counterservice])
+            ->all(\Yii::$app->db) :
+            $query = '';
         return $query;
     }
 
@@ -1246,7 +1285,7 @@ class SettingsController extends \yii\web\Controller
                                 'status' => '200'
                             ];
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $transaction->rollBack();
                     }
                 } else {
@@ -1328,7 +1367,7 @@ class SettingsController extends \yii\web\Controller
                                 'status' => '200'
                             ];
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $transaction->rollBack();
                     }
                 } else {
@@ -1592,7 +1631,7 @@ class SettingsController extends \yii\web\Controller
                                 'status' => '200'
                             ];
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $transaction->rollBack();
                     }
                 } else {
@@ -1697,7 +1736,7 @@ class SettingsController extends \yii\web\Controller
                                 'status' => '200'
                             ];
                         }
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $transaction->rollBack();
                     }
                 } else {
@@ -2491,6 +2530,90 @@ class SettingsController extends \yii\web\Controller
             return $this->render('_form_sortinput_kiosk', [
                 'model' => $model,
                 'items' => $items,
+            ]);
+        }
+    }
+
+    public function actionSaveNhsoToken()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $request = Yii::$app->request;
+        $params = Yii::$app->getRequest()->getRawBody();
+        $body = Json::decode($params);
+        $model = new TbTokenNhso();
+        $model->user_person_id = $body['id_card'];
+        $model->smctoken = $body['token'];
+        $model->createdby = 1;
+        $model->crearedat = Yii::$app->formatter->asDate('now', 'php:Y-m-d');
+        if ($model->save()) {
+            return $model;
+        } else {
+            throw new HttpException(422, Json::encode($model->errors));
+        }
+    }
+
+    public function actionCreateServiceTslot($id)
+    {
+        $request = Yii::$app->request;
+        $model = TbService::findOne($id);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($request->isGet) {
+                $schedules = TbServiceTslot::find()->where(['serviceid' => $id])->asArray()->all();
+                $model->schedules = $schedules;
+                return [
+                    'title' => "บันทึกรายการ",
+                    'content' => $this->renderAjax('_form_slot', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+
+                ];
+            } else if ($model->load($request->post()) && $model->save()) {
+                $body = $request->post('TbService');
+                $schedules = $body['schedules'];
+                $oldIDs = ArrayHelper::map(TbServiceTslot::find()->where(['serviceid' => $id])->asArray()->all(), 'tslotid', 'tslotid');
+                foreach ($schedules as $schedule) {
+                    $slot = new TbServiceTslot();
+                    if (!empty($schedule['tslotid'])) {
+                        $slot =  TbServiceTslot::findOne($schedule['tslotid']);
+                    }
+
+                    $slot->serviceid = $id;
+                    $slot->t_slot_begin = $schedule['t_slot_begin'];
+                    $slot->t_slot_end = $schedule['t_slot_end'];
+                    $slot->q_limit = $schedule['q_limit'];
+                    $slot->q_limitqty = $schedule['q_limitqty'];
+                    if (!$slot->save()) {
+                        throw new HttpException(422, $slot->errors);
+                    }
+                }
+                $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($schedules, 'tslotid', 'tslotid')));
+                if (!empty($deletedIDs)) {
+                    TbServiceTslot::deleteAll(['tslotid' => $deletedIDs]);
+                }
+                return [
+                    'title' => "บันทึกรายการ",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
+                    'status' => '200',
+                    'url' => Url::to(['update', 'id' => $model->serviceid]),
+                ];
+            } else {
+                return [
+                    'title' => "บันทึกรายการ",
+                    'content' => $this->renderAjax('_form_slot', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+                    'status' => 'validate',
+                    'validate' => ActiveForm::validate($model),
+                ];
+            }
+        } else {
+            return $this->render('_form_slot', [
+                'model' => $model,
             ]);
         }
     }

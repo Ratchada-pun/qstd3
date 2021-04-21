@@ -21,6 +21,8 @@ use yii\helpers\Url;
                     ['content' => 'จำนวนพิมพ์ต่อครั้ง','options' => []],
                     ['content' => 'ตัวอักษร/ตัวเลข นำหน้าคิว','options' => []],
                     ['content' => 'จำนวนหลักหมายเลขคิว','options' => []],
+                    ['content' => 'แสดงบน kiosk','options' => []],
+                    ['content' => 'แสดงบน mobile','options' => []],
                     ['content' => 'สถานะคิว','options' => []],
                     ['content' => 'ดำเนินการ','options' => []],
                 ]
@@ -81,6 +83,8 @@ use yii\helpers\Url;
             ["data" => "prn_copyqty","className" => "dt-body-left dt-head-nowrap","title" => "จำนวนพิมพ์ต่อครั้ง"],
             ["data" => "service_prefix","className" => "dt-body-left dt-head-nowrap","title" => "ตัวอักษร/ตัวเลข นำหน้าคิว"],
             ["data" => "service_numdigit","className" => "dt-body-left dt-head-nowrap","title" => "จำนวนหลักหมายเลขคิว"],
+            ["data" => "show_on_kiosk","className" => "dt-body-left dt-head-nowrap","title" => "แสดงบน kiosk"],
+            ["data" => "show_on_mobile","className" => "dt-body-left dt-head-nowrap","title" => "แสดงบน mobile"],
             ["data" => "service_status","className" => "dt-body-left dt-head-nowrap","title" => "สถานะคิว"],
             ["data" => "actions","className" => "dt-center dt-nowrap","orderable" => false,"title" => "ดำเนินการ"]
         ],
