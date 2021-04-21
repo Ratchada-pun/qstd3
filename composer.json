@@ -34,7 +34,8 @@
         "kartik-v/yii2-helpers": "dev-master",
         "mihaildev/yii2-elfinder": "*",
         "yiisoft/yii2-redis": "^2.0",
-        "kartik-v/yii2-field-range": "*"
+        "kartik-v/yii2-field-range": "*",
+        "m-comscience/yii2-soap-client": "dev-master"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
