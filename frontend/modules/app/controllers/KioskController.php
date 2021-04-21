@@ -681,6 +681,7 @@ class KioskController extends \yii\web\Controller
 
 		$pt_name = ArrayHelper::getValue($patient_info, 'pt_name', null);
 		$hn = ArrayHelper::getValue($patient_info, 'hn', null);
+		$vn = ArrayHelper::getValue($patient_info, 'vn', null);
 		$cid = ArrayHelper::getValue($patient_info, 'cid', null);
 
 		$maininscl_name = ArrayHelper::getValue($right, 'maininscl_name', null); //ชื่อสิทธิ์
@@ -723,6 +724,7 @@ class KioskController extends \yii\web\Controller
 				]),
 				'cid' => $cid,
 				'q_hn' => $hn,
+				'q_vn' => $vn,
 				'pt_name' => $pt_name,
 				'appoint_id' => $appoint_id,
 				'servicegroupid' => $servicegroupid, //กลุ่มบริการ
