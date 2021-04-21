@@ -19,6 +19,14 @@ use yii\icons\Icon;
             'max' => 10,
             'columns' => [
                 [
+                    'name'  => 'tslotid',
+                    'title' => '#',
+                    'options' => [
+                        'readonly' => true,
+                        'style' => 'display:none'
+                    ],
+                ],
+                [
                     'name'  => 't_slot_begin',
                     'title' => 'ช่วงเวลาเริ่ม',
                     'type' => \yii\widgets\MaskedInput::className(),
