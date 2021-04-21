@@ -3,6 +3,8 @@
 namespace frontend\modules\app\models\mobile;
 
 use Yii;
+use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "tb_quequ".
@@ -37,6 +39,21 @@ class TbQuequ extends \yii\db\ActiveRecord
         return 'tb_quequ';
     }
 
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['q_timestp', 'created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+                // if you're using datetime instead of UNIX timestamp:
+                'value' => Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s')
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -44,9 +61,13 @@ class TbQuequ extends \yii\db\ActiveRecord
     {
         return [
             [['q_timestp', 'created_at', 'updated_at'], 'safe'],
-            [['q_arrive_time', 'q_appoint_time', 'pt_id', 'pt_visit_type_id', 'pt_appoint_sec_id', 'serviceid', 'servicegroupid', 'quickly', 'q_status_id', 'doctor_id', 'counterserviceid'], 'integer'],
+            [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid','created_from','quickly'], 'integer'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
+            [['q_qn', 'rx_q'], 'string', 'max' => 10],
+            [['cid'], 'string', 'max' => 13],
             [['pt_name'], 'string', 'max' => 200],
+            [['doctor_name'], 'string', 'max' => 250],
+            [['pt_pic', 'pt_sound','maininscl_name'], 'string', 'max' => 255],
         ];
     }
 
@@ -61,20 +82,27 @@ class TbQuequ extends \yii\db\ActiveRecord
             'q_timestp' => 'วันที่ออกคิว',
             'q_arrive_time' => 'เวลามาถึง',
             'q_appoint_time' => 'เวลานัดหมาย',
-            'pt_id' => 'Pt ID',
+            'cid' => 'รหัสประชาชนผู้ป่วย',
             'q_vn' => 'Visit number ของผู้ป่วย',
             'q_hn' => 'หมายเลข HN ผู้ป่วย',
+            'q_qn' => 'QN',
+            'rx_q' => 'Rx Q',
             'pt_name' => 'ชื่อผู้ป่วย',
-            'pt_visit_type_id' => 'ประเภท',
-            'pt_appoint_sec_id' => 'แผนกที่นัดหมาย',
+            'pt_visit_type_id' => 'ประเภท walkin/ไม่ walkin',
+            'appoint_id' => 'แผนกที่นัดหมาย',
+            'servicegroupid' => 'กลุ่มบริการ',
             'serviceid' => 'ประเภทบริการ',
-            'servicegroupid' => 'Servicegroupid',
-            'quickly' => 'คิวด่วน',
+            'created_from' => 'คิวสร้างจาก 1 kiosk 2 mobile',
             'q_status_id' => 'สถานะ',
-            'doctor_id' => 'Doctor ID',
+            'doctor_name' => 'แพทย์ที่นัด',
             'counterserviceid' => 'เลขที่ช่องบริการ',
+            'tslotid' => 'รหัสช่วงเวลา',
             'created_at' => 'วันที่บันทึก',
             'updated_at' => 'วันที่แก้ไข',
+            'pt_pic' => 'ไฟล์ภาพ path file',
+            'pt_sound' => 'ไฟล์เสียง path file',
+            'quickly' => 'ความด่วนของคิว',
+            'maininscl_name' => 'สิทธิ์',
         ];
     }
 
@@ -85,5 +113,47 @@ class TbQuequ extends \yii\db\ActiveRecord
     public static function find()
     {
         return new TbQuequQuery(get_called_class());
+    }
+
+    public static function getQuequ($serviceid, $q_date)
+    {
+        $rows = (new \yii\db\Query())
+            ->select([
+                'CONCAT(`tb_service`.`service_prefix`,lpad(substr( `tb_quequ`.`q_num`, octet_length( `tb_service`.`service_prefix` ) + 1, `tb_service`.`service_numdigit` ) + 1,
+			`tb_service`.`service_numdigit`,
+			\'0\')) AS `next_q_num`'
+            ])
+            ->from('`tb_quequ`')
+            ->join('`tb_service`', '`tb_service`.`serviceid` = `tb_quequ`.`serviceid`')
+            ->where([
+                '`tb_service`' => $serviceid
+            ])
+            ->andWhere('cast( `tb_quequ`.`q_timestp` AS date )', ['date' => $q_date])
+            ->orderBy('`tb_quequ`.`q_ids` DESC')
+            ->limit(1)
+            ->all(Yii::$app->db);
+        return $rows;
+    }
+
+    public function generateQnumber($params)
+    {
+        $maxid = $this->find()
+            ->where([
+                'serviceid' => $params['serviceid']
+            ])
+            ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+            ->max('q_ids');
+        $number = null;
+        if ($maxid) {
+            $model = $this->findOne($maxid);
+            $number = $model['q_num'];
+        }
+        $component = \Yii::createObject([
+            'class'     => \common\components\AutoNumber::class,
+            'prefix'    => $params['service_prefix'],
+            'number'    => $number,
+            'digit'     => $params['service_numdigit'],
+        ]);
+        return $component->generate();
     }
 }

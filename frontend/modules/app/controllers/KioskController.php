@@ -2,6 +2,7 @@
 
 namespace frontend\modules\app\controllers;
 
+use common\models\FileStorageItem;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -11,6 +12,7 @@ use yii\filters\AccessControl;
 use yii\web\Response;
 use yii\helpers\Json;
 use frontend\modules\app\components\HisQuery;
+use frontend\modules\app\models\Patient;
 use kartik\widgets\ActiveForm;
 use homer\widgets\tbcolumn\ActionTable;
 use homer\widgets\tbcolumn\ColumnTable;
@@ -23,12 +25,16 @@ use yii\helpers\ArrayHelper;
 #models
 use frontend\modules\app\models\TbServicegroup;
 use frontend\modules\app\models\TbService;
-use frontend\modules\app\models\TbQuequ;
+use frontend\modules\app\models\mobile\TbQuequ;
 use frontend\modules\app\models\TbQtrans;
 use frontend\modules\app\models\TbTicket;
 use frontend\modules\app\models\TbCaller;
 use frontend\modules\app\models\TbKiosk;
+use frontend\modules\app\models\TbTokenNhso;
 use frontend\modules\app\traits\ModelTrait;
+use homer\helpers\Enum;
+use yii\helpers\FileHelper;
+use yii\web\HttpException;
 
 class KioskController extends \yii\web\Controller
 {
@@ -51,7 +57,7 @@ class KioskController extends \yii\web\Controller
 					],
 					[
 						'allow' => true,
-						'actions' => ['led-options'],
+						'actions' => ['led-options', 'pt-right', 'create-queue'],
 						'roles' => ['?'],
 					],
 				],
@@ -64,6 +70,18 @@ class KioskController extends \yii\web\Controller
 				'class' => \yii\filters\Cors::className(),
 			],
 		];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function beforeAction($action)
+	{
+		if ($action->id == 'create-queue') {
+			$this->enableCsrfValidation = false;
+		}
+
+		return parent::beforeAction($action);
 	}
 
 	public function actionIndex()
@@ -300,18 +318,18 @@ class KioskController extends \yii\web\Controller
 	{
 		$modelQ = TbQuequ::findOne($q_ids);
 		$modelQTran = TbQtrans::findOne(['q_ids' => $q_ids]);
-		if ($modelQTran['service_status_id'] == 1) {//รอเรียก
-			if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+		if ($modelQTran['service_status_id'] == 1) { //รอเรียก
+			if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
 				return 'รอเรียกคิว (จุดลงทะเบียน)';
-			} else {//ซักประวัติ
+			} else { //ซักประวัติ
 				return 'รอเรียกคิว (ซักประวัติ)';
 			}
-		} elseif ($modelQTran['service_status_id'] == 2) {//เรียกคิว
+		} elseif ($modelQTran['service_status_id'] == 2) { //เรียกคิว
 			$modelCaller = TbCaller::findOne(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']]);
 			if (!$modelCaller) {
 				return '-';
 			}
-			if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+			if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
 				if ($modelCaller['call_status'] == 'calling' || $modelCaller['call_status'] == 'callend') {
 					if ($modelCaller->tbCounterservice) {
 						return 'กำลังเรียก (จุดลงทะเบียน) ' . $modelCaller->tbCounterservice->counterservice_name;
@@ -320,7 +338,7 @@ class KioskController extends \yii\web\Controller
 					}
 				}
 			}
-			if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) {//
+			if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) { //
 				if ($modelCaller['call_status'] == 'calling' || $modelCaller['call_status'] == 'callend') {
 					if ($modelCaller->tbCounterservice) {
 						return 'กำลังเรียก (ซักประวัติ) ' . $modelCaller->tbCounterservice->counterservice_name;
@@ -329,7 +347,7 @@ class KioskController extends \yii\web\Controller
 					}
 				}
 			}
-			if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) {//
+			if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) { //
 				$modelCaller = TbCaller::find()->where(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']])->orderBy('caller_ids DESC')->one();
 				if (!$modelCaller) {
 					return '-';
@@ -342,12 +360,12 @@ class KioskController extends \yii\web\Controller
 					}
 				}
 			}
-		} elseif ($modelQTran['service_status_id'] == 3) {//พักคิว
+		} elseif ($modelQTran['service_status_id'] == 3) { //พักคิว
 			$modelCaller = TbCaller::findOne(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']]);
 			if (!$modelCaller) {
 				return '-';
 			}
-			if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+			if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
 				if ($modelCaller['call_status'] == 'hold') {
 					if ($modelCaller->tbCounterservice) {
 						return 'พักคิว (จุดลงทะเบียน) ' . $modelCaller->tbCounterservice->counterservice_name;
@@ -356,7 +374,7 @@ class KioskController extends \yii\web\Controller
 					}
 				}
 			}
-			if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) {//
+			if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) { //
 				if ($modelCaller['call_status'] == 'hold') {
 					if ($modelCaller->tbCounterservice) {
 						return 'พักคิว (ซักประวัติ) ' . $modelCaller->tbCounterservice->counterservice_name;
@@ -365,7 +383,7 @@ class KioskController extends \yii\web\Controller
 					}
 				}
 			}
-			if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) {//
+			if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) { //
 				$modelCaller = TbCaller::find()->where(['qtran_ids' => $modelQTran['ids'], 'q_ids' => $modelQ['q_ids']])->orderBy('caller_ids DESC')->one();
 				if (!$modelCaller) {
 					return '-';
@@ -378,18 +396,18 @@ class KioskController extends \yii\web\Controller
 					}
 				}
 			}
-		} elseif ($modelQTran['service_status_id'] == 4) {//
-			if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+		} elseif ($modelQTran['service_status_id'] == 4) { //
+			if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
 				return 'เสร็จสิ้น (จุดลงทะเบียน)';
 			}
-			if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) {//
+			if ($modelQ['servicegroupid'] == 2 && empty($modelQTran['counter_service_id'])) { //
 				return 'เสร็จสิ้น (ซักประวัติ)';
 			}
-			if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) {//
+			if ($modelQ['servicegroupid'] == 2 && !empty($modelQTran['counter_service_id'])) { //
 				return 'รอเรียก (ห้องตรวจ)';
 			}
 		} elseif ($modelQTran['service_status_id'] == 10) {
-			if ($modelQ['servicegroupid'] == 1) {//ลงทะเบียน
+			if ($modelQ['servicegroupid'] == 1) { //ลงทะเบียน
 				return 'เสร็จสิ้น (จุดลงทะเบียน)';
 			}
 			if ($modelQ['servicegroupid'] == 2) {
@@ -589,5 +607,318 @@ class KioskController extends \yii\web\Controller
 			'services' => $services,
 			'counters' => $counters
 		];
+	}
+
+	// ขอข้อมูลสิทธิผู้ป่วยจาก สปสช
+	public function actionPtRight($cid = null)
+	{
+		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+		if (empty($cid) || strlen($cid) < 13) {
+			return $this->apiValidate('รหัสบัตรประชาชนไม่ถูกต้อง.');
+		}
+
+		$client = Yii::$app->soapClient;
+		$userToken = TbTokenNhso::find()->orderBy('crearedat DESC')->limit(1)->one();
+		if (!$userToken) {
+			return $this->apiValidate('กรุณาตั้งค่า Token.');
+		}
+		$params = [
+			'user_person_id' => $userToken['user_person_id'],
+			'smctoken' => $userToken['smctoken'],
+			'person_id' => $cid
+		];
+		$res = $client->searchCurrentByPID($params);
+		$res = (array)$res;
+		$data = (array)$res['return'];
+
+		$this->verifyPtRight($data);
+
+		return $data;
+	}
+
+	// ตรวจสอบข้อมูลสิทธิ
+	private function verifyPtRight($data)
+	{
+		if (!$data) {
+			return $this->apiBadRequest('RESPONSE FAILED');
+		} else if ($data['ws_status'] == 'NHSO-00003') {
+			return $this->apiValidate(isset($data['ws_status_desc']) ? $data['ws_status_desc'] : 'TOKEN EXPIRE');
+		} else if (empty($data['fname'])) {
+			return $this->apiDataNotFound('NOT FOUND IN NHSO');
+		} elseif (!isset($data['maininscl']) || !isset($data['maininscl_name'])) {
+			return $this->apiDataNotFound('ไม่พบข้อมูลสิทธิการรักษา');
+		}
+	}
+
+
+	public function actionCreateQueue() //สร้าง queue
+	{
+		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+		$params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+
+
+		if (!ArrayHelper::getValue($params, 'patient_info', null)) {
+			throw new HttpException(400, 'invalid patient_info.');
+		}
+		if (!ArrayHelper::getValue($params, 'right', null)) {
+			throw new HttpException(400, 'invalid right.');
+		}
+		if (!ArrayHelper::getValue($params, 'servicegroupid', null)) {
+			throw new HttpException(400, 'invalid servicegroupid.');
+		}
+		if (!ArrayHelper::getValue($params, 'serviceid', null)) {
+			throw new HttpException(400, 'invalid serviceid.');
+		}
+		if (!ArrayHelper::getValue($params, 'created_from', null)) {
+			throw new HttpException(400, 'invalid created_from.');
+		}
+
+		$patient_info = $params['patient_info']; // ข้อมูลผู้ป่วย pt_name,hn,cid
+		$right = $params['right']; //สิทธิ์
+		$appoint = ArrayHelper::getValue($params, 'appoint', null); //ข้อมูลนัด
+
+
+		$pt_name = ArrayHelper::getValue($patient_info, 'pt_name', null);
+		$hn = ArrayHelper::getValue($patient_info, 'hn', null);
+		$cid = ArrayHelper::getValue($patient_info, 'cid', null);
+
+		$maininscl_name = ArrayHelper::getValue($right, 'maininscl_name', null); //ชื่อสิทธิ์
+
+		$appoint_id = ArrayHelper::getValue($appoint, 'appoint_id', null); //id นัดหมาย
+		$doctor_name = ArrayHelper::getValue($appoint, 'doctor_name', null); //ชื่อแพทย์
+		$servicegroupid = ArrayHelper::getValue($params, 'servicegroupid', null); //
+		$serviceid = ArrayHelper::getValue($params, 'serviceid', null); //กลุ่มบริการ
+		$created_from = ArrayHelper::getValue($params, 'created_from', null); //คิวสร้างจาก 1 kiosk 2 mobile
+		$picture = ArrayHelper::getValue($params, 'picture', null); //ภาพผู้ป่วย
+		$pt_visit_type_id = ArrayHelper::getValue($params, 'pt_visit_type_id', null); //ประเภท walkin/ไม่ walkin
+		$quickly = ArrayHelper::getValue($params, 'quickly', null); //ความด่วนของคิว
+
+
+		// data models
+		$modelService = $this->findModelService($serviceid); // กลุ่มบริการ
+		$modelServiceGroup = $this->findModelServiceGroup($servicegroupid); // กลุ่มแผนก
+
+		$db = Yii::$app->db;
+		$transaction = $db->beginTransaction();
+
+
+		try {
+			$modelQueue = TbQuequ::find()
+				->where([
+					'serviceid' => $serviceid,
+					'servicegroupid' => $servicegroupid,
+					'q_hn' => $hn,
+				])
+				->one();
+			if (!$modelQueue) {
+				$modelQueue = new TbQuequ();
+			}
+
+			$modelQueue->setAttributes([
+				'q_num' => $modelQueue->generateQnumber([
+					'serviceid' => $serviceid,
+					'service_prefix' => $modelService['service_prefix'],
+					'service_numdigit' => $modelService['service_numdigit'],
+				]),
+				'cid' => $cid,
+				'q_hn' => $hn,
+				'pt_name' => $pt_name,
+				'appoint_id' => $appoint_id,
+				'servicegroupid' => $servicegroupid, //กลุ่มบริการ
+				'serviceid' => $serviceid,
+				'created_from' => $created_from,
+				'q_status_id' => 1,//สถานะคิว default 1
+				'doctor_name' => $doctor_name,
+				'maininscl_name' => $maininscl_name,
+				'pt_visit_type_id' => $pt_visit_type_id,
+				'quickly' => 0,//ความด่วนของคิว default 0
+			]);
+			$pt_pic = $this->uploadPicture($picture, $hn);
+			$modelQueue->pt_pic = $pt_pic;
+			if ($modelQueue->save()) {
+				$modelQtrans = TbQtrans::findOne(['q_ids' => $modelQueue->q_ids]);
+				if (!$modelQtrans) {
+					$modelQtrans = new TbQtrans();
+				}
+				$modelQtrans->setAttributes([
+					'q_ids' => $modelQueue->q_ids,
+					'servicegroupid' => $servicegroupid,
+					'service_status_id' => 1,
+				]);
+				if ($modelQtrans->save()) {
+					$transaction->commit();
+					return [
+						'modelQueue' => $modelQueue,
+						'modelQtrans' => $modelQtrans,
+					];
+				} else {
+					$transaction->rollBack();
+					throw new HttpException(422, Json::encode($modelQtrans->errors));
+				}
+			} else {
+				$transaction->rollBack();
+				throw new HttpException(422, Json::encode($modelQueue->errors));
+			}
+		} catch (\Exception $e) {
+			$transaction->rollBack();
+			throw $e;
+		} catch (\Throwable $e) {
+			$transaction->rollBack();
+			throw $e;
+		}
+	}
+
+	private function uploadPicture($picture, $hn) //upload ภาพ
+	{
+		$img = str_replace('data:image/png;base64,', '', $picture);
+		$img = str_replace('data:image/jpeg;base64,', '', $img);
+		$img = str_replace(' ', '+', $img);
+		$imageDecode = base64_decode($img);
+		$hn = preg_replace('/\s/', '', $hn); // 766809
+		$filename = implode('.', [ // 766809.jpg
+			$hn,
+			'jpg',
+		]);
+		// example 766809 เติม 0 ให้ hn ครบ 7 หลัก
+		$hn = sprintf("%'.07d\n", $hn);
+
+		$rootDir = substr($hn, 0, 3); // เลข hn 3 ตัวแรก
+		$subDir1 = substr($hn, 3, -2); // เลข hn 3 ตัวถัดมา
+		$subDir2 = substr($hn, 6, -1); // เลข hn ตัวสุดท้าย
+		$driUpload = $rootDir . '/' . $subDir1 . '/' . $subDir2; // จะได้ที่อยู่รูปภาพ จาก hn ตัวอย่าง จะได้ /076/680/9
+
+		$rootImageDir = Yii::getAlias('@frontend/web/uploads');
+		$path1 = $rootImageDir . '/' . $rootDir; // frontend/web/source/opd/076
+		$path2 = $rootImageDir . '/' . $rootDir . '/' . $subDir1; // frontend/web/source/opd/076/680
+		$path3 = $rootImageDir . '/' . $rootDir . '/' . $subDir1 . '/' . $subDir2; // frontend/web/source/opd/076/680/9
+
+		if (!is_dir($rootImageDir)) {
+			FileHelper::createDirectory($rootImageDir, 0777);
+		}
+		if (is_dir($rootImageDir) && !is_dir($path1)) {
+			FileHelper::createDirectory($path1, 0777);
+		}
+		if (is_dir($path1) && !is_dir($path2)) {
+			FileHelper::createDirectory($path2, 0777);
+		}
+		if (is_dir($path2) && !is_dir($path3)) {
+			FileHelper::createDirectory($path3, 0777);
+			$isCreateDir = true;
+		}
+		if (is_dir($path3)) {
+			$filepath = $rootImageDir . '/' . $driUpload . '/' . $filename; // dir = /076/680/9/766809.jpg
+			$f = file_put_contents($filepath, $imageDecode);
+			if ($f && file_exists($filepath)) {
+				return Url::base(true) . Url::to(['/uploads/' . $driUpload . '/' . $filename]);
+			} else {
+				return null;
+			}
+		}
+	}
+
+
+	private function saveImagePatient($patient, $patient_id) // บันทึกภาพผู้ป่วย
+	{
+		$img = str_replace('data:image/png;base64,', '', $patient['pt_pic']);
+		$img = str_replace('data:image/jpeg;base64,', '', $img);
+		$img = str_replace(' ', '+', $img);
+		$imageDecode = base64_decode($img);
+		// $security = Yii::$app->security->generateRandomString();
+
+		$hn = preg_replace('/\s/', '', $patient['hn']); // 766809
+		$filename = implode('.', [ // 766809.jpg
+			$hn,
+			'jpg',
+		]);
+
+		// example 766809 เติม 0 ให้ hn ครบ 7 หลัก
+		$hn = sprintf("%'.07d\n", $hn);
+
+		$rootDir = substr($hn, 0, 3); // เลข hn 3 ตัวแรก
+		$subDir1 = substr($hn, 3, -2); // เลข hn 3 ตัวถัดมา
+		$subDir2 = substr($hn, 6, -1); // เลข hn ตัวสุดท้าย
+		$driUpload = $rootDir . '/' . $subDir1 . '/' . $subDir2; // จะได้ที่อยู่รูปภาพ จาก hn ตัวอย่าง จะได้ /076/680/9
+
+		$rootImageDir = Yii::getAlias('@frontend/web/source/opd');
+		$path1 = $rootImageDir . '/' . $rootDir; // frontend/web/source/opd/076
+		$path2 = $rootImageDir . '/' . $rootDir . '/' . $subDir1; // frontend/web/source/opd/076/680
+		$path3 = $rootImageDir . '/' . $rootDir . '/' . $subDir1 . '/' . $subDir2; // frontend/web/source/opd/076/680/9
+
+		if (!is_dir($rootImageDir)) {
+			FileHelper::createDirectory($rootImageDir, 0777);
+		}
+		if (is_dir($rootImageDir) && !is_dir($path1)) {
+			FileHelper::createDirectory($path1, 0777);
+		}
+		if (is_dir($path1) && !is_dir($path2)) {
+			FileHelper::createDirectory($path2, 0777);
+		}
+		if (is_dir($path2) && !is_dir($path3)) {
+			FileHelper::createDirectory($path3, 0777);
+			$isCreateDir = true;
+		}
+		if (is_dir($path3)) {
+			$filepath = $rootImageDir . '/' . $driUpload . '/' . $filename; // dir = /076/680/9/766809.jpg
+			$f = file_put_contents($filepath, $imageDecode);
+			if ($f && file_exists($filepath)) {
+				$component = Yii::$app->get('fileStorage');
+				FileStorageItem::deleteAll(['ref_id' => $patient_id, 'ref_table' => 'tb_quequ']);
+				$modelStorage = new FileStorageItem();
+				$modelStorage->base_url = $component->baseUrl;
+				$modelStorage->path = '/opd/' . $driUpload . '/' . $filename; // /opd/076/680/9/766809.jpg
+				$modelStorage->type = FileHelper::getMimeType($filepath);
+				$modelStorage->size = filesize($filepath);
+				$modelStorage->name = $patient['hn'];
+				$modelStorage->ref_id = $patient_id;
+				$modelStorage->ref_table = TbQuequ::tableName();
+				$modelStorage->component = 'fileStorage';
+				$modelStorage->created_at = time();
+				if ($modelStorage->save()) {
+					return $modelStorage;
+				} else {
+					throw new HttpException(422, Json::encode($modelStorage->errors));
+				}
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+
+	protected function findModelPatient($id)
+	{
+		if (($model = Patient::findOne($id)) !== null) {
+			return $model;
+		}
+
+		throw new NotFoundHttpException('The requested page does not exist. {' . Patient::className() . '}');
+	}
+
+
+	protected function findModelQueue($id)
+	{
+		if (($model = TbQuequ::findOne($id)) !== null) {
+			return $model;
+		}
+
+		throw new NotFoundHttpException('The requested page does not exist. {' . TbQuequ::className() . '}');
+	}
+
+
+	public function apiBadRequest($message = false)
+	{
+		throw new HttpException(400, $message ? $message : 'Error Bad request.');
+	}
+
+	public function apiDataNotFound($message = false)
+	{
+		throw new HttpException(404, $message ? $message : 'Resource not found.');
+	}
+
+	public function apiValidate($message = false)
+	{
+		throw new HttpException(422, $message ? $message : 'Error validation.');
 	}
 }
