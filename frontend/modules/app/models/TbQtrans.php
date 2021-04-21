@@ -41,13 +41,13 @@ class TbQtrans extends \yii\db\ActiveRecord
                     ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at','checkin_date'],
                     ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
-                'value' => new Expression('NOW()'),
+                'value' => Yii::$app->formatter->asDate('now','php:Y-m-d H:i:s')
             ],
-            [
-                'class' => BlameableBehavior::className(),
-                'createdByAttribute' => 'created_by',
-                'updatedByAttribute' => 'updated_by',
-            ],
+            // [
+            //     'class' => BlameableBehavior::className(),
+            //     'createdByAttribute' => 'created_by',
+            //     'updatedByAttribute' => 'updated_by',
+            // ],
         ];
     }
 

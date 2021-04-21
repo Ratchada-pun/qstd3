@@ -3,6 +3,7 @@
 namespace frontend\modules\app\models;
 
 use Yii;
+use yii\validators\RequiredValidator;
 
 /**
  * This is the model class for table "tb_service".
@@ -22,6 +23,7 @@ use Yii;
  */
 class TbService extends \yii\db\ActiveRecord
 {
+    public $schedules;
     /**
      * @inheritdoc
      */
@@ -36,12 +38,14 @@ class TbService extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['service_name','prn_profileid','prn_copyqty','service_prefix','service_numdigit','service_status'], 'required'],
-            [['service_groupid', 'prn_profileid', 'prn_copyqty', 'service_numdigit', 'service_md_name_id','print_by_hn','quickly','show_on_kiosk','prn_profileid_quickly'], 'integer'],
-            [['service_name','btn_kiosk_name'], 'string', 'max' => 100],
+            [['service_name', 'prn_profileid', 'prn_copyqty', 'service_prefix', 'service_numdigit', 'service_status'], 'required'],
+            [['service_groupid', 'prn_profileid', 'prn_copyqty', 'service_numdigit', 'service_md_name_id', 'print_by_hn', 'quickly', 'show_on_kiosk', 'show_on_mobile', 'prn_profileid_quickly'], 'integer'],
+            [['service_name', 'btn_kiosk_name'], 'string', 'max' => 100],
             [['service_route'], 'string', 'max' => 11],
             [['service_prefix'], 'string', 'max' => 2],
             [['service_status'], 'string', 'max' => 10],
+            // [['schedules'], 'safe'],
+            [['schedules'], 'validateSchedules'],
             [['service_groupid'], 'exist', 'skipOnError' => true, 'targetClass' => TbServicegroup::className(), 'targetAttribute' => ['service_groupid' => 'servicegroupid']],
         ];
     }
@@ -65,6 +69,7 @@ class TbService extends \yii\db\ActiveRecord
             'print_by_hn' => 'ออกบัตรคิวโดยใช้ HN',
             'quickly' => 'แสดงปุ่มคิวด่วน',
             'show_on_kiosk' => 'แสดงปุ่ม Kiosk',
+            'show_on_mobile' => 'แสดงปุ่ม Mobile',
             'btn_kiosk_name' => 'ชื่อปุ่ม Kiosk',
             'prn_profileid_quickly' => 'แบบการพิมพ์บัตรคิวด่วน'
         ];
@@ -85,5 +90,49 @@ class TbService extends \yii\db\ActiveRecord
     public static function find()
     {
         return new TbServiceQuery(get_called_class());
+    }
+
+    public function validateSchedules($attribute)
+    {
+        $requiredValidator = new RequiredValidator();
+
+        foreach ($this->$attribute as $index => $row) {
+            $error1 = null;
+            $error2 = null;
+            $error3 = null;
+            $error4 = null;
+            $requiredValidator->validate($row['t_slot_begin'], $error1);
+            if (!empty($error1)) {
+                $key = $attribute . '[' . $index . '][t_slot_begin]';
+                $this->addError($key, $error1);
+            }
+            $requiredValidator->validate($row['t_slot_end'], $error2);
+            if (!empty($error2)) {
+                $key = $attribute . '[' . $index . '][t_slot_end]';
+                $this->addError($key, $error2);
+            }
+            $requiredValidator->validate($row['q_limit'], $error3);
+            if (!empty($error3)) {
+                $key = $attribute . '[' . $index . '][q_limit]';
+                $this->addError($key, $error3);
+            }
+            $requiredValidator->validate($row['q_limitqty'], $error4);
+            if (!empty($error4)) {
+                $key = $attribute . '[' . $index . '][q_limitqty]';
+                $this->addError($key, $error4);
+            }
+        }
+    }
+
+    public function getAppointPrefix() //ตัวอักษรหน้าเลขคิว
+    {
+        return $this->hasOne(TbCidStation::className(), ['id' => 'service_prefix']);
+    }
+
+        
+    // เรียงคิวต่อเนื่อง
+    public function getIsPrefixSuccession()
+    {
+        return $this->prefix_succession == 1;
     }
 }
