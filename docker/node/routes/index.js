@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 const Servicegroup = require('../models/get_servicegroup_list')
 const Service = require('../models/get_service_list')
+const Servicecounter = require('../models/get_counterservice_list')
+
 var assert = require('http-assert')
 
 /* GET home page. */
@@ -68,6 +70,34 @@ router.get('/get_service_list/:id', async function(req, res, next) {
     }
 
 });
+/* GET servicecounter. */
+router.get('/get_counterservice_list', async function(req, res, next) {
+    try {
+
+        const items = await Servicecounter.getItems()
+        res.json(items)
+    } catch (error) {
+        res.json(error)
+
+    }
+
+});
+/* GET servicecounter by id. */
+router.get('/get_counterservice_list/:id', async function(req, res, next) {
+    try {
+        const items = await Servicecounter.getItembyid(req.params.id)
+        assert(items, 404, 'Not Found')
+        res.json(items)
+    } catch (error) {
+
+
+        res.json(error)
+
+    }
+
+});
+
+
 
 
 
