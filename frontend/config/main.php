@@ -211,6 +211,13 @@ return [
                 ],
             ], */
         ],
+        'soapClient' => [
+            'class' => 'mcomscience\soapclient\Client',
+            'url' => 'http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1?WSDL',
+            'options' => [
+                'cache_wsdl' => WSDL_CACHE_NONE,
+            ],
+        ],
     ],
     'as access' => [
         'class' => 'mdm\admin\components\AccessControl',
@@ -225,8 +232,10 @@ return [
             'app/calling/autoload-media',
             'app/calling/update-status',
 	        'site/index',
-	        'app/kiosk/led-options'
-
+	        'app/kiosk/led-options',
+	        'app/settings/save-nhso-token',
+            'app/kiosk/pt-right',
+            'app/kiosk/create-queue',
         ]
     ],
     'params' => $params,

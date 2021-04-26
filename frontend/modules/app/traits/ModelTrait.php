@@ -14,6 +14,7 @@ use frontend\modules\app\models\TbCaller;
 use frontend\modules\app\models\TbDisplayConfig;
 use frontend\modules\app\models\TbCounterserviceType;
 use frontend\modules\app\models\LabItems;
+use frontend\modules\app\models\TbCidStation;
 
 trait ModelTrait
 {
@@ -109,5 +110,14 @@ trait ModelTrait
 
     protected function findLabs(){
         return LabItems::find()->where(['confirm' => 'Y'])->all();
+    }
+
+    protected function findModelKiosk($id)//ตู้ Kiosk
+    {
+        if (($model = TbCidStation::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist. {'. TbCidStation::className().'}');
     }
 }

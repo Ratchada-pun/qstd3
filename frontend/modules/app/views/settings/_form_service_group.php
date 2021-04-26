@@ -5,6 +5,7 @@ use homer\widgets\dynamicform\DynamicFormWidget;
 use yii\icons\Icon;
 use kartik\widgets\Select2;
 use yii\helpers\ArrayHelper;
+use unclead\multipleinput\MultipleInput;
 
 $this->registerCss(<<<CSS
 .modal-dialog{
@@ -98,6 +99,14 @@ CSS
                                 echo Html::activeHiddenInput($modelService, "[{$index}]serviceid");
                             }
                         ?>
+                         <div class="form-group">
+                            <?= Html::activeLabel($modelService, "[{$index}]main_dep", ['label' => 'รหัสแผนก','class'=>'col-sm-2 control-label']) ?>
+                            <div class="col-sm-4">
+                                <?= $form->field($modelService, "[{$index}]main_dep",['showLabels'=>false])->textInput([
+                                    'placeholder' => 'รหัสแผนก'
+                                ]); ?>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <?= Html::activeLabel($modelService, "[{$index}]service_name", ['label' => 'ชื่อบริการ','class'=>'col-sm-2 control-label']) ?>
                             <div class="col-sm-4">
@@ -196,6 +205,9 @@ CSS
                                     }
                                 ]); ?>
                             </div>
+
+
+
                         </div>
 
                         <div class="form-group">
@@ -217,10 +229,30 @@ CSS
                             </div>
                         </div><!-- End FormGroup /-->
 
+
                         <div class="form-group">
                             <?= Html::activeLabel($modelService, "[{$index}]show_on_kiosk", ['class'=>'col-sm-2 control-label']) ?>
                             <div class="col-sm-4">
                                 <?= $form->field($modelService, "[{$index}]show_on_kiosk",['showLabels'=>false])->RadioList(
+                                    [0 => 'No', 1 => 'Yes'],[
+                                    'inline'=>true,
+                                    'item' => function($index, $label, $name, $checked, $value) {
+
+                                        $return = '<div class="radio"><label style="font-size: 1em">';
+                                        $return .= Html::radio( $name, $checked,['value' => $value]);
+                                        $return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+                                        $return .= '</label></div>';
+
+                                        return $return;
+                                    }
+                                ]); ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <?= Html::activeLabel($modelService, "[{$index}]show_on_mobile", ['class'=>'col-sm-2 control-label']) ?>
+                            <div class="col-sm-4">
+                                <?= $form->field($modelService, "[{$index}]show_on_mobile",['showLabels'=>false])->RadioList(
                                     [0 => 'No', 1 => 'Yes'],[
                                     'inline'=>true,
                                     'item' => function($index, $label, $name, $checked, $value) {
