@@ -48,56 +48,33 @@ class TbQuequ extends \yii\db\ActiveRecord
             [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => [
-                        'created_at',
-                        'updated_at',
-                        'q_timestp',
-                    ],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['q_timestp', 'created_at', 'updated_at'],
                     ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
-                'value' => new Expression('NOW()'),
+                'value' => Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s')
             ],
         ];
     }
-
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            //[['q_hn'], 'required'],
-            [
-                [
-                    'q_timestp',
-                    'created_at',
-                    'updated_at',
-                    'vstdate',
-                    'search_by',
-                ],
-                'safe',
-            ],
-            [
-                [
-                    'pt_id',
-                    'pt_visit_type_id',
-                    'pt_appoint_sec_id',
-                    'serviceid',
-                    'servicegroupid',
-                    'q_status_id',
-                    'doctor_id',
-                    'quickly',
-                ],
-                'integer',
-            ],
+            [['q_timestp', 'created_at', 'updated_at'], 'safe'],
+            [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid','created_from','quickly'], 'integer'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
+            [['q_qn', 'rx_q'], 'string', 'max' => 10],
+            [['doctor_id'], 'string', 'max' => 11],
+            [['cid'], 'string', 'max' => 13],
             [['pt_name'], 'string', 'max' => 200],
+            [['doctor_name'], 'string', 'max' => 250],
+            [['pt_pic', 'pt_sound','maininscl_name'], 'string', 'max' => 255],
         ];
     }
-
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function attributeLabels()
     {
@@ -105,19 +82,30 @@ class TbQuequ extends \yii\db\ActiveRecord
             'q_ids' => 'running',
             'q_num' => 'หมายเลขคิว',
             'q_timestp' => 'วันที่ออกคิว',
-            'pt_id' => 'Pt ID',
-            'q_vn' => 'VN',
-            'q_hn' => 'HN',
+            'q_arrive_time' => 'เวลามาถึง',
+            'q_appoint_time' => 'เวลานัดหมาย',
+            'cid' => 'รหัสประชาชนผู้ป่วย',
+            'q_vn' => 'Visit number ของผู้ป่วย',
+            'q_hn' => 'หมายเลข HN ผู้ป่วย',
+            'q_qn' => 'QN',
+            'rx_q' => 'Rx Q',
             'pt_name' => 'ชื่อผู้ป่วย',
-            'pt_visit_type_id' => 'ประเภท',
-            'pt_appoint_sec_id' => 'แผนกที่นัดหมาย',
+            'pt_visit_type_id' => 'ประเภท walkin/ไม่ walkin',
+            'appoint_id' => 'แผนกที่นัดหมาย',
+            'servicegroupid' => 'กลุ่มบริการ',
             'serviceid' => 'ประเภทบริการ',
-            'servicegroupid' => 'Servicegroupid',
+            'created_from' => 'คิวสร้างจาก 1 kiosk 2 mobile',
             'q_status_id' => 'สถานะ',
-            'quickly' => 'คิวด่วน',
-            'doctor_id' => 'แพทย์',
+            'doctor_id' => 'รหัสแพทย์',
+            'doctor_name' => 'แพทย์ที่นัด',
+            'counterserviceid' => 'เลขที่ช่องบริการ',
+            'tslotid' => 'รหัสช่วงเวลา',
             'created_at' => 'วันที่บันทึก',
             'updated_at' => 'วันที่แก้ไข',
+            'pt_pic' => 'ไฟล์ภาพ path file',
+            'pt_sound' => 'ไฟล์เสียง path file',
+            'quickly' => 'ความด่วนของคิว',
+            'maininscl_name' => 'สิทธิ์',
         ];
     }
 
