@@ -681,12 +681,13 @@ class KioskController extends \yii\web\Controller
 
 		$pt_name = ArrayHelper::getValue($patient_info, 'pt_name', null);
 		$hn = ArrayHelper::getValue($patient_info, 'hn', null);
-		
+
 		$cid = ArrayHelper::getValue($patient_info, 'cid', null);
 
 		$maininscl_name = ArrayHelper::getValue($right, 'maininscl_name', null); //ชื่อสิทธิ์
 
 		$appoint_id = ArrayHelper::getValue($appoint, 'appoint_id', null); //id นัดหมาย
+		$doctor_id = ArrayHelper::getValue($appoint, 'doctor_id', null); //รหัสแพทย์
 		$doctor_name = ArrayHelper::getValue($appoint, 'doctor_name', null); //ชื่อแพทย์
 		$servicegroupid = ArrayHelper::getValue($params, 'servicegroupid', null); //
 		$serviceid = ArrayHelper::getValue($params, 'serviceid', null); //กลุ่มบริการ
@@ -696,14 +697,24 @@ class KioskController extends \yii\web\Controller
 		$quickly = ArrayHelper::getValue($params, 'quickly', null); //ความด่วนของคิว
 
 
+
 		// data models
 		$modelService = $this->findModelService($serviceid); // กลุ่มบริการ
 		$modelServiceGroup = $this->findModelServiceGroup($servicegroupid); // กลุ่มแผนก
 
-		$visit = array_filter($data_visit, function($v, $k) use ($modelService) {
-			return $v['main_dep'] == $modelService['main_dep'];
-		}, ARRAY_FILTER_USE_BOTH);
-		$vn = ArrayHelper::getValue($visit, '0.vn', null);
+		$vn = null;
+		if (is_array($data_visit) && !empty($data_visit)) {
+			$visit = array_filter($data_visit, function ($v, $k) use ($modelService) {
+				return $v['main_dep'] == $modelService['main_dep'];
+			}, ARRAY_FILTER_USE_BOTH);
+			$vn = ArrayHelper::getValue($visit, '0.vn', null);
+		}
+
+		if ($appoint) {
+			$maininscl_name = ArrayHelper::getValue($appoint, 'appoint_right', null); //ชื่อสิทธิ์
+		}
+
+		$tslotid =  $this->getSlot($serviceid);
 
 		$db = Yii::$app->db;
 		$transaction = $db->beginTransaction();
@@ -719,6 +730,8 @@ class KioskController extends \yii\web\Controller
 				->one();
 			if (!$modelQueue) {
 				$modelQueue = new TbQuequ();
+			} else {
+				$tslotid = $modelQueue['tslotid'];
 			}
 
 			$modelQueue->setAttributes([
@@ -735,11 +748,13 @@ class KioskController extends \yii\web\Controller
 				'servicegroupid' => $servicegroupid, //กลุ่มบริการ
 				'serviceid' => $serviceid,
 				'created_from' => $created_from,
-				'q_status_id' => 1,//สถานะคิว default 1
+				'q_status_id' => 1, //สถานะคิว default 1
+				'doctor_id' => $doctor_id,
 				'doctor_name' => $doctor_name,
 				'maininscl_name' => $maininscl_name,
 				'pt_visit_type_id' => $pt_visit_type_id,
-				'quickly' => 0,//ความด่วนของคิว default 0
+				'tslotid' => $tslotid,
+				'quickly' => 0, //ความด่วนของคิว default 0
 			]);
 			$pt_pic = $this->uploadPicture($picture, $hn);
 			$modelQueue->pt_pic = $pt_pic;
@@ -752,6 +767,7 @@ class KioskController extends \yii\web\Controller
 					'q_ids' => $modelQueue->q_ids,
 					'servicegroupid' => $servicegroupid,
 					'service_status_id' => 1,
+					'doctor_id' => $doctor_id,
 				]);
 				if ($modelQtrans->save()) {
 					$transaction->commit();
@@ -774,6 +790,47 @@ class KioskController extends \yii\web\Controller
 			$transaction->rollBack();
 			throw $e;
 		}
+	}
+
+	private function getSlot($serviceid, $tslotid = [])
+	{
+		$query =  (new \yii\db\Query()) //หา slot เวลาที่ต้องสร้างคิว
+			->select([
+				'tb_service_tslot.*',
+			])
+			->from('tb_service_tslot')
+			->where(['tb_service_tslot.serviceid' => $serviceid]);
+		if ($tslotid) {
+			$query->andWhere(['NOT IN', 'tb_service_tslot.tslotid', $tslotid])
+				->andwhere('tb_service_tslot.t_slot_begin >= CURRENT_TIME');
+		} else {
+			$query->andWhere('CURRENT_TIME >= tb_service_tslot.t_slot_begin')
+				->andWhere('CURRENT_TIME <= tb_service_tslot.t_slot_end');
+		}
+		$slot =	$query->one();
+
+		if ($slot) {
+			if ($slot['q_limit'] == 1) {//มีจำนวน limit 
+				$count = (new \yii\db\Query())
+					->from('tb_quequ')
+					->where([
+						'tb_quequ.serviceid' => $serviceid,
+						'tb_quequ.tslotid' => $slot['tslotid']
+					])
+					->andWhere('DATE(q_timestp) = CURRENT_DATE')
+					->count();
+				$q_balance = $slot['q_limitqty'] - $count;
+				if ($q_balance == 0) {//จำนวน คิว limit
+					$tslotid = ArrayHelper::merge($tslotid, [$slot['tslotid']]);
+					return $this->getSlot($serviceid, $tslotid);
+				} else {
+					return $slot['tslotid'];
+				}
+			} else {
+				return $slot['tslotid'];
+			}
+		}
+		return null;
 	}
 
 	private function uploadPicture($picture, $hn) //upload ภาพ
@@ -893,6 +950,8 @@ class KioskController extends \yii\web\Controller
 			return null;
 		}
 	}
+
+
 
 	protected function findModelPatient($id)
 	{

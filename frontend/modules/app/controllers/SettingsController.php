@@ -924,6 +924,13 @@ class SettingsController extends \yii\web\Controller
                         'format' => 'raw'
                     ],
                     [
+                        'attribute' => 'service_status_id',
+                        'value' => function ($model, $key, $index, $column) {
+                            return @$model->tbServiceStatus->service_status_name;
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
                         'attribute' => 'service_profile_status',
                         'value' => function ($model, $key, $index) {
                             return $this->getBadgeStatus($model['service_profile_status']);

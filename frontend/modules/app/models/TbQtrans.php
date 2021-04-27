@@ -57,7 +57,8 @@ class TbQtrans extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['q_ids', 'counter_service_id', 'doctor_id', 'service_status_id', 'created_by', 'updated_by','servicegroupid'], 'integer'],
+            [['q_ids', 'counter_service_id',  'service_status_id', 'created_by', 'updated_by','servicegroupid'], 'integer'],
+            [['doctor_id'], 'string', 'max' => 11],
             [['checkin_date', 'checkout_date', 'created_at', 'updated_at'], 'safe'],
         ];
     }
