@@ -726,20 +726,24 @@ class KioskController extends \yii\web\Controller
 					'serviceid' => $serviceid,
 					'servicegroupid' => $servicegroupid,
 					'q_hn' => $hn,
+					'q_status_id' => [1, 2, 3, 5]
 				])
+				->andWhere('DATE(q_timestp) = CURRENT_DATE')
 				->one();
 			if (!$modelQueue) {
 				$modelQueue = new TbQuequ();
-			} else {
-				$tslotid = $modelQueue['tslotid'];
-			}
-
-			$modelQueue->setAttributes([
-				'q_num' => $modelQueue->generateQnumber([
+				$q_num = $modelQueue->generateQnumber([
 					'serviceid' => $serviceid,
 					'service_prefix' => $modelService['service_prefix'],
 					'service_numdigit' => $modelService['service_numdigit'],
-				]),
+				]);
+			} else {
+				$tslotid = $modelQueue['tslotid'];
+				$q_num = $modelQueue['q_num'];
+			}
+
+			$modelQueue->setAttributes([
+				'q_num' => $q_num,
 				'cid' => $cid,
 				'q_hn' => $hn,
 				'q_vn' => $vn,
@@ -810,7 +814,7 @@ class KioskController extends \yii\web\Controller
 		$slot =	$query->one();
 
 		if ($slot) {
-			if ($slot['q_limit'] == 1) {//มีจำนวน limit 
+			if ($slot['q_limit'] == 1) { //มีจำนวน limit 
 				$count = (new \yii\db\Query())
 					->from('tb_quequ')
 					->where([
@@ -820,7 +824,7 @@ class KioskController extends \yii\web\Controller
 					->andWhere('DATE(q_timestp) = CURRENT_DATE')
 					->count();
 				$q_balance = $slot['q_limitqty'] - $count;
-				if ($q_balance == 0) {//จำนวน คิว limit
+				if ($q_balance == 0) { //จำนวน คิว limit
 					$tslotid = ArrayHelper::merge($tslotid, [$slot['tslotid']]);
 					return $this->getSlot($serviceid, $tslotid);
 				} else {
