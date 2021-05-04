@@ -68,7 +68,7 @@ class TbQuequ extends \yii\db\ActiveRecord
             [['cid'], 'string', 'max' => 13],
             [['pt_name'], 'string', 'max' => 200],
             [['doctor_name'], 'string', 'max' => 250],
-            [['pt_pic', 'pt_sound','maininscl_name'], 'string', 'max' => 255],
+            [['pt_pic', 'pt_sound','maininscl_name','u_id'], 'string', 'max' => 255],
         ];
     }
 
@@ -105,6 +105,7 @@ class TbQuequ extends \yii\db\ActiveRecord
             'pt_sound' => 'ไฟล์เสียง path file',
             'quickly' => 'ความด่วนของคิว',
             'maininscl_name' => 'สิทธิ์',
+            'u_id' => 'รหัสผู้ใช้งาน Mobile',
         ];
     }
 

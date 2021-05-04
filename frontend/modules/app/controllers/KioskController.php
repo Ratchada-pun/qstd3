@@ -241,10 +241,14 @@ class KioskController extends \yii\web\Controller
 
 		if ($request->isAjax) {
 			$query = (new \yii\db\Query())
-				->select(['tb_quequ.*', 'tb_service.*', 'tb_quequ.quickly as quickly1'])
+				->select(['tb_quequ.*', 'tb_service.*', 'tb_quequ.quickly as quickly1', 'tb_counterservice.counterservice_name', 'tb_service_status.service_status_name'])
 				->from('tb_quequ')
-				->innerJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-				->orderBy('q_ids DESC');
+				->innerJoin('tb_service', 'tb_quequ.serviceid = tb_service.serviceid')
+				->innerJoin('tb_qtrans', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+				->innerJoin('tb_service_status', 'tb_quequ.q_status_id = tb_service_status.service_status_id')
+				->leftJoin('tb_caller', 'tb_qtrans.ids = tb_caller.qtran_ids')
+				->leftJoin('tb_counterservice', 'tb_caller.counter_service_id = tb_counterservice.counterserviceid')
+				->orderBy('tb_quequ.q_ids DESC');
 
 			$dataProvider = new ActiveDataProvider([
 				'query' => $query,
@@ -270,6 +274,12 @@ class KioskController extends \yii\web\Controller
 					],
 					[
 						'attribute' => 'pt_name',
+					],
+					[
+						'attribute' => 'counterservice_name',
+					],
+					[
+						'attribute' => 'service_status_name',
 					],
 					[
 						'attribute' => 'service_name',
@@ -304,6 +314,11 @@ class KioskController extends \yii\web\Controller
 								]);
 							}
 						],
+						'visibleButtons' => [
+							'update' => function ($model, $key, $index) {
+								return $model['q_status_id'] != 4;
+							}
+						]
 					]
 				]
 			]);
@@ -695,6 +710,7 @@ class KioskController extends \yii\web\Controller
 		$picture = ArrayHelper::getValue($params, 'picture', null); //ภาพผู้ป่วย
 		$pt_visit_type_id = ArrayHelper::getValue($params, 'pt_visit_type_id', null); //ประเภท walkin/ไม่ walkin
 		$quickly = ArrayHelper::getValue($params, 'quickly', null); //ความด่วนของคิว
+		$u_id = ArrayHelper::getValue($params, 'u_id', null); //รหัสผู้ใช้งาน Mobile
 
 
 
@@ -726,7 +742,7 @@ class KioskController extends \yii\web\Controller
 					'serviceid' => $serviceid,
 					'servicegroupid' => $servicegroupid,
 					'q_hn' => $hn,
-					'q_status_id' => [1, 2, 3, 5]
+					'q_status_id' => [1, 2, 3, 5, 6]
 				])
 				->andWhere('DATE(q_timestp) = CURRENT_DATE')
 				->one();
@@ -752,13 +768,14 @@ class KioskController extends \yii\web\Controller
 				'servicegroupid' => $servicegroupid, //กลุ่มบริการ
 				'serviceid' => $serviceid,
 				'created_from' => $created_from,
-				'q_status_id' => 1, //สถานะคิว default 1
+				'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6 
 				'doctor_id' => $doctor_id,
 				'doctor_name' => $doctor_name,
 				'maininscl_name' => $maininscl_name,
 				'pt_visit_type_id' => $pt_visit_type_id,
 				'tslotid' => $tslotid,
 				'quickly' => 0, //ความด่วนของคิว default 0
+				'u_id' => $u_id, //รหัสผู้ใช้งาน Mobile
 			]);
 			$pt_pic = $this->uploadPicture($picture, $hn);
 			$modelQueue->pt_pic = $pt_pic;
@@ -770,7 +787,7 @@ class KioskController extends \yii\web\Controller
 				$modelQtrans->setAttributes([
 					'q_ids' => $modelQueue->q_ids,
 					'servicegroupid' => $servicegroupid,
-					'service_status_id' => 1,
+					'service_status_id' => $u_id ? 6 : 1,  //ถ้ามี u_id หมายถึงคิวมาจาก mobile status = 6
 					'doctor_id' => $doctor_id,
 				]);
 				if ($modelQtrans->save()) {
