@@ -711,6 +711,7 @@ class KioskController extends \yii\web\Controller
 		$pt_visit_type_id = ArrayHelper::getValue($params, 'pt_visit_type_id', null); //ประเภท walkin/ไม่ walkin
 		$quickly = ArrayHelper::getValue($params, 'quickly', null); //ความด่วนของคิว
 		$u_id = ArrayHelper::getValue($params, 'u_id', null); //รหัสผู้ใช้งาน Mobile
+		$q_status_id = ArrayHelper::getValue($params, 'q_status_id', 1); //สถานะ
 
 
 
@@ -768,7 +769,7 @@ class KioskController extends \yii\web\Controller
 				'servicegroupid' => $servicegroupid, //กลุ่มบริการ
 				'serviceid' => $serviceid,
 				'created_from' => $created_from,
-				'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6 
+				'q_status_id' => $q_status_id, //สถานะ
 				'doctor_id' => $doctor_id,
 				'doctor_name' => $doctor_name,
 				'maininscl_name' => $maininscl_name,
@@ -776,6 +777,7 @@ class KioskController extends \yii\web\Controller
 				'tslotid' => $tslotid,
 				'quickly' => 0, //ความด่วนของคิว default 0
 				'u_id' => $u_id, //รหัสผู้ใช้งาน Mobile
+				//'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6 
 			]);
 			$pt_pic = $this->uploadPicture($picture, $hn);
 			$modelQueue->pt_pic = $pt_pic;
@@ -787,8 +789,9 @@ class KioskController extends \yii\web\Controller
 				$modelQtrans->setAttributes([
 					'q_ids' => $modelQueue->q_ids,
 					'servicegroupid' => $servicegroupid,
-					'service_status_id' => $u_id ? 6 : 1,  //ถ้ามี u_id หมายถึงคิวมาจาก mobile status = 6
+					'service_status_id' => $modelQueue->q_status_id,
 					'doctor_id' => $doctor_id,
+					//'service_status_id' => $u_id ? 6 : 1,  //ถ้ามี u_id หมายถึงคิวมาจาก mobile status = 6
 				]);
 				if ($modelQtrans->save()) {
 					$transaction->commit();
