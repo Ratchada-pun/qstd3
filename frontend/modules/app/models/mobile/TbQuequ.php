@@ -64,10 +64,11 @@ class TbQuequ extends \yii\db\ActiveRecord
             [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid','created_from','quickly'], 'integer'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
             [['q_qn', 'rx_q'], 'string', 'max' => 10],
+            [['doctor_id'], 'string', 'max' => 11],
             [['cid'], 'string', 'max' => 13],
             [['pt_name'], 'string', 'max' => 200],
             [['doctor_name'], 'string', 'max' => 250],
-            [['pt_pic', 'pt_sound','maininscl_name'], 'string', 'max' => 255],
+            [['pt_pic', 'pt_sound','maininscl_name','u_id'], 'string', 'max' => 255],
         ];
     }
 
@@ -94,6 +95,7 @@ class TbQuequ extends \yii\db\ActiveRecord
             'serviceid' => 'ประเภทบริการ',
             'created_from' => 'คิวสร้างจาก 1 kiosk 2 mobile',
             'q_status_id' => 'สถานะ',
+            'doctor_id' => 'รหัสแพทย์',
             'doctor_name' => 'แพทย์ที่นัด',
             'counterserviceid' => 'เลขที่ช่องบริการ',
             'tslotid' => 'รหัสช่วงเวลา',
@@ -103,6 +105,7 @@ class TbQuequ extends \yii\db\ActiveRecord
             'pt_sound' => 'ไฟล์เสียง path file',
             'quickly' => 'ความด่วนของคิว',
             'maininscl_name' => 'สิทธิ์',
+            'u_id' => 'รหัสผู้ใช้งาน Mobile',
         ];
     }
 

@@ -241,10 +241,14 @@ class KioskController extends \yii\web\Controller
 
 		if ($request->isAjax) {
 			$query = (new \yii\db\Query())
-				->select(['tb_quequ.*', 'tb_service.*', 'tb_quequ.quickly as quickly1'])
+				->select(['tb_quequ.*', 'tb_service.*', 'tb_quequ.quickly as quickly1', 'tb_counterservice.counterservice_name', 'tb_service_status.service_status_name'])
 				->from('tb_quequ')
-				->innerJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-				->orderBy('q_ids DESC');
+				->innerJoin('tb_service', 'tb_quequ.serviceid = tb_service.serviceid')
+				->innerJoin('tb_qtrans', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+				->innerJoin('tb_service_status', 'tb_quequ.q_status_id = tb_service_status.service_status_id')
+				->leftJoin('tb_caller', 'tb_qtrans.ids = tb_caller.qtran_ids')
+				->leftJoin('tb_counterservice', 'tb_caller.counter_service_id = tb_counterservice.counterserviceid')
+				->orderBy('tb_quequ.q_ids DESC');
 
 			$dataProvider = new ActiveDataProvider([
 				'query' => $query,
@@ -270,6 +274,12 @@ class KioskController extends \yii\web\Controller
 					],
 					[
 						'attribute' => 'pt_name',
+					],
+					[
+						'attribute' => 'counterservice_name',
+					],
+					[
+						'attribute' => 'service_status_name',
 					],
 					[
 						'attribute' => 'service_name',
@@ -304,6 +314,11 @@ class KioskController extends \yii\web\Controller
 								]);
 							}
 						],
+						'visibleButtons' => [
+							'update' => function ($model, $key, $index) {
+								return $model['q_status_id'] != 4;
+							}
+						]
 					]
 				]
 			]);
@@ -677,16 +692,17 @@ class KioskController extends \yii\web\Controller
 		$patient_info = $params['patient_info']; // ข้อมูลผู้ป่วย pt_name,hn,cid
 		$right = $params['right']; //สิทธิ์
 		$appoint = ArrayHelper::getValue($params, 'appoint', null); //ข้อมูลนัด
-		$data_visit = ArrayHelper::getValue($patient_info, 'data_visit', []); //ข้อมูลนัด
+		$data_visit = ArrayHelper::getValue($patient_info, 'data_visit', null); //ข้อมูลนัด
 
 		$pt_name = ArrayHelper::getValue($patient_info, 'pt_name', null);
 		$hn = ArrayHelper::getValue($patient_info, 'hn', null);
-		
+
 		$cid = ArrayHelper::getValue($patient_info, 'cid', null);
 
 		$maininscl_name = ArrayHelper::getValue($right, 'maininscl_name', null); //ชื่อสิทธิ์
 
 		$appoint_id = ArrayHelper::getValue($appoint, 'appoint_id', null); //id นัดหมาย
+		$doctor_id = ArrayHelper::getValue($appoint, 'doctor_id', null); //รหัสแพทย์
 		$doctor_name = ArrayHelper::getValue($appoint, 'doctor_name', null); //ชื่อแพทย์
 		$servicegroupid = ArrayHelper::getValue($params, 'servicegroupid', null); //
 		$serviceid = ArrayHelper::getValue($params, 'serviceid', null); //กลุ่มบริการ
@@ -694,16 +710,28 @@ class KioskController extends \yii\web\Controller
 		$picture = ArrayHelper::getValue($params, 'picture', null); //ภาพผู้ป่วย
 		$pt_visit_type_id = ArrayHelper::getValue($params, 'pt_visit_type_id', null); //ประเภท walkin/ไม่ walkin
 		$quickly = ArrayHelper::getValue($params, 'quickly', null); //ความด่วนของคิว
+		$u_id = ArrayHelper::getValue($params, 'u_id', null); //รหัสผู้ใช้งาน Mobile
+		$q_status_id = ArrayHelper::getValue($params, 'q_status_id', 1); //สถานะ
+
 
 
 		// data models
 		$modelService = $this->findModelService($serviceid); // กลุ่มบริการ
 		$modelServiceGroup = $this->findModelServiceGroup($servicegroupid); // กลุ่มแผนก
 
-		$visit = array_filter($data_visit, function($v, $k) use ($modelService) {
-			return $v['main_dep'] == $modelService['main_dep'];
-		}, ARRAY_FILTER_USE_BOTH);
-		$vn = ArrayHelper::getValue($visit, '0.vn', null);
+		$vn = null;
+		if (is_array($data_visit) && !empty($data_visit) && $data_visit != null) {
+			$visit = array_filter($data_visit, function ($v, $k) use ($modelService) {
+				return $v['main_dep'] == $modelService['main_dep'];
+			}, ARRAY_FILTER_USE_BOTH);
+			$vn = ArrayHelper::getValue($visit, '0.vn', null);
+		}
+
+		if ($appoint) {
+			$maininscl_name = ArrayHelper::getValue($appoint, 'appoint_right', null); //ชื่อสิทธิ์
+		}
+
+		$tslotid =  $this->getSlot($serviceid);
 
 		$db = Yii::$app->db;
 		$transaction = $db->beginTransaction();
@@ -715,18 +743,24 @@ class KioskController extends \yii\web\Controller
 					'serviceid' => $serviceid,
 					'servicegroupid' => $servicegroupid,
 					'q_hn' => $hn,
+					'q_status_id' => [1, 2, 3, 5, 6]
 				])
+				->andWhere('DATE(q_timestp) = CURRENT_DATE')
 				->one();
 			if (!$modelQueue) {
 				$modelQueue = new TbQuequ();
-			}
-
-			$modelQueue->setAttributes([
-				'q_num' => $modelQueue->generateQnumber([
+				$q_num = $modelQueue->generateQnumber([
 					'serviceid' => $serviceid,
 					'service_prefix' => $modelService['service_prefix'],
 					'service_numdigit' => $modelService['service_numdigit'],
-				]),
+				]);
+			} else {
+				$tslotid = $modelQueue['tslotid'];
+				$q_num = $modelQueue['q_num'];
+			}
+
+			$modelQueue->setAttributes([
+				'q_num' => $q_num,
 				'cid' => $cid,
 				'q_hn' => $hn,
 				'q_vn' => $vn,
@@ -735,11 +769,15 @@ class KioskController extends \yii\web\Controller
 				'servicegroupid' => $servicegroupid, //กลุ่มบริการ
 				'serviceid' => $serviceid,
 				'created_from' => $created_from,
-				'q_status_id' => 1,//สถานะคิว default 1
+				'q_status_id' => $q_status_id, //สถานะ
+				'doctor_id' => $doctor_id,
 				'doctor_name' => $doctor_name,
 				'maininscl_name' => $maininscl_name,
 				'pt_visit_type_id' => $pt_visit_type_id,
-				'quickly' => 0,//ความด่วนของคิว default 0
+				'tslotid' => $tslotid,
+				'quickly' => 0, //ความด่วนของคิว default 0
+				'u_id' => $u_id, //รหัสผู้ใช้งาน Mobile
+				//'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6 
 			]);
 			$pt_pic = $this->uploadPicture($picture, $hn);
 			$modelQueue->pt_pic = $pt_pic;
@@ -751,7 +789,9 @@ class KioskController extends \yii\web\Controller
 				$modelQtrans->setAttributes([
 					'q_ids' => $modelQueue->q_ids,
 					'servicegroupid' => $servicegroupid,
-					'service_status_id' => 1,
+					'service_status_id' => $modelQueue->q_status_id,
+					'doctor_id' => $doctor_id,
+					//'service_status_id' => $u_id ? 6 : 1,  //ถ้ามี u_id หมายถึงคิวมาจาก mobile status = 6
 				]);
 				if ($modelQtrans->save()) {
 					$transaction->commit();
@@ -774,6 +814,47 @@ class KioskController extends \yii\web\Controller
 			$transaction->rollBack();
 			throw $e;
 		}
+	}
+
+	private function getSlot($serviceid, $tslotid = [])
+	{
+		$query =  (new \yii\db\Query()) //หา slot เวลาที่ต้องสร้างคิว
+			->select([
+				'tb_service_tslot.*',
+			])
+			->from('tb_service_tslot')
+			->where(['tb_service_tslot.serviceid' => $serviceid]);
+		if ($tslotid) {
+			$query->andWhere(['NOT IN', 'tb_service_tslot.tslotid', $tslotid])
+				->andwhere('tb_service_tslot.t_slot_begin >= CURRENT_TIME');
+		} else {
+			$query->andWhere('CURRENT_TIME >= tb_service_tslot.t_slot_begin')
+				->andWhere('CURRENT_TIME <= tb_service_tslot.t_slot_end');
+		}
+		$slot =	$query->one();
+
+		if ($slot) {
+			if ($slot['q_limit'] == 1) { //มีจำนวน limit 
+				$count = (new \yii\db\Query())
+					->from('tb_quequ')
+					->where([
+						'tb_quequ.serviceid' => $serviceid,
+						'tb_quequ.tslotid' => $slot['tslotid']
+					])
+					->andWhere('DATE(q_timestp) = CURRENT_DATE')
+					->count();
+				$q_balance = $slot['q_limitqty'] - $count;
+				if ($q_balance == 0) { //จำนวน คิว limit
+					$tslotid = ArrayHelper::merge($tslotid, [$slot['tslotid']]);
+					return $this->getSlot($serviceid, $tslotid);
+				} else {
+					return $slot['tslotid'];
+				}
+			} else {
+				return $slot['tslotid'];
+			}
+		}
+		return null;
 	}
 
 	private function uploadPicture($picture, $hn) //upload ภาพ
@@ -893,6 +974,8 @@ class KioskController extends \yii\web\Controller
 			return null;
 		}
 	}
+
+
 
 	protected function findModelPatient($id)
 	{
