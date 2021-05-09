@@ -82,6 +82,8 @@ router.get('/get_counterservice_list', async function(req, res, next) {
     }
 
 });
+
+
 /* GET servicecounter by id. */
 router.get('/get_counterservice_list/:id', async function(req, res, next) {
     try {
@@ -111,11 +113,5 @@ router.get('/get_drug_config', async function(req, res, next) {
     }
 
 });
-
-
-
-
-
-
 
 module.exports = router;
