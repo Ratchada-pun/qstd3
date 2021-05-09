@@ -96,6 +96,22 @@ router.get('/get_counterservice_list/:id', async function(req, res, next) {
     }
 
 });
+/* GET get_drug_config. */
+router.get('/get_drug_config', async function(req, res, next) {
+    try {
+        const items = await Drugconfig.getItems()
+
+        res.json(items)
+
+    } catch (error) {
+
+        res.json(error)
+
+
+    }
+
+});
+
 
 
 
