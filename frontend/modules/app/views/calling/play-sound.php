@@ -325,13 +325,13 @@ socket
 .on('call-screening-room', (res) => {
     console.log('call-screening-room',res)
     if(res.eventOn == 'tb-waiting'){
-        var counters = (model.counterserviceid).split(',');
-        if(jQuery.inArray((res.counter.counterserviceid).toString(), counters) != -1) {
+        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
+        if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
             Queue.addMedia(res);
         }
     }else{
-        var counters = (model.counterserviceid).split(',');
-        if(jQuery.inArray(res.data.counter_service_id, counters) != -1) {
+        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
+        if(jQuery.inArray(parseInt(res.data.counter_service_id), counters) != -1) {
             Queue.addMedia(res);
         }
     }
@@ -339,13 +339,13 @@ socket
 .on('call-examination-room', (res) => {//เรียกคิวห้องตรวจ /app/calling/examination-room
     console.log('call-examination-room',res)
     if(res.eventOn == 'tb-waiting'){
-        var counters = (model.counterserviceid).split(',');
-        if(jQuery.inArray((res.counter.counterserviceid).toString(), counters) != -1) {
+        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
+        if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
             Queue.addMedia(res);
         }
     }else{
-        var counters = (model.counterserviceid).split(',');
-        if(jQuery.inArray(res.data.counter_service_id, counters) != -1) {
+        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
+        if(jQuery.inArray(parseInt(res.data.counter_service_id), counters) != -1) {
             Queue.addMedia(res);
         }
     }
@@ -353,13 +353,13 @@ socket
 .on('call-medicine-room', (res) => {//เรียกคิวห้องตรวจ /app/calling/examination-room
     console.log('call-medicine-room',res)
     if(res.eventOn == 'tb-waiting'){
-        var counters = (model.counterserviceid).split(',');
-        if(jQuery.inArray((res.counter.counterserviceid).toString(), counters) != -1) {
+        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
+        if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
             Queue.addMedia(res);
         }
     }else{
-        var counters = (model.counterserviceid).split(',');
-        if(jQuery.inArray(res.data.counter_service_id, counters) != -1) {
+        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
+        if(jQuery.inArray(parseInt(res.data.counter_service_id), counters) != -1) {
             Queue.addMedia(res);
         }
     }
