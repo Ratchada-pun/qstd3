@@ -751,6 +751,7 @@ $(function() {
           parseInt(data.q_ids) === parseInt(_.get(res, "modelQ.q_ids"))
         ) {
           Queue.reloadTbWaiting(); //โหลดข้อมูลคิวรอ
+          dt_tbqdata.ajax.reload();
         }
       });
       t2.rows().every(function(rowIdx, tableLoop, rowLoop) {
@@ -760,6 +761,7 @@ $(function() {
           parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
         ) {
           Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+          dt_tbqdata.ajax.reload();
         }
       });
       t3.rows().every(function(rowIdx, tableLoop, rowLoop) {
@@ -770,6 +772,7 @@ $(function() {
         ) {
           Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
           Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+          dt_tbqdata.ajax.reload();
         }
       });
       // if (res.eventOn === "tb-waiting" && res.state === "call") {
@@ -802,6 +805,7 @@ $(function() {
         ) {
           Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
           Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+          dt_tbqdata.ajax.reload();
         }
       });
       t3.rows().every(function(rowIdx, tableLoop, rowLoop) {
@@ -812,6 +816,7 @@ $(function() {
         ) {
           Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
           Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+          dt_tbqdata.ajax.reload();
         }
       });
       // if (
@@ -833,6 +838,7 @@ $(function() {
         ) {
           Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
           Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+          dt_tbqdata.ajax.reload();
         }
       });
       t3.rows().every(function(rowIdx, tableLoop, rowLoop) {
@@ -843,6 +849,7 @@ $(function() {
         ) {
           Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
           Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+          dt_tbqdata.ajax.reload();
         }
       });
       // if (
