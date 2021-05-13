@@ -36,4 +36,15 @@ router.post('/end-queue', async function(req, res) {
     }
 });
 
+router.post('/send-to-doctor', async function(req, res) {
+    try {
+        const response = await axios.post('/app/calling/send-to-doctor', req.body)
+        req.io.emit('endq-screening-room', response.data);
+        req.io.emit('endq-examination-room', response.data);
+        res.send(response.data);
+    } catch (error) {
+        res.status(error.response.status || 500).send(error.response.data);
+    }
+});
+
 module.exports = router;
