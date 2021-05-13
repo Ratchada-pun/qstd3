@@ -58,11 +58,26 @@ class CallingController extends \yii\web\Controller
                         'actions' => ['play-sound', 'autoload-media', 'update-status'],
                         'roles' => ['?', '@'],
                     ],
+                    [
+                        'allow' => true,
+                        'actions' => ['led-options', 'calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor'],
+                        'roles' => ['?'],
+                    ],
                 ],
             ],
         ];
     }
+    /**
+     * @inheritdoc
+     */
+    public function beforeAction($action)
+    {
+        if (in_array($action->id, ['calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor'])) {
+            $this->enableCsrfValidation = false;
+        }
 
+        return parent::beforeAction($action);
+    }
     public function actionIndex($profileid = null, $counterid = null)
     {
         $modelForm = new CallingForm();
@@ -254,6 +269,687 @@ class CallingController extends \yii\web\Controller
         ]);
     }
 
+    public function actionDataTbwaiting()
+    {
+        $request = Yii::$app->request;
+
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+            $formData = $request->post('modelForm', []);
+            $profileData = $request->post('modelProfile', []);
+            $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
+            $labItems = $this->findLabs();
+            $query = (new \yii\db\Query())
+                ->select([
+                    'tb_qtrans.ids',
+                    'tb_qtrans.q_ids',
+                    'tb_qtrans.counter_service_id',
+                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                    'tb_qtrans.service_status_id',
+                    'tb_quequ.q_num',
+                    'tb_quequ.q_hn',
+                    'tb_quequ.q_vn',
+                    'tb_quequ.pt_name',
+                    'tb_counterservice.counterservice_name',
+                    'tb_service_status.service_status_name',
+                    'tb_service.service_name',
+                    'tb_service.serviceid',
+                    'tb_service.service_prefix',
+                    'tb_quequ.quickly'
+
+                ])
+                ->from('tb_qtrans')
+                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
+                ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+                ->where([
+                    'tb_quequ.serviceid' => $services,
+                    'tb_quequ.q_status_id' => 1,
+                    'tb_qtrans.service_status_id' => 1
+                ])
+                ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'checkin_date' => SORT_ASC]);
+
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => false,
+                ],
+                'key' => 'q_ids'
+            ]);
+            $columns = Yii::createObject([
+                'class' => ColumnData::class,
+                'dataProvider' => $dataProvider,
+                'formatter' => Yii::$app->getFormatter(),
+                'columns' => [
+                    [
+                        'attribute' => 'ids',
+                    ],
+                    [
+                        'attribute' => 'q_ids',
+                    ],
+                    [
+                        'attribute' => 'q_num',
+                        'value' => function ($model, $key, $index, $column) {
+                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'font-size: 16px;']);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'pt_name',
+                    ],
+                    [
+                        'attribute' => 'counter_service_id',
+                    ],
+                    [
+                        'attribute' => 'checkin_date',
+                    ],
+                    [
+                        'attribute' => 'counterservice_name',
+                    ],
+                    [
+                        'attribute' => 'service_status_name',
+                    ],
+                    [
+                        'attribute' => 'service_name',
+                        'value' => function ($model, $key, $index, $column) {
+                            return $model['quickly'] == 1 ? 'คิวด่วน' : $model['service_name'];
+                        },
+                    ],
+                    [
+                        'attribute' => 'serviceid',
+                    ],
+                    [
+                        'attribute' => 'service_prefix',
+                    ],
+                    [
+                        'attribute' => 'qnumber',
+                        'value' => function ($model, $key, $index, $column) {
+                            return $model['q_num'];
+                        },
+                    ],
+                    [
+                        'attribute' => 'quickly',
+                    ],
+                    // [
+                    //     'attribute' => 'checkbox',
+                    //     'value' => function ($model, $key, $index) {
+                    //         return Html::beginTag('div', ['class' => 'checkbox']) .
+                    //             Html::beginTag('label', ['style' => 'font-size: 1.5em']) .
+                    //             Html::checkbox('selection[]', false, ['value' => $key, 'id' => 'checkbox-' . $key]) .
+                    //             Html::tag('span', '<i class="cr-icon fa fa-check"></i>', ['class' => 'cr']) .
+                    //             Html::endTag('label') .
+                    //             Html::endTag('div');
+                    //     },
+                    //     'format' => 'raw',
+                    // ],
+                    [
+                        'class' => ActionTable::class,
+                        'template' => '{call}',
+                        'buttons' => [
+                            'call' => function ($url, $model, $key) {
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/call-screening-room']);
+                            },
+                            'end' => function ($url, $model, $key) {
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn btn-danger btn-end', 'data-url' => '/app/calling/end-wait-screening-room']);
+                            },
+                        ],
+                    ]
+                ]
+            ]);
+
+            return ['data' => $columns->renderDataColumns()];
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionDataTbcalling()
+    {
+        $request = Yii::$app->request;
+
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $formData = $request->post('modelForm', []);
+            $profileData = $request->post('modelProfile', []);
+            $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
+            $labItems = $this->findLabs();
+
+            $query = (new \yii\db\Query())
+                ->select([
+                    'tb_caller.caller_ids',
+                    'tb_caller.q_ids',
+                    'tb_caller.qtran_ids',
+                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                    'tb_caller.servicegroupid',
+                    'tb_caller.counter_service_id',
+                    'tb_caller.call_timestp',
+                    'tb_quequ.q_num',
+                    'tb_quequ.q_hn',
+                    'tb_quequ.pt_name',
+                    'tb_service_status.service_status_name',
+                    'tb_counterservice.counterservice_name',
+                    'tb_service.service_name',
+                    'tb_service.serviceid',
+                    'tb_service.service_prefix',
+                    'tb_quequ.quickly',
+                    'tb_qtrans.ids',
+                    'tb_qtrans.q_ids'
+                ])
+                ->from('tb_caller')
+                ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+                ->where([
+                    'tb_quequ.serviceid' => $services,
+                    'tb_caller.counter_service_id' => $formData['counter_service'],
+                    'tb_caller.call_status' => ['calling', 'callend']
+                ])
+                ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
+
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => false,
+                ],
+                'key' => 'caller_ids'
+            ]);
+            $columns = Yii::createObject([
+                'class' => ColumnData::class,
+                'dataProvider' => $dataProvider,
+                'formatter' => Yii::$app->getFormatter(),
+                'columns' => [
+                    [
+                        'attribute' => 'ids',
+                    ],
+                    [
+                        'attribute' => 'caller_ids',
+                    ],
+                    [
+                        'attribute' => 'q_ids',
+                    ],
+                    [
+                        'attribute' => 'q_num',
+                        'value' => function ($model, $key, $index, $column) {
+                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'font-size: 16px;']);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'pt_name',
+                    ],
+                    [
+                        'attribute' => 'counter_service_id',
+                    ],
+                    [
+                        'attribute' => 'checkin_date',
+                    ],
+                    [
+                        'attribute' => 'counterservice_name',
+                    ],
+                    [
+                        'attribute' => 'qnumber',
+                        'value' => function ($model, $key, $index, $column) {
+                            return $model['q_num'];
+                        },
+                    ],
+                    [
+                        'attribute' => 'service_status_name',
+                        'value' => function ($model, $key, $index, $column) {
+                            return \kartik\helpers\Html::badge(Icon::show('hourglass-3') . ' ' . $model['service_status_name'], ['class' => 'badge']);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'service_name',
+                        'value' => function ($model, $key, $index, $column) {
+                            return $model['quickly'] == 1 ? 'คิวด่วน' : $model['service_name'];
+                        },
+                    ],
+                    [
+                        'attribute' => 'serviceid',
+                    ],
+                    [
+                        'attribute' => 'service_prefix',
+                    ],
+                    [
+                        'attribute' => 'quickly',
+                    ],
+                    [
+                        'class' => ActionTable::class,
+                        'template' => '{recall} {hold} {end} {waiting}',
+                        'buttons' => [
+                            'recall' => function ($url, $model, $key) {
+                                return Html::a('เรียกซ้ำ', $url, ['class' => 'btn btn-success btn-recall', 'title' => 'RECALL', 'data-url' => '/app/calling/recall-screening-room']);
+                            },
+                            'hold' => function ($url, $model, $key) {
+                                return Html::a('พักคิว', $url, ['class' => 'btn btn-warning btn-hold', 'title' => 'HOLD', 'data-url' => '/app/calling/hold-screening-room']);
+                            },
+                            'end' => function ($url, $model, $key) {
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
+                            },
+                            'waiting' => function ($url, $model, $key) {
+                                return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
+                            },
+                        ],
+                        'urlCreator' => function ($action,  $model,  $key, $index) {
+                            if ($action == 'recall') {
+                                return Url::to(['/app/calling/recall', 'id' => $key]);
+                            }
+                            if ($action == 'hold') {
+                                return Url::to(['/app/calling/hold', 'id' => $key]);
+                            }
+                            if ($action == 'end') {
+                                return Url::to(['/app/calling/end', 'id' => $key]);
+                            }
+                            if ($action == 'waiting') {
+                                return Url::to(['/app/calling/waiting-doctor', 'id' => $key]);
+                            }
+                        }
+                    ]
+                ]
+            ]);
+
+            return ['data' => $columns->renderDataColumns()];
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionDataTbhold()
+    {
+        $request = Yii::$app->request;
+
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $formData = $request->post('modelForm', []);
+            $profileData = $request->post('modelProfile', []);
+            $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
+            $labItems = $this->findLabs();
+
+            $query = (new \yii\db\Query())
+                ->select([
+                    'tb_caller.caller_ids',
+                    'tb_caller.q_ids',
+                    'tb_caller.qtran_ids',
+                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                    'tb_caller.servicegroupid',
+                    'tb_caller.counter_service_id',
+                    'tb_caller.call_timestp',
+                    'tb_quequ.q_num',
+                    'tb_quequ.q_hn',
+                    'tb_quequ.pt_name',
+                    'tb_service_status.service_status_name',
+                    'tb_counterservice.counterservice_name',
+                    'tb_service.service_name',
+                    'tb_service.serviceid',
+                    'tb_service.service_prefix',
+                    'tb_quequ.quickly',
+                    'tb_qtrans.ids',
+                    'tb_qtrans.q_ids'
+                ])
+                ->from('tb_caller')
+                ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+                ->where([
+                    'tb_quequ.serviceid' => $services,
+                    'tb_caller.counter_service_id' => $formData['counter_service'],
+                    'tb_caller.call_status' => 'hold'
+                ])
+                ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
+
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => false,
+                ],
+                'key' => 'caller_ids'
+            ]);
+            $columns = Yii::createObject([
+                'class' => ColumnData::class,
+                'dataProvider' => $dataProvider,
+                'formatter' => Yii::$app->getFormatter(),
+                'columns' => [
+                    [
+                        'attribute' => 'ids',
+                    ],
+                    [
+                        'attribute' => 'caller_ids',
+                    ],
+                    [
+                        'attribute' => 'q_ids',
+                    ],
+                    [
+                        'attribute' => 'q_num',
+                        'value' => function ($model, $key, $index, $column) {
+                            return \kartik\helpers\Html::badge($model['q_num'], ['class' => 'badge', 'style' => 'font-size: 16px;']);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'pt_name',
+                    ],
+                    [
+                        'attribute' => 'counter_service_id',
+                    ],
+                    [
+                        'attribute' => 'checkin_date',
+                    ],
+                    [
+                        'attribute' => 'counterservice_name',
+                    ],
+                    [
+                        'attribute' => 'qnumber',
+                        'value' => function ($model, $key, $index, $column) {
+                            return $model['q_num'];
+                        },
+                    ],
+                    [
+                        'attribute' => 'service_status_name',
+                        'value' => function ($model, $key, $index, $column) {
+                            return \kartik\helpers\Html::badge(Icon::show('hourglass-3') . ' ' . $model['service_status_name'], ['class' => 'badge']);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'service_name',
+                        'value' => function ($model, $key, $index, $column) {
+                            return $model['quickly'] == 1 ? 'คิวด่วน' : $model['service_name'];
+                        },
+                    ],
+                    [
+                        'attribute' => 'serviceid',
+                    ],
+                    [
+                        'attribute' => 'quickly',
+                    ],
+                    [
+                        'attribute' => 'service_prefix',
+                    ],
+                    [
+                        'class' => ActionTable::class,
+                        'template' => '{recall} {end}',
+                        'buttons' => [
+                            'recall' => function ($url, $model, $key) {
+                                return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/callhold-screening-room']);
+                            },
+                            'end' => function ($url, $model, $key) {
+                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'data-url' => '/app/calling/endhold-screening-room']);
+                            },
+                        ],
+                    ]
+                ]
+            ]);
+
+            return ['data' => $columns->renderDataColumns()];
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionCall($id)
+    {
+        $request = Yii::$app->request;
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+            $db = Yii::$app->db;
+            $transaction = $db->beginTransaction();
+            try {
+                $data = $request->post('data', []);
+                $dataForm = $request->post('modelForm', []);
+                $dataProfile = $request->post('modelProfile', []);
+                $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
+                $counter = $this->findModelCounterservice($dataForm['counter_service']);
+                $modelQ = $this->findModelQuequ($id);
+
+                $model = new TbCaller();
+                $model->q_ids = $id;
+                $model->qtran_ids = $data['ids'];
+                $model->counter_service_id = $dataForm['counter_service'];
+                $model->call_timestp = new Expression('NOW()');
+                $model->call_status = TbCaller::STATUS_CALLING;
+
+                $modelTrans = $this->findModelQTrans($data['ids']);
+                $modelTrans->service_status_id = 2;
+                $modelQ->q_status_id = 2;
+
+                if ($model->save() && $modelTrans->save() && $modelQ->save()) {
+                    $data['counter_service_id'] = $counter['counterserviceid'];
+                    $transaction->commit();
+                    return [
+                        'status' => '200',
+                        'message' => 'success',
+                        'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                        'data' => $data,
+                        'model' => $model,
+                        'modelQ' => $modelQ,
+                        'modelProfile' => $modelProfile,
+                        'counter' => $counter,
+                        'eventOn' => 'tb-waiting',
+                        'state' => 'call'
+                    ];
+                } else {
+                    $transaction->rollBack();
+                    return [
+                        'status' => '500',
+                        'message' => 'error',
+                        'validate' => ActiveForm::validate($model)
+                    ];
+                }
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                throw $e;
+            } catch (\Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionRecall($id)
+    {
+        $request = Yii::$app->request;
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $data = $request->post('data', []);
+            $dataForm = $request->post('modelForm', []);
+            $dataProfile = $request->post('modelProfile', []);
+            $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
+            $counter = $this->findModelCounterservice($dataForm['counter_service']);
+            $modelQ = $this->findModelQuequ($data['q_ids']);
+
+            $model = $this->findModelCaller($id);
+            $model->call_timestp = new Expression('NOW()');
+            $model->call_status = TbCaller::STATUS_CALLING;
+
+            $modelTrans = $this->findModelQTrans($data['ids']);
+            $modelTrans->service_status_id = 2;
+            $modelQ->q_status_id = 2;
+            if ($model->save() && $modelTrans->save() && $modelQ->save()) {
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'data' => $data,
+                    'model' => $model,
+                    'modelQ' => $modelQ,
+                    'modelProfile' => $modelProfile,
+                    'counter' => $counter,
+                    'eventOn' => 'tb-calling',
+                    'state' => 'recall'
+                ];
+            } else {
+                return [
+                    'status' => '500',
+                    'message' => 'error',
+                    'validate' => ActiveForm::validate($model)
+                ];
+            }
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionHold($id)
+    {
+        $request = Yii::$app->request;
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $data = $request->post('data', []);
+            $dataForm = $request->post('modelForm', []);
+            $dataProfile = $request->post('modelProfile', []);
+            $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
+            $counter = $this->findModelCounterservice($dataForm['counter_service']);
+            $modelQ = $this->findModelQuequ($data['q_ids']);
+
+            $model = $this->findModelCaller($id);
+            $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            $modelQtran->service_status_id = 3;
+            $model->call_status = TbCaller::STATUS_HOLD;
+
+            $modelQ->q_status_id = 3;
+            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'data' => $data,
+                    'model' => $model,
+                    'modelProfile' => $modelProfile,
+                    'counter' => $counter,
+                    'eventOn' => 'tb-calling',
+                    'state' => 'hold'
+                ];
+            } else {
+                return [
+                    'status' => '500',
+                    'message' => 'error',
+                    'validate' => ActiveForm::validate($model)
+                ];
+            }
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionEnd($id)
+    {
+        $request = Yii::$app->request;
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $data = $request->post('data', []);
+            $dataForm = $request->post('modelForm', []);
+            $dataProfile = $request->post('modelProfile', []);
+            $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
+            $counter = $this->findModelCounterservice($dataForm['counter_service']);
+
+            $model = $this->findModelCaller($data['caller_ids']);
+            $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+            $modelQtran->service_status_id = 4;
+            $modelQtran->counter_service_id = $request->post('value');
+            $model->call_status = TbCaller::STATUS_FINISHED;
+
+            $modelQ->q_status_id = 4;
+
+            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'data' => $data,
+                    'model' => $model,
+                    'modelQ' => $modelQ,
+                    'modelProfile' => $modelProfile,
+                    'counter' => $counter,
+                    'eventOn' => 'tb-calling',
+                    'state' => 'end'
+                ];
+            } else {
+                return [
+                    'status' => '500',
+                    'message' => 'error',
+                    'validate' => ActiveForm::validate($model)
+                ];
+            }
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionWaitingDoctor()
+    {
+        $request = Yii::$app->request;
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $data = $request->post('data', []);
+            $dataForm = $request->post('modelForm', []);
+            $dataProfile = $request->post('modelProfile', []);
+            $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
+            $counter = $this->findModelCounterservice($dataForm['counter_service']);
+
+            $model = $this->findModelCaller($data['caller_ids']);
+            $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+            $modelQtran->service_status_id = 4;
+            $model->call_status = TbCaller::STATUS_FINISHED;
+
+            $modelQ->q_status_id = 5;
+
+            $modelQueuetran = new TbQtrans();
+            $modelQueuetran->setAttributes([
+                'q_ids' => $data['q_ids'],
+                'servicegroupid' => $modelQ['servicegroupid'],
+                'doctor_id' => $modelQtran['doctor_id'],
+                'checkin_date' => $modelQtran['checkin_date'],
+                'checkout_date' => $modelQtran['checkout_date'],
+                'service_status_id' => 5,
+            ]);
+
+            if ($model->save() && $modelQtran->save() && $modelQ->save() && $modelQueuetran->save()) {
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'data' => $data,
+                    'model' => $model,
+                    'modelQ' => $modelQ,
+                    'modelProfile' => $modelProfile,
+                    'counter' => $counter,
+                    'eventOn' => 'tb-calling',
+                    'state' => 'waiting-doctor'
+                ];
+            } else {
+                return [
+                    'status' => '500',
+                    'message' => 'error',
+                    'validate' => ActiveForm::validate($model)
+                ];
+            }
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
     public function actionDataTbwaitingSr()
     {
         $request = Yii::$app->request;
@@ -273,7 +969,7 @@ class CallingController extends \yii\web\Controller
                     'tb_qtrans.service_status_id',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
-                    'tb_queue.q_vn',
+                    'tb_quequ.q_vn',
                     'tb_quequ.pt_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service_status.service_status_name',
@@ -387,7 +1083,7 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'class' => ActionTable::class,
-                        'template' => '{call} {end}',
+                        'template' => '{call}',
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
                                 return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/call-screening-room']);
@@ -534,7 +1230,7 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'class' => ActionTable::class,
-                        'template' => '{recall} {hold} {end}',
+                        'template' => '{recall} {hold} {end} {waiting}',
                         'buttons' => [
                             'recall' => function ($url, $model, $key) {
                                 return Html::a('เรียกซ้ำ', $url, ['class' => 'btn btn-success btn-recall', 'title' => 'RECALL', 'data-url' => '/app/calling/recall-screening-room']);
@@ -544,6 +1240,9 @@ class CallingController extends \yii\web\Controller
                             },
                             'end' => function ($url, $model, $key) {
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
+                            },
+                            'waiting' => function ($url, $model, $key) {
+                                return Html::a('รอพบแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
                             },
                         ],
                     ]
@@ -739,8 +1438,8 @@ class CallingController extends \yii\web\Controller
                 ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
                 ->where([
                     'tb_quequ.serviceid' => $services,
-                    'tb_qtrans.counter_service_id' => $formData['counter_service'],
-                    'tb_qtrans.service_status_id' => 4
+                    //'tb_qtrans.counter_service_id' => $formData['counter_service'],
+                    'tb_qtrans.service_status_id' => 5
                 ])
                 ->andWhere('DATE(tb_quequ.created_at) = DATE(NOW())')
                 ->orderBy('tb_counterservice.counterserviceid,checkin_date  ASC');
@@ -752,10 +1451,12 @@ class CallingController extends \yii\web\Controller
                 ],
                 'key' => 'ids'
             ]);
+
             $columns = Yii::createObject([
                 'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
                 'formatter' => Yii::$app->getFormatter(),
+
                 'columns' => [
                     [
                         'attribute' => 'ids',
@@ -806,48 +1507,48 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'service_prefix',
                     ],
-                    [
-                        'attribute' => 'lab',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['lab'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['lab'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['lab'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'attribute' => 'xray',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['xray'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['xray'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['xray'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'attribute' => 'SP',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['SP'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['SP'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['SP'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
+                    // [
+                    //     'attribute' => 'lab',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['lab'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['lab'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['lab'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    // [
+                    //     'attribute' => 'xray',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['xray'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['xray'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['xray'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    // [
+                    //     'attribute' => 'SP',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['SP'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['SP'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['SP'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     // [
                     //     'attribute' => 'lab_confirm',
                     //     'value' => function ($model, $key, $index, $column) use ($labItems) {
@@ -881,6 +1582,7 @@ class CallingController extends \yii\web\Controller
                         ],
                     ]
                 ]
+
             ]);
 
             return ['data' => $columns->renderDataColumns()];
@@ -920,17 +1622,17 @@ class CallingController extends \yii\web\Controller
                     'tb_service.service_prefix',
                 ])
                 ->from('tb_caller')
-                ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
-                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-                ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-                ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+                ->leftJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+                ->leftJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
                 ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
                 ->where([
                     'tb_quequ.serviceid' => $services,
                     'tb_caller.counter_service_id' => $formData['counter_service'],
                     'tb_caller.call_status' => ['calling', 'callend']
                 ])
-                ->andWhere(['not', ['tb_qtrans.counter_service_id' => null]])
+                // ->andWhere(['not', ['tb_qtrans.counter_service_id' => null]])
                 ->andWhere('DATE(tb_quequ.created_at) = DATE(NOW())')
                 ->orderBy('tb_quequ.q_appoint_time ASC');
 
@@ -999,48 +1701,48 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'service_prefix',
                     ],
-                    [
-                        'attribute' => 'lab',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['lab'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['lab'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['lab'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'attribute' => 'xray',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['xray'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['xray'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['xray'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'attribute' => 'SP',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['SP'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['SP'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['SP'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
+                    // [
+                    //     'attribute' => 'lab',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['lab'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['lab'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['lab'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    // [
+                    //     'attribute' => 'xray',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['xray'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['xray'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['xray'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    // [
+                    //     'attribute' => 'SP',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['SP'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['SP'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['SP'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     // [
                     //     'attribute' => 'lab_confirm',
                     //     'value' => function ($model, $key, $index, $column) use ($labItems) {
@@ -1057,7 +1759,7 @@ class CallingController extends \yii\web\Controller
                     // ],
                     [
                         'class' => ActionTable::class,
-                        'template' => '{recall} {hold} {end} {transfer}',
+                        'template' => '{recall} {hold} {end} ', //{transfer}
                         'buttons' => [
                             'recall' => function ($url, $model, $key) {
                                 return Html::a('เรียกซ้ำ', $url, ['class' => 'btn btn-success btn-recall']);
@@ -1072,6 +1774,17 @@ class CallingController extends \yii\web\Controller
                                 return Html::a('ส่งต่อ', $url, ['class' => 'btn btn-primary btn-transfer']);
                             },
                         ],
+                        'urlCreator' => function ($action,  $model,  $key,  $index) {
+                            if ($action == 'recall') {
+                                return Url::to(['/app/calling/recall-examination-room', 'id' => $key]);
+                            }
+                            if ($action == 'hold') {
+                                return Url::to(['/app/calling/hold-examination-room', 'id' => $key]);
+                            }
+                            if ($action == 'end') {
+                                return Url::to(['/app/calling/end-examination-room', 'id' => $key]);
+                            }
+                        }
                     ]
                 ]
             ]);
@@ -1193,48 +1906,48 @@ class CallingController extends \yii\web\Controller
                     [
                         'attribute' => 'service_prefix',
                     ],
-                    [
-                        'attribute' => 'lab',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['lab'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['lab'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['lab'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'attribute' => 'xray',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['xray'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['xray'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['xray'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
-                    [
-                        'attribute' => 'SP',
-                        'value' => function ($model) {
-                            $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
-                            if ($lab['SP'] === 'ผลออกครบ') {
-                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else if ($lab['SP'] === 'รอผล') {
-                                return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
-                            } else {
-                                return $lab['SP'];
-                            }
-                        },
-                        'format' => 'raw'
-                    ],
+                    // [
+                    //     'attribute' => 'lab',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['lab'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['lab'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['lab'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['lab'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    // [
+                    //     'attribute' => 'xray',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['xray'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['xray'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['xray'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['xray'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
+                    // [
+                    //     'attribute' => 'SP',
+                    //     'value' => function ($model) {
+                    //         $lab = QueuesInterface::find()->where(['VN' => $model['VN']])->one();
+                    //         if ($lab['SP'] === 'ผลออกครบ') {
+                    //             return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:#6d953a;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else if ($lab['SP'] === 'รอผล') {
+                    //             return \kartik\helpers\Html::badge($lab['SP'], ['class' => 'badge', 'style' => 'background-color:orange;color:#ffffff;text-align:center;font-size:16px;']);
+                    //         } else {
+                    //             return $lab['SP'];
+                    //         }
+                    //     },
+                    //     'format' => 'raw'
+                    // ],
                     // [
                     //     'attribute' => 'lab_confirm',
                     //     'value' => function ($model, $key, $index, $column) use ($labItems) {
@@ -1251,7 +1964,7 @@ class CallingController extends \yii\web\Controller
                     // ],
                     [
                         'class' => ActionTable::class,
-                        'template' => '{call} {end} {transfer}',
+                        'template' => '{call} {end}', // {transfer}
                         'buttons' => [
                             'call' => function ($url, $model, $key) {
                                 return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling']);
@@ -1263,6 +1976,14 @@ class CallingController extends \yii\web\Controller
                                 return Html::a('Transfer', $url, ['class' => 'btn btn-primary btn-transfer']);
                             },
                         ],
+                        'urlCreator' => function ($action,  $model,  $key,  $index) {
+                            if ($action == 'call') {
+                                return Url::to(['/app/calling/callhold-examination-room', 'id' => $key]);
+                            }
+                            if ($action == 'end') {
+                                return Url::to(['/app/calling/endhold-examination-room', 'id' => $key]);
+                            }
+                        }
                     ]
                 ]
             ]);
@@ -1723,7 +2444,9 @@ class CallingController extends \yii\web\Controller
                 //$modelTrans->servicegroupid = null;
                 $modelTrans->service_status_id = 2;
 
-                if ($model->save() && $modelTrans->save()) {
+                $modelQ->q_status_id = 2;
+
+                if ($model->save() && $modelTrans->save() && $modelQ->save()) {
                     $data['counter_service_id'] = $counter['counterserviceid'];
                     $transaction->commit();
                     return [
@@ -1873,12 +2596,15 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
+            $modelQ = $this->findModelQuequ($data['q_ids']);
 
             $model = $this->findModelCaller($data['caller_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $modelQtran->service_status_id = 3;
             $model->call_status = TbCaller::STATUS_HOLD;
-            if ($model->save() && $modelQtran->save()) {
+
+            $modelQ->q_status_id = 3;
+            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -1919,7 +2645,10 @@ class CallingController extends \yii\web\Controller
             $modelQtran->service_status_id = 2;
             $model->call_timestp = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_CALLING;
-            if ($model->save() && $modelQtran->save()) {
+
+            $modelQ->q_status_id = 2;
+
+            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -1961,7 +2690,10 @@ class CallingController extends \yii\web\Controller
             $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
             $modelQtran->service_status_id = 4;
             $model->call_status = TbCaller::STATUS_END;
-            if ($model->save() && $modelQtran->save()) {
+
+            $modelQ->q_status_id = 4;
+
+            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2003,7 +2735,10 @@ class CallingController extends \yii\web\Controller
             $modelQtran->service_status_id = 4;
             $modelQtran->counter_service_id = $request->post('value');
             $model->call_status = TbCaller::STATUS_FINISHED;
-            if ($model->save() && $modelQtran->save()) {
+
+            $modelQ->q_status_id = 4;
+
+            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2027,6 +2762,8 @@ class CallingController extends \yii\web\Controller
         }
     }
 
+
+
     public function actionEndMedical()
     {
         $request = Yii::$app->request;
@@ -2046,6 +2783,7 @@ class CallingController extends \yii\web\Controller
             $modelQtran->checkout_date = new Expression('NOW()');
             $modelQtran->counter_service_id = $model['counter_service_id'];
             $model->call_status = TbCaller::STATUS_END;
+
             if ($model->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
@@ -2267,7 +3005,7 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionRecallExaminationRoom()
+    public function actionRecallExaminationRoom($id)
     {
         $request = Yii::$app->request;
         if ($request->isAjax) {
@@ -2277,13 +3015,17 @@ class CallingController extends \yii\web\Controller
             $dataForm = $request->post('modelForm', []);
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
-            $counter = $this->findModelCounterservice($dataForm['counter_service']);
-            $modelQ = $this->findModelQuequ($data['q_ids']);
 
-            $model = $this->findModelCaller($data['caller_ids']);
+            $model = $this->findModelCaller($id);
+            $modelQ = $this->findModelQuequ($model['q_ids']);
+            $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            $counter = $this->findModelCounterservice($model['counter_service_id']);
+
             $model->call_timestp = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_CALLING;
-            if ($model->save()) {
+            $modelQ->q_status_id = 2;
+            $modelQtran->service_status_id = 2;
+            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2308,7 +3050,7 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionHoldExaminationRoom()
+    public function actionHoldExaminationRoom($id)
     {
         $request = Yii::$app->request;
         if ($request->isAjax) {
@@ -2318,13 +3060,16 @@ class CallingController extends \yii\web\Controller
             $dataForm = $request->post('modelForm', []);
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
-            $counter = $this->findModelCounterservice($dataForm['counter_service']);
 
-            $model = $this->findModelCaller($data['caller_ids']);
+            $model = $this->findModelCaller($id);
+            $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            $counter = $this->findModelCounterservice($model['counter_service_id']);
+
             $modelQtran->service_status_id = 3;
+            $modelQ->q_status_id = 3;
             $model->call_status = TbCaller::STATUS_HOLD;
-            if ($model->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2347,7 +3092,7 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionCallholdExaminationRoom()
+    public function actionCallholdExaminationRoom($id)
     {
         $request = Yii::$app->request;
         if ($request->isAjax) {
@@ -2357,15 +3102,16 @@ class CallingController extends \yii\web\Controller
             $dataForm = $request->post('modelForm', []);
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
-            $counter = $this->findModelCounterservice($dataForm['counter_service']);
-            $modelQ = $this->findModelQuequ($data['q_ids']);
 
-            $model = $this->findModelCaller($data['caller_ids']);
+            $model = $this->findModelCaller($id);
+            $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            $counter = $this->findModelCounterservice($model['counter_service_id']);
             $modelQtran->service_status_id = 2;
+            $modelQ->q_status_id = 2;
             $model->call_timestp = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_CALLING;
-            if ($model->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2390,7 +3136,7 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionEndholdExaminationRoom()
+    public function actionEndholdExaminationRoom($id)
     {
         $request = Yii::$app->request;
         if ($request->isAjax) {
@@ -2400,15 +3146,16 @@ class CallingController extends \yii\web\Controller
             $dataForm = $request->post('modelForm', []);
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
-            $counter = $this->findModelCounterservice($dataForm['counter_service']);
 
-            $model = $this->findModelCaller($data['caller_ids']);
+            $model = $this->findModelCaller($id);
+            $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
-            $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
-            $modelQtran->service_status_id = 10;
+            $counter = $this->findModelCounterservice($model['counter_service_id']);
+            $modelQtran->service_status_id = 4;
+            $modelQ->q_status_id = 4;
             $modelQtran->checkout_date = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_END;
-            if ($model->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2432,7 +3179,7 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionEndExaminationRoom()
+    public function actionEndExaminationRoom($id)
     {
         $request = Yii::$app->request;
         if ($request->isAjax) {
@@ -2442,15 +3189,16 @@ class CallingController extends \yii\web\Controller
             $dataForm = $request->post('modelForm', []);
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
-            $counter = $this->findModelCounterservice($dataForm['counter_service']);
 
-            $model = $this->findModelCaller($data['caller_ids']);
+            $model = $this->findModelCaller($id);
+            $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
-            $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
-            $modelQtran->service_status_id = 10;
+            $counter = $this->findModelCounterservice($model['counter_service_id']);
+            $modelQtran->service_status_id = 4;
+            $modelQ->q_status_id = 4;
             $modelQtran->checkout_date = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_END;
-            if ($model->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -3399,5 +4147,356 @@ class CallingController extends \yii\web\Controller
         ]);
 
         return $columns->renderDataColumns();
+    }
+
+    public function actionCallingQueue() //เรียกคิว
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+
+        $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
+        $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
+        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', null); //ข้อมูลห้อง/โต๊ะ
+
+        if (!$q) {
+            throw new HttpException(400, 'invalid q.');
+        }
+        if (!$service_id) {
+            throw new HttpException(400, 'invalid service_id.');
+        }
+        if (!$counter_service_id) {
+            throw new HttpException(400, 'invalid counter_service_id.');
+        }
+
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+
+        try {
+            $modelQueue = TbQuequ::find()
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [1, 2, 3, 5]])
+                ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+                ->one();
+            if (!$modelQueue) {
+                throw new HttpException(404, 'ไม่พบรายการคิว');
+            }
+            if ($modelQueue['q_status_id'] == 4) {
+                throw new HttpException(400, 'คิวนี้เสร็จสิ้นไปแล้ว');
+            }
+            $counter = $this->findModelCounterservice($counter_service_id);
+
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold']]);
+            if (!$modelCaller) {
+                $modelCaller = new TbCaller();
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            } else {
+                $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            }
+            $modelCaller->q_ids = $modelQueue['q_ids'];
+            $modelCaller->counter_service_id = $counter_service_id;
+            $modelCaller->call_timestp = Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s');
+            $modelCaller->call_status = TbCaller::STATUS_CALLING;
+
+            $modelQTrans->service_status_id = 2;
+            $modelQueue->q_status_id = 2;
+
+            if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save()) {
+                $transaction->commit();
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'sound' => $this->getMediaSound($modelQueue['q_num'], $counter['counterserviceid']),
+                    'modelCaller' => $modelCaller,
+                    'modelQTrans' => $modelQTrans,
+                    'modelQueue' => $modelQueue,
+                    'counter' => $counter,
+                ];
+            } else {
+                $transaction->rollBack();
+                if ($modelQueue->errors) {
+                    throw new HttpException(400, Json::encode($modelQueue->errors));
+                }
+                if ($modelQTrans->errors) {
+                    throw new HttpException(400, Json::encode($modelQTrans->errors));
+                }
+                if ($modelCaller->errors) {
+                    throw new HttpException(400, Json::encode($modelCaller->errors));
+                }
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    public function actionHoldQueue() //เรียกพักคิว
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+
+        $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
+        $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
+        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', null); //ข้อมูลห้อง/โต๊ะ
+
+        if (!$q) {
+            throw new HttpException(400, 'invalid q.');
+        }
+        if (!$service_id) {
+            throw new HttpException(400, 'invalid service_id.');
+        }
+        if (!$counter_service_id) {
+            throw new HttpException(400, 'invalid counter_service_id.');
+        }
+
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+
+        try {
+            $modelQueue = TbQuequ::find()
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [2]])
+                ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+                ->one();
+            if (!$modelQueue) {
+                throw new HttpException(404, 'ไม่พบรายการคิว');
+            }
+            if ($modelQueue['q_status_id'] == 4) {
+                throw new HttpException(400, 'คิวนี้เสร็จสิ้นไปแล้ว');
+            }
+            $counter = $this->findModelCounterservice($counter_service_id);
+
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling']]);
+            if (!$modelCaller) {
+                $modelCaller = new TbCaller();
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            } else {
+                $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            }
+            $modelCaller->q_ids = $modelQueue['q_ids'];
+            $modelCaller->counter_service_id = $counter_service_id;
+            $modelCaller->call_status = TbCaller::STATUS_HOLD;
+
+            $modelQTrans->service_status_id = 3;
+            $modelQueue->q_status_id = 3;
+
+            if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save()) {
+                $transaction->commit();
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'modelCaller' => $modelCaller,
+                    'modelQTrans' => $modelQTrans,
+                    'modelQueue' => $modelQueue,
+                    'counter' => $counter,
+                ];
+            } else {
+                $transaction->rollBack();
+                if ($modelQueue->errors) {
+                    throw new HttpException(400, Json::encode($modelQueue->errors));
+                }
+                if ($modelQTrans->errors) {
+                    throw new HttpException(400, Json::encode($modelQTrans->errors));
+                }
+                if ($modelCaller->errors) {
+                    throw new HttpException(400, Json::encode($modelCaller->errors));
+                }
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    public function actionEndQueue() //เรียกจบคิว
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+
+        $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
+        $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
+        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', null); //ข้อมูลห้อง/โต๊ะ
+
+        if (!$q) {
+            throw new HttpException(400, 'invalid q.');
+        }
+        if (!$service_id) {
+            throw new HttpException(400, 'invalid service_id.');
+        }
+        if (!$counter_service_id) {
+            throw new HttpException(400, 'invalid counter_service_id.');
+        }
+
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+
+        try {
+            $modelQueue = TbQuequ::find()
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [2, 3]])
+                ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+                ->one();
+            if (!$modelQueue) {
+                throw new HttpException(404, 'ไม่พบรายการคิว');
+            }
+            if ($modelQueue['q_status_id'] == 4) {
+                throw new HttpException(400, 'คิวนี้เสร็จสิ้นไปแล้ว');
+            }
+            $counter = $this->findModelCounterservice($counter_service_id);
+
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold']]);
+            if (!$modelCaller) {
+                $modelCaller = new TbCaller();
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            } else {
+                $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            }
+            $modelCaller->q_ids = $modelQueue['q_ids'];
+            $modelCaller->counter_service_id = $counter_service_id;
+            $modelCaller->call_status = TbCaller::STATUS_FINISHED;
+
+            $modelQTrans->service_status_id = 4;
+            $modelQueue->q_status_id = 4;
+
+            if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save()) {
+                $transaction->commit();
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'modelCaller' => $modelCaller,
+                    'modelQTrans' => $modelQTrans,
+                    'modelQueue' => $modelQueue,
+                    'counter' => $counter,
+                ];
+            } else {
+                $transaction->rollBack();
+                if ($modelQueue->errors) {
+                    throw new HttpException(400, Json::encode($modelQueue->errors));
+                }
+                if ($modelQTrans->errors) {
+                    throw new HttpException(400, Json::encode($modelQTrans->errors));
+                }
+                if ($modelCaller->errors) {
+                    throw new HttpException(400, Json::encode($modelCaller->errors));
+                }
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    public function actionSendToDoctor() //ส่งตรวจห้องหมอ
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+
+        $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
+        $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
+        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', null); //ข้อมูลห้อง/โต๊ะ
+
+        if (!$q) {
+            throw new HttpException(400, 'invalid q.');
+        }
+        if (!$service_id) {
+            throw new HttpException(400, 'invalid service_id.');
+        }
+        if (!$counter_service_id) {
+            throw new HttpException(400, 'invalid counter_service_id.');
+        }
+
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+
+        try {
+            $modelQueue = TbQuequ::find()
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [2, 3]])
+                ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+                ->one();
+            if (!$modelQueue) {
+                throw new HttpException(404, 'ไม่พบรายการคิว');
+            }
+            if ($modelQueue['q_status_id'] == 4) {
+                throw new HttpException(400, 'คิวนี้เสร็จสิ้นไปแล้ว');
+            }
+            $counter = $this->findModelCounterservice($counter_service_id);
+
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold']]);
+            if (!$modelCaller) {
+                $modelCaller = new TbCaller();
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3]]);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            } else {
+                $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            }
+            $modelCaller->q_ids = $modelQueue['q_ids'];
+            $modelCaller->counter_service_id = $counter_service_id;
+            $modelCaller->call_status = TbCaller::STATUS_FINISHED;
+
+            $modelQTrans->service_status_id = 4;
+            $modelQueue->q_status_id = 5;
+
+            $modelQueuetran = new TbQtrans();
+            $modelQueuetran->setAttributes([
+                'q_ids' => $modelQueue['q_ids'],
+                'servicegroupid' => $modelQueue['servicegroupid'],
+                'doctor_id' => $modelQTrans['doctor_id'],
+                'checkin_date' => $modelQTrans['checkin_date'],
+                'checkout_date' => $modelQTrans['checkout_date'],
+                'service_status_id' => 5,
+            ]);
+
+            if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save() && $modelQueuetran->save()) {
+                $transaction->commit();
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'modelCaller' => $modelCaller,
+                    'modelQTrans' => $modelQTrans,
+                    'modelQueue' => $modelQueue,
+                    'counter' => $counter,
+                ];
+            } else {
+                $transaction->rollBack();
+                if ($modelQueue->errors) {
+                    throw new HttpException(400, Json::encode($modelQueue->errors));
+                }
+                if ($modelQTrans->errors) {
+                    throw new HttpException(400, Json::encode($modelQTrans->errors));
+                }
+                if ($modelCaller->errors) {
+                    throw new HttpException(400, Json::encode($modelCaller->errors));
+                }
+                if ($modelQueuetran->errors) {
+                    throw new HttpException(400, Json::encode($modelQueuetran->errors));
+                }
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 }

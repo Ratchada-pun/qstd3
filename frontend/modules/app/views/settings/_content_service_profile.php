@@ -18,6 +18,7 @@ use yii\helpers\Url;
                     ['content' => 'ชื่อบริการ','options' => []],
                     ['content' => 'Counter','options' => []],
                     ['content' => 'Service','options' => []],
+                    ['content' => 'Service status','options' => []],
                     ['content' => 'สถานะ','options' => []],
                     ['content' => 'ดำเนินการ','options' => []],
                 ]
@@ -60,6 +61,7 @@ use yii\helpers\Url;
             ["data" => "service_name","className" => "dt-body-left ","title" => "ชื่อบริการ"],
             ["data" => "counterservice_type","className" => "dt-body-left dt-nowrap","title" => "Counter"],
             ["data" => "servicelist","className" => "dt-body-left ","title" => "Service"],
+            ["data" => "service_status_id","className" => "dt-body-left ","title" => "สถานะคิว"],
             ["data" => "service_profile_status","className" => "dt-center ","title" => "สถานะ"],
             ["data" => "actions","className" => "dt-center dt-nowrap","orderable" => false,"title" => "ดำเนินการ"]
         ],

@@ -236,6 +236,10 @@ return [
 	        'app/settings/save-nhso-token',
             'app/kiosk/pt-right',
             'app/kiosk/create-queue',
+            'app/calling/calling-queue',
+            'app/calling/hold-queue',
+            'app/calling/end-queue',
+            'app/calling/send-to-doctor',
         ]
     ],
     'params' => $params,

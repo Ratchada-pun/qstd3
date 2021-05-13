@@ -48,7 +48,7 @@ class TbServiceProfile extends \yii\db\ActiveRecord
     {
         return [
             [['service_name', 'counterservice_typeid', 'service_id','service_profile_status'], 'required'],
-            [['counterservice_typeid'], 'integer'],
+            [['counterservice_typeid','service_status_id'], 'integer'],
             [['service_name'], 'string', 'max' => 100],
             [['service_id', 'counter_service_ids'],'safe']
         ];
@@ -65,6 +65,7 @@ class TbServiceProfile extends \yii\db\ActiveRecord
             'counterservice_typeid' => 'Counter',
             'service_id' => 'Service ID',
             'service_profile_status' => 'สถานะ',
+            'service_status_id' => 'สถานะคิว',
             'counter_service_ids' => 'ห้องตรวจที่ต้องการส่งคิวจากซักประวัติไป',
         ];
     }
@@ -93,6 +94,10 @@ class TbServiceProfile extends \yii\db\ActiveRecord
     public function getTbCounterserviceType()
     {
         return $this->hasOne(TbCounterserviceType::className(), ['counterservice_typeid' => 'counterservice_typeid']);
+    }
+    public function getTbServiceStatus()
+    {
+        return $this->hasOne(TbServiceStatus::className(), ['service_status_id' => 'service_status_id']);
     }
 
     public function getPrefixs(){
