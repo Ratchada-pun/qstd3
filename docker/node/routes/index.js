@@ -3,6 +3,8 @@ var router = express.Router();
 const Servicegroup = require('../models/get_servicegroup_list')
 const Service = require('../models/get_service_list')
 const Servicecounter = require('../models/get_counterservice_list')
+const Drugconfig = require('../models/get_drug_config')
+
 
 var assert = require('http-assert')
 
@@ -82,6 +84,8 @@ router.get('/get_counterservice_list', async function(req, res, next) {
     }
 
 });
+
+
 /* GET servicecounter by id. */
 router.get('/get_counterservice_list/:id', async function(req, res, next) {
     try {
@@ -92,6 +96,21 @@ router.get('/get_counterservice_list/:id', async function(req, res, next) {
 
 
         res.json(error)
+
+    }
+
+});
+/* GET get_drug_config. */
+router.get('/get_drug_config', async function(req, res, next) {
+    try {
+        const items = await Drugconfig.getItems()
+
+        res.json(items)
+
+    } catch (error) {
+
+        res.json(error)
+
 
     }
 
