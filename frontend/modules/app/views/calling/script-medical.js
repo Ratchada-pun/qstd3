@@ -383,59 +383,66 @@ Queue = {
     });
 
     //
-    $('#tb-calling tbody').on( 'click', 'tr td a.btn-waiting', function (event) {
-        event.preventDefault();
-        var tr = $(this).closest("tr"), url = $(this).attr("href");
-        if(tr.hasClass("child") && typeof dt_tbcalling.row( tr ).data() === "undefined"){
-            tr = $(this).closest("tr").prev();
-        }
-        var key = tr.data("key");
-        var data = dt_tbcalling.row( tr ).data();
-        if(self.checkCounter()){
-            swal({
-                title: 'ยืนยันส่งห้องแพทย์ คิว '+data.qnumber+' ?',
-                text: data.pt_name,
-                html: '<small class="text-danger" style="font-size: 13px;">กด Enter เพื่อยืนยัน / กด Esc เพื่อยกเลิก</small>' + 
-                '<p><i class="fa fa-user"></i>'+data.pt_name+'</p>',
-                type: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'ยืนยัน',
-                cancelButtonText: 'ยกเลิก',
-                allowOutsideClick: false,
-                showLoaderOnConfirm: true,
-                preConfirm: function() {
-                    return new Promise(function(resolve, reject) {
-                        $.ajax({
-                            method: "POST",
-                            url: baseUrl + url,
-                            dataType: "json",
-                            data: {
-                                data:data,//Data in column Datatable
-                                modelForm: modelForm, //Data Model CallingForm
-                                modelProfile: modelProfile,
-                            },
-                            success: function(res){
-                                if(res.status == "200"){
-                                    self.reloadTbCalling();//โหลดข้อมูลกำลังเรียก
-                                    self.toastrSuccess('END ' + data.qnumber);
-                                    socket.emit('endq-screening-room', res);//sending data
-                                    resolve();
-                                }else{
-                                    self.ajaxAlertWarning();
-                                }
-                            },
-                            error:function(jqXHR, textStatus, errorThrown){
-                                self.ajaxAlertError(errorThrown);
-                            }
-                        });
-                    });
+    $("#tb-calling tbody").on("click", "tr td a.btn-waiting", function(event) {
+      event.preventDefault();
+      var tr = $(this).closest("tr"),
+        url = $(this).attr("href");
+      if (tr.hasClass("child") && typeof dt_tbcalling.row(tr).data() === "undefined") {
+        tr = $(this)
+          .closest("tr")
+          .prev();
+      }
+      var key = tr.data("key");
+      var data = dt_tbcalling.row(tr).data();
+      if (self.checkCounter()) {
+        swal({
+          title: "ยืนยันส่งห้องแพทย์ คิว " + data.qnumber + " ?",
+          text: data.pt_name,
+          html:
+            '<small class="text-danger" style="font-size: 13px;">กด Enter เพื่อยืนยัน / กด Esc เพื่อยกเลิก</small>' +
+            '<p><i class="fa fa-user"></i>' +
+            data.pt_name +
+            "</p>",
+          type: "question",
+          showCancelButton: true,
+          confirmButtonText: "ยืนยัน",
+          cancelButtonText: "ยกเลิก",
+          allowOutsideClick: false,
+          showLoaderOnConfirm: true,
+          preConfirm: function() {
+            return new Promise(function(resolve, reject) {
+              $.ajax({
+                method: "POST",
+                url: baseUrl + url,
+                dataType: "json",
+                data: {
+                  data: data, //Data in column Datatable
+                  modelForm: modelForm, //Data Model CallingForm
+                  modelProfile: modelProfile,
                 },
-            }).then((result) => {
-                if (result.value) {//Confirm
-                    swal.close();
-                }
+                success: function(res) {
+                  if (res.status == "200") {
+                    self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+                    self.toastrSuccess("END " + data.qnumber);
+                    socket.emit("endq-screening-room", res); //sending data
+                    resolve();
+                  } else {
+                    self.ajaxAlertWarning();
+                  }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  self.ajaxAlertError(errorThrown);
+                },
+              });
             });
-        }
+          },
+        }).then((result) => {
+          if (result.value) {
+            //Confirm
+            swal.close();
+          }
+        });
+      }
     });
 
     //เรียกคิว hold
@@ -734,51 +741,116 @@ $(function() {
     })
     .on("call-screening-room", (res) => {
       var t1 = $("#tb-waiting").DataTable();
-      var data1 = t1.rows().data();
       var t2 = $("#tb-calling").DataTable();
-      var data2 = t2.rows().data();
       var t3 = $("#tb-hold").DataTable();
-      var data3 = t3.rows().data();
 
-      console.log(data1)
-      console.log(data2)
-      console.log(data3)
-      if (res.eventOn === "tb-waiting" && res.state === "call") {
-        Queue.reloadTbWaiting(); //โหลดข้อมูลคิวรอ
+      t1.rows().every(function(rowIdx, tableLoop, rowLoop) {
+        var data = this.data();
         if (
-          res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
-          modelForm.counter_service == res.counter.counterserviceid.toString()
+          parseInt(data.q_ids) === parseInt(_.get(res, "modelQueue.q_ids")) ||
+          parseInt(data.q_ids) === parseInt(_.get(res, "modelQ.q_ids"))
+        ) {
+          Queue.reloadTbWaiting(); //โหลดข้อมูลคิวรอ
+        }
+      });
+      t2.rows().every(function(rowIdx, tableLoop, rowLoop) {
+        var data = this.data();
+        if (
+          parseInt(data.caller_ids) === parseInt(_.get(res, "modelCaller.caller_ids")) ||
+          parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
         ) {
           Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
         }
-        swal.close();
-      } else if (res.eventOn === "tb-hold" && res.state === "call-hold") {
+      });
+      t3.rows().every(function(rowIdx, tableLoop, rowLoop) {
+        var data = this.data();
         if (
-          res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
-          modelForm.counter_service == res.counter.counterserviceid.toString()
+          parseInt(data.caller_ids) === parseInt(_.get(res, "modelCaller.caller_ids")) ||
+          parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
         ) {
-          Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
           Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
         }
-      }
+      });
+      // if (res.eventOn === "tb-waiting" && res.state === "call") {
+      //   Queue.reloadTbWaiting(); //โหลดข้อมูลคิวรอ
+      //   if (
+      //     res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
+      //     modelForm.counter_service == res.counter.counterserviceid.toString()
+      //   ) {
+      //     Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+      //   }
+      //   swal.close();
+      // } else if (res.eventOn === "tb-hold" && res.state === "call-hold") {
+      //   if (
+      //     res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
+      //     modelForm.counter_service == res.counter.counterserviceid.toString()
+      //   ) {
+      //     Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
+      //     Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+      //   }
+      // }
     })
     .on("hold-screening-room", (res) => {
-      if (
-        res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
-        modelForm.counter_service == res.counter.counterserviceid.toString()
-      ) {
-        Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
-        Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
-      }
+      var t2 = $("#tb-calling").DataTable();
+      var t3 = $("#tb-hold").DataTable();
+      t2.rows().every(function(rowIdx, tableLoop, rowLoop) {
+        var data = this.data();
+        if (
+          parseInt(data.caller_ids) === parseInt(_.get(res, "modelCaller.caller_ids")) ||
+          parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
+        ) {
+          Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+          Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+        }
+      });
+      t3.rows().every(function(rowIdx, tableLoop, rowLoop) {
+        var data = this.data();
+        if (
+          parseInt(data.caller_ids) === parseInt(_.get(res, "modelCaller.caller_ids")) ||
+          parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
+        ) {
+          Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+          Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+        }
+      });
+      // if (
+      //   res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
+      //   modelForm.counter_service == res.counter.counterserviceid.toString()
+      // ) {
+      //   Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
+      //   Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+      // }
     })
     .on("endq-screening-room", (res) => {
-      if (
-        res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
-        modelForm.counter_service == res.counter.counterserviceid.toString()
-      ) {
-        Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
-        Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
-      }
+      var t2 = $("#tb-calling").DataTable();
+      var t3 = $("#tb-hold").DataTable();
+      t2.rows().every(function(rowIdx, tableLoop, rowLoop) {
+        var data = this.data();
+        if (
+          parseInt(data.caller_ids) === parseInt(_.get(res, "modelCaller.caller_ids")) ||
+          parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
+        ) {
+          Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+          Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+        }
+      });
+      t3.rows().every(function(rowIdx, tableLoop, rowLoop) {
+        var data = this.data();
+        if (
+          parseInt(data.caller_ids) === parseInt(_.get(res, "modelCaller.caller_ids")) ||
+          parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
+        ) {
+          Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
+          Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+        }
+      });
+      // if (
+      //   res.modelProfile.service_profile_id == modelProfile.service_profile_id &&
+      //   modelForm.counter_service == res.counter.counterserviceid.toString()
+      // ) {
+      //   Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
+      //   Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+      // }
     })
     .on("display", (res) => {
       setTimeout(function() {

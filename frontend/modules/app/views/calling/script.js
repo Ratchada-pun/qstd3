@@ -616,17 +616,6 @@ $(function() {
       }
     })
     .on("call-screening-room", (res) => {
-      var t1 = $("#tb-waiting").DataTable();
-      var data1 = t1.rows().data();
-      var t2 = $("#tb-calling").DataTable();
-      var data2 = t2.rows().data();
-      var t3 = $("#tb-hold").DataTable();
-      var data3 = t3.rows().data();
-
-      console.log(data1)
-      console.log(data2)
-      console.log(data3)
-
       if (res.eventOn === "tb-waiting" && res.state === "call") {
         Queue.reloadTbWaiting(); //โหลดข้อมูลคิวรอ
         if (

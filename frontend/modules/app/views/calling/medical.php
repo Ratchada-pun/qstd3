@@ -417,6 +417,7 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
 <?php
 echo $this->render('modal');
 echo $this->render('_datatables', ['modelForm' => $modelForm, 'modelProfile' => $modelProfile, 'action' => Yii::$app->controller->action->id]);
+$this->registerJsFile('https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js');
 $this->registerJs($this->render('script-medical.js'));
 $this->registerJs(<<<JS
 //search data
