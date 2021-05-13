@@ -804,11 +804,14 @@ class DrugDispensingController extends Controller
                 ],
                 [
                     'attribute' => 'pharmacy_drug_address',
+                    'value' => function ($model) {
+                        return empty($model['pharmacy_drug_address']) ? '-' : $model['pharmacy_drug_address'];
+                    },
                 ],
                 [
                     'attribute' => 'pharmacy_drug_date_create',
                     'value' => function ($model) {
-                        return $model['pharmacy_drug_date_create'] ? Yii::$app->formatter->asDate($model['pharmacy_drug_date_create'], 'php:d/m/Y') : '';
+                        return empty($model['pharmacy_drug_date_create']) ? '-' : Yii::$app->formatter->asDate($model['pharmacy_drug_date_create'], 'php:d/m/Y');
                     },
                 ],
                 // [
@@ -830,9 +833,9 @@ class DrugDispensingController extends Controller
                         'role' => 'modal-remote',
                         'class' => 'text-info'
                     ],
-                    'deleteOptions' => [
-                        'class' => 'text-danger'
-                    ],
+                    // 'deleteOptions' => [
+                    //     'class' => 'text-danger'
+                    // ],
                     'urlCreator' => function ($action, $model, $key, $index) {
                         if ($action == 'update') {
                             return Url::to(['/app/drug-dispensing/update-pharmacy', 'pharmacy_drug_id' => $key]);
@@ -881,20 +884,23 @@ class DrugDispensingController extends Controller
                 [
                     'attribute' => 'personal_drug_date_create',
                     'value' => function ($model) {
-                        return $model['personal_drug_date_create'] ? Yii::$app->formatter->asDate($model['personal_drug_date_create'], 'php:d/m/Y') : '';
+                       // return $model['personal_drug_date_create'] ? Yii::$app->formatter->asDate($model['personal_drug_date_create'], 'php:d/m/Y') : '';
+                       return empty($model['personal_drug_date_create']) ? '-' : Yii::$app->formatter->asDate($model['personal_drug_date_create'], 'php:d/m/Y');
                     },
                 ],
                 [
                     'attribute' => 'personal_drug_date_update',
                     'value' => function ($model) {
-                        return $model['personal_drug_date_update'] ? Yii::$app->formatter->asDate($model['personal_drug_date_update'], 'php:d/m/Y') : '';
+                        return empty($model['personal_drug_date_update']) ? '-' : Yii::$app->formatter->asDate($model['personal_drug_date_update'], 'php:d/m/Y');
                     },
+                   
                 ],
                 [
                     'attribute' => 'is_active',
                     'value' => function ($model) {
                         return $model['is_active'] == 0 ? 'UnActive' : 'Active';
                     },
+
                 ],
                 [
                     'class' => ActionTable::className(),
