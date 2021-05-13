@@ -283,7 +283,7 @@ if ($action == 'index') {
         'buttons' => true,
         'clientOptions' => [
             'ajax' => [
-                'url' => Url::base(true) . '/app/calling/data-tbwaiting-sr',
+                'url' => Url::base(true) . '/app/calling/data-tbwaiting',
                 'data' => ['modelForm' => $modelForm, 'modelProfile' => $modelProfile],
                 "type" => "POST",
                 "complete" => new JsExpression('function(jqXHR, textStatus){
@@ -396,7 +396,7 @@ if ($action == 'index') {
         'buttons' => true,
         'clientOptions' => [
             'ajax' => [
-                'url' => Url::base(true) . '/app/calling/data-tbcalling-sr',
+                'url' => Url::base(true) . '/app/calling/data-tbcalling',
                 'data' => ['modelForm' => $modelForm, 'modelProfile' => $modelProfile],
                 "type" => "POST"
             ],
@@ -486,7 +486,7 @@ if ($action == 'index') {
         'buttons' => true,
         'clientOptions' => [
             'ajax' => [
-                'url' => Url::base(true) . '/app/calling/data-tbhold-sr',
+                'url' => Url::base(true) . '/app/calling/data-tbhold',
                 'data' => ['modelForm' => $modelForm, 'modelProfile' => $modelProfile],
                 "type" => "POST"
             ],
@@ -592,6 +592,19 @@ if ($action == 'index') {
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
                 $("#count-qdata").html(count);
+
+                var rows = api.rows( {page:\'current\'} ).nodes();
+                var last=null;
+    
+                api.column(2, {page:\'current\'} ).data().each( function ( group, i ) {
+                    if ( last !== group ) {
+                        $(rows).eq( i ).before(
+                            \'<tr class="group"><td colspan="8">\'+group+\'</td></tr>\'
+                        );
+    
+                        last = group;
+                    }
+                } );
             }'),
             'initComplete' => new JsExpression ('
                 function () {
@@ -603,10 +616,11 @@ if ($action == 'index') {
             'columns' => [
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "คิว"],
-                ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN","visible" => false],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อ-นามสกุล"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
-                ["data" => "status", "className" => "dt-body-left dt-head-nowrap", "title" => "สถานะ"],
+                ["data" => "counterservice_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ช่องบริการ"],
+                ["data" => "service_status_name", "className" => "dt-body-left dt-head-nowrap", "title" => "สถานะ"],
                 ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "ดำเนินการ"]
             ],
         ],
@@ -641,26 +655,26 @@ if ($action == 'index') {
             //"searching" => false,
             "searchHighlight" => true,
             "responsive" => true,
-            "order" => [[8, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
-                var api = this.api();
-                dtFnc.initConfirm(api);
-                var count  = api.data().count();
-                $(".count-waiting").html(count);
+            //"order" => [[8, 'asc']],
+            // "drawCallback" => new JsExpression ('function(settings) {
+            //     var api = this.api();
+            //     dtFnc.initConfirm(api);
+            //     var count  = api.data().count();
+            //     $(".count-waiting").html(count);
 
-                var rows = api.rows( {page:"current"} ).nodes();
-                var columns = api.columns().nodes();
-                var last=null;
-                api.column(3, {page:"current"} ).data().each( function ( group, i ) {
-                    var data = api.rows(i).data();
-                    if ( last !== group ) {
-                        $(rows).eq( i ).before(
-                            \'<tr class=""><td style="text-align: left;font-size: 16px;" colspan="\'+columns.length+\'">\'+group+\'</td></tr>\'
-                        );
-                        last = group;
-                    }
-                } );
-            }'),
+            //     var rows = api.rows( {page:"current"} ).nodes();
+            //     var columns = api.columns().nodes();
+            //     var last=null;
+            //     api.column(3, {page:"current"} ).data().each( function ( group, i ) {
+            //         var data = api.rows(i).data();
+            //         if ( last !== group ) {
+            //             $(rows).eq( i ).before(
+            //                 \'<tr class=""><td style="text-align: left;font-size: 16px;" colspan="\'+columns.length+\'">\'+group+\'</td></tr>\'
+            //             );
+            //             last = group;
+            //         }
+            //     } );
+            // }'),
             'initComplete' => new JsExpression ('
                 function () {
                     var api = this.api();
@@ -674,19 +688,19 @@ if ($action == 'index') {
                 ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
-                ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง"],
-                ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ"],
-                ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
-                ["data" => "service_prefix", "className" => "dt-body-center dt-head-nowrap", "title" => "prefix"],
-                ["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
-                ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"]
+                ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง","visible" => false],
+                ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ", "visible" => false],
+                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
+                ["data" => "service_prefix", "className" => "dt-body-center dt-head-nowrap", "title" => "prefix","visible" => false],
+               // ["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
+                ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ", "responsivePriority" => 1]
             ],
-            "columnDefs" => [
-                [
-                    "targets" => [2, 3, 4, 7, 8, 9],
-                    "visible" => false
-                ]
-            ],
+            // "columnDefs" => [
+            //     [
+            //         "targets" => [2, 3, 4, 7, 8, 9],
+            //         "visible" => false
+            //     ]
+            // ],
             "buttons" => [
                 [
                     'extend' => 'colvis',
@@ -767,12 +781,12 @@ if ($action == 'index') {
                 ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง"],
                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
                 ["data" => "service_prefix", "className" => "dt-body-center dt-head-nowrap", "title" => "prefix"],
-                ["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
-                ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"]
+                //["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
+                ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ","responsivePriority" => 1]
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 3, 4, 7, 8, 9],
+                    "targets" => [3,6,7,8],
                     "visible" => false
                 ]
             ],
@@ -856,12 +870,12 @@ if ($action == 'index') {
                 ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง"],
                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
                 ["data" => "service_prefix", "className" => "dt-body-center dt-head-nowrap", "title" => "prefix"],
-                ["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
+                //["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
                 ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"]
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 3, 4, 7, 9],
+                    "targets" => [3,6,7,8],
                     "visible" => false
                 ]
             ],

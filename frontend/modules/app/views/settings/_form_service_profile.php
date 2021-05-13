@@ -87,6 +87,26 @@ $this->registerCss('
     </div>
 
     <div class="form-group">
+        <?= Html::activeLabel($model, 'service_status_id', ['label' => 'สถานะคิว', 'class' => 'col-sm-2 control-label']) ?>
+        <div class="col-sm-4">
+            <?= $form->field($model, 'service_status_id', ['showLabels' => false])->widget(Select2::classname(), [
+                'data' => ArrayHelper::map((new \yii\db\Query())
+                    ->select([
+                            'tb_service_status.service_status_id',
+                            'tb_service_status.service_status_name'
+                        ])
+                    ->from('tb_service_status')
+                    ->all(),'service_status_id','service_status_name'), 
+                'options' => ['placeholder' => 'service status...'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+                'theme' => Select2::THEME_BOOTSTRAP,
+            ]) ?>
+        </div>
+    </div>
+
+    <div class="form-group">
         <?= Html::activeLabel($model, 'service_profile_status', ['label' => 'สถานะ', 'class' => 'col-sm-2 control-label']) ?>
         <div class="col-sm-4">
             <?= $form->field($model, 'service_profile_status', ['showLabels' => false])->widget(Select2::classname(), [

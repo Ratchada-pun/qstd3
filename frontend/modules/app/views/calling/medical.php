@@ -97,7 +97,8 @@ div.dt-buttons{
 .btn-recall,
 .btn-hold,
 .btn-end,
-.btn-calling {
+.btn-calling,
+.btn-waiting {
     border-radius: 25px;
 }
 footer.footer {
@@ -178,7 +179,7 @@ $this->registerJs('var modelProfile = ' . Json::encode($modelProfile) . '; ', Vi
 $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounterservice::find()->where(['counterservice_status' => 1])->orderBy(['service_order' => SORT_ASC])->all(), 'counterserviceid', 'counterservice_name')) . '; ', View::POS_HEAD);
 ?>
     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12" style="">
+        <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="hpanel">
                 <?php
                 echo Tabs::widget([
@@ -196,11 +197,11 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                             'linkOptions' => ['style' => 'font-size: 14px;'],
                             'headerOptions' => ['class' => 'tab-2'],
                         ],
-                        [
-                            'label' => '<i class="fa fa-users"></i> รายชื่อผู้ป่วย ' . Html::tag('span', '0', ['id' => 'count-patients', 'class' => 'badge']),
-                            'options' => ['id' => 'tab-3'],
-                            'linkOptions' => ['style' => 'font-size: 14px;'],
-                        ],
+                        // [
+                        //     'label' => '<i class="fa fa-users"></i> รายชื่อผู้ป่วย ' . Html::tag('span', '0', ['id' => 'count-patients', 'class' => 'badge']),
+                        //     'options' => ['id' => 'tab-3'],
+                        //     'linkOptions' => ['style' => 'font-size: 14px;'],
+                        // ],
                     ],
                     'options' => ['class' => 'nav nav-tabs'],
                     'encodeLabels' => false,
@@ -216,13 +217,13 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-8" style="">
+                                <div class="col-xs-12 col-sm-12 col-md-8" >
 
                                     <!-- Begin From -->
                                     <?php echo $this->render('_form_medical', ['modelForm' => $modelForm]); ?>
                                     <!-- End Form -->
                                     <div class="row">
-                                        <div class="col-xs-12 col-sm-12 col-md-12" style="">
+                                        <div class="col-xs-12 col-sm-12 col-md-12" >
                                             <!-- Begin Panel -->
                                             <div class="hpanel">
                                                 <?php
@@ -312,6 +313,7 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                                             ['content' => 'HN', 'options' => ['style' => 'text-align: center;']],
                                             ['content' => 'ชื่อ-นามสกุล', 'options' => ['style' => 'text-align: center;']],
                                             ['content' => 'ประเภท', 'options' => ['style' => 'text-align: center;']],
+                                            ['content' => 'ช่องบริการ', 'options' => ['style' => 'text-align: center;']],
                                             ['content' => 'สถานะ', 'options' => ['style' => 'text-align: center;']],
                                             ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;']],
                                         ]
@@ -321,6 +323,7 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                             ?>
                         </div>
                     </div><!-- End Tab2 -->
+                   <?php /*
                     <div id="tab-3" class="tab-pane">
                         <div class="panel-body">
                             <div class="row" style="margin-bottom: 10px;">
@@ -366,12 +369,13 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                             ?>
                         </div>
                     </div><!-- End Tab3 -->
+                    */?>
                 </div>
             </div><!-- End hpanel -->
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12" style="">
+        <div class="col-xs-12 col-sm-12 col-md-12" >
             <div class="footer footer-tabs" style="position: fixed;padding: 20px 18px;z-index: 3;">
                 <div class="hpanel">
                     <?php

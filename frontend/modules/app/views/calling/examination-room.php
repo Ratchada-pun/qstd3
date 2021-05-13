@@ -154,7 +154,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
     ])->asArray()->orderBy(['service_order' => SORT_ASC])->all(),'counterserviceid','counterservice_name')).'; ',View::POS_HEAD);
 ?>
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12" style="">
+    <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="hpanel">
         	<?php
             echo Tabs::widget([
@@ -173,7 +173,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
             ?>
             <div class="tab-content">
                 <div id="tab-1" class="tab-pane active">
-                	<div class="panel-body" style="padding-buttom: 0px;">
+                	<div class="panel-body" style="padding-bottom: 0px;">
                         <div class="row">
                             <div class="col-md-12 text-center text-tablet-mode" style="display: none;">
                                 <p><span style="font-weight: bold;text-align: center;font-size: 18px;">ห้องตรวจ</span></p>
@@ -291,7 +291,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
                             </div>
                         </div>
                 		<!-- End Form -->
-                        <div class="col-xs-12 col-sm-12 col-md-6" style="">
+                        <div class="col-xs-12 col-sm-12 col-md-6" >
                             <!-- Begin Panel -->
                             <div class="hpanel">
                                 <?php
@@ -311,7 +311,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
                                 ?>
                                 <div class="tab-content">
                                     <div id="tab-watting" class="tab-pane active">
-                                        <div class="panel-body" style="padding-buttom: 0px;">
+                                        <div class="panel-body" style="padding-bottom: 0px;">
                                             <div class="row">
                                                 <div class="col-md-12 text-center text-tablet-mode" style="display: none">
                                                     <p><span class="label label-primary" style="font-weight: bold;text-align: center;font-size: 1em;">คิวรอเรียก</span></p>
@@ -333,7 +333,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
                                                             ['content' => 'ห้องตรวจ','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'สถานะ','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'prefix','options' => ['style' => 'text-align: center;']],
-                                                            ['content' => 'ผล Lab','options' => ['style' => 'text-align: center;']],
+                                                            // ['content' => 'ผล Lab','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'ดำเนินการ','options' => ['style' => 'text-align: center;']],
                                                         ],
                                                         'options' => ['style' => 'background-color:cornsilk;'],
@@ -346,7 +346,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
                                 </div>
                             </div><!-- End hpanel -->
                         </div>
-                        <div class="col-xs-12 col-sm-12 col-md-6" style="">
+                        <div class="col-xs-12 col-sm-12 col-md-6">
                     		<!-- Begin Panel -->
                     		<div class="hpanel">
                                 <?php
@@ -395,7 +395,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
                                                             ['content' => 'เวลามาถึง','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'สถานะ','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'prefix','options' => ['style' => 'text-align: center;']],
-                                                            ['content' => 'ผล Lab','options' => ['style' => 'text-align: center;']],
+                                                            //['content' => 'ผล Lab','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'ดำเนินการ','options' => ['style' => 'text-align: center;']],
                                                         ],
                                                         'options' => ['style' => 'background-color:cornsilk;'],
@@ -428,7 +428,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
                                                             ['content' => 'เวลามาถึง','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'สถานะ','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'prefix','options' => ['style' => 'text-align: center;']],
-                                                            ['content' => 'ผล Lab','options' => ['style' => 'text-align: center;']],
+                                                            //['content' => 'ผล Lab','options' => ['style' => 'text-align: center;']],
                                                             ['content' => 'ดำเนินการ','options' => ['style' => 'text-align: center;']],
                                                         ],
                                                         'options' => ['style' => 'background-color:cornsilk;'],
@@ -645,6 +645,7 @@ Queue = {
                 tr = $(this).closest("tr").prev();
             }
             var key = tr.data("key");
+            var url = $(this).attr("href")
             var data = dt_tbcalling.row( tr ).data();
             swal({
                 title: 'ยืนยันเรียกคิว '+data.qnumber+' ?',
@@ -661,7 +662,7 @@ Queue = {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
                             method: "POST",
-                            url: baseUrl + "/app/calling/recall-examination-room",
+                            url: url,
                             dataType: "json",
                             data: {
                                 data:data,//Data in column Datatable
@@ -699,6 +700,7 @@ Queue = {
                 tr = $(this).closest("tr").prev();
             }
             var key = tr.data("key");
+            var url = $(this).attr("href")
             var data = dt_tbcalling.row( tr ).data();
             swal({
                 title: 'ยืนยันพักคิว '+data.qnumber+' ?',
@@ -715,7 +717,7 @@ Queue = {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
                             method: "POST",
-                            url: baseUrl + "/app/calling/hold-examination-room",
+                            url: url,
                             dataType: "json",
                             data: {
                                 data:data,//Data in column Datatable
@@ -826,6 +828,7 @@ Queue = {
                 tr = $(this).closest("tr").prev();
             }
             var key = tr.data("key");
+            var url = $(this).attr("href")
             var data = dt_tbhold.row( tr ).data();
             swal({
                 title: 'ยืนยันเรียกคิว '+data.qnumber+' ?',
@@ -842,7 +845,7 @@ Queue = {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
                             method: "POST",
-                            url: baseUrl + "/app/calling/callhold-examination-room",
+                            url: url,
                             dataType: "json",
                             data: {
                                 data:data,//Data in column Datatable
@@ -881,6 +884,7 @@ Queue = {
                 tr = $(this).closest("tr").prev();
             }
             var key = tr.data("key");
+            var url = $(this).attr("href")
             var data = dt_tbhold.row( tr ).data();
             swal({
                 title: 'ยืนยัน End คิว '+data.qnumber+' ?',
@@ -897,7 +901,7 @@ Queue = {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
                             method: "POST",
-                            url: baseUrl + "/app/calling/endhold-examination-room",
+                            url: url,
                             dataType: "json",
                             data: {
                                 data:data,//Data in column Datatable
@@ -1008,6 +1012,7 @@ Queue = {
                 tr = $(this).closest("tr").prev();
             }
             var key = tr.data("key");
+            var url = $(this).attr("href")
             var data = dt_tbcalling.row( tr ).data();
             swal({
                 title: 'ยืนยัน End คิว '+data.qnumber+' ?',
@@ -1024,7 +1029,7 @@ Queue = {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
                             method: "POST",
-                            url: baseUrl + "/app/calling/end-examination-room",
+                            url: url,
                             dataType: "json",
                             data: {
                                 data:data,//Data in column Datatable
