@@ -19,16 +19,18 @@
     "license": "ISC",
     "homepage": "https://bitbucket.org/M_ComScience/q-banbung#readme",
     "dependencies": {
-        "body-parser": "^1.18.3",
-        "bootstrap": "^3.3.7",
-        "dotenv": "^8.2.0",
-        "express": "^4.16.2",
+        "axios": "^0.21.1",
+        "body-parser": "^1.19.0",
+        "bootstrap": "^3.4.1",
+        "dotenv": "^8.6.0",
+        "express": "^4.17.1",
         "http-assert": "^1.4.1",
-        "knex": "^0.95.4",
-        "multiparty": "^4.2.1",
+        "knex": "^0.95.5",
+        "multiparty": "^4.2.2",
         "mysql": "^2.18.1",
-        "nodemon": "^1.19.2",
-        "querystring": "^0.2.0",
-        "socket.io": "^2.0.4"
+        "nodemon": "^1.19.4",
+        "querystring": "^0.2.1",
+        "socket.io": "^3.1.0",
+        "socket.io-client": "^4.1.1"
     }
 }
