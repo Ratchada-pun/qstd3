@@ -308,6 +308,7 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.q_status_id' => 1,
                     'tb_qtrans.service_status_id' => 1
                 ])
+                ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'checkin_date' => SORT_ASC]);
 
             $dataProvider = new ActiveDataProvider([
@@ -451,6 +452,7 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.counter_service_id' => $formData['counter_service'],
                     'tb_caller.call_status' => ['calling', 'callend']
                 ])
+                ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
 
             $dataProvider = new ActiveDataProvider([
@@ -609,6 +611,7 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.counter_service_id' => $formData['counter_service'],
                     'tb_caller.call_status' => 'hold'
                 ])
+                ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
 
             $dataProvider = new ActiveDataProvider([

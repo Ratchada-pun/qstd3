@@ -248,6 +248,7 @@ class KioskController extends \yii\web\Controller
 				->innerJoin('tb_service_status', 'tb_quequ.q_status_id = tb_service_status.service_status_id')
 				->leftJoin('tb_caller', 'tb_qtrans.ids = tb_caller.qtran_ids')
 				->leftJoin('tb_counterservice', 'tb_caller.counter_service_id = tb_counterservice.counterserviceid')
+				->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
 				->orderBy('tb_quequ.q_ids DESC');
 
 			$dataProvider = new ActiveDataProvider([
