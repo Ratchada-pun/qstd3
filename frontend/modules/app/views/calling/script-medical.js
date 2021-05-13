@@ -769,6 +769,7 @@ $(function() {
           parseInt(data.caller_ids) === parseInt(_.get(res, "model.caller_ids"))
         ) {
           Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
+          Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
         }
       });
       // if (res.eventOn === "tb-waiting" && res.state === "call") {
