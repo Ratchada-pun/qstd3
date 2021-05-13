@@ -4191,7 +4191,7 @@ class CallingController extends \yii\web\Controller
             }
             $counter = $this->findModelCounterservice($counter_service_id);
 
-            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold']]);
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold','callend']]);
             if (!$modelCaller) {
                 $modelCaller = new TbCaller();
                 $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
@@ -4281,7 +4281,7 @@ class CallingController extends \yii\web\Controller
             }
             $counter = $this->findModelCounterservice($counter_service_id);
 
-            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling']]);
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling','callend']]);
             if (!$modelCaller) {
                 $modelCaller = new TbCaller();
                 $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
@@ -4369,7 +4369,7 @@ class CallingController extends \yii\web\Controller
             }
             $counter = $this->findModelCounterservice($counter_service_id);
 
-            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold']]);
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold','callend']]);
             if (!$modelCaller) {
                 $modelCaller = new TbCaller();
                 $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
