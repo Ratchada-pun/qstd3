@@ -249,7 +249,7 @@ var myPlaylist = new jPlayerPlaylist({
             toastr.success(' ' + data.title, 'Calling!', {timeOut: 5000,positionClass: "toast-top-right"});
         }
         if(data.wav.indexOf("Prompt1_Sir.wav") >= 0 || data.wav.indexOf("Prompt2_Sir.wav") >= 0){
-            Queue.updateStatus(data.artist.model.caller_ids);//update tb_caller status = callend
+            Queue.updateStatus(data.artist.modelCaller.caller_ids);//update tb_caller status = callend
         }
         if((current + 1) === myPlaylist.playlist.length){
             myPlaylist.remove();//reset q
