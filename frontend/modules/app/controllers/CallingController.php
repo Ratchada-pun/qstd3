@@ -4218,6 +4218,10 @@ class CallingController extends \yii\web\Controller
                     'modelQTrans' => $modelQTrans,
                     'modelQueue' => $modelQueue,
                     'counter' => $counter,
+                    'data' => [
+                        'counter_service_id' => $counter['counterserviceid'],
+                        'qnumber' => $modelQueue['q_num']
+                    ]
                 ];
             } else {
                 $transaction->rollBack();
@@ -4302,6 +4306,10 @@ class CallingController extends \yii\web\Controller
                     'modelQTrans' => $modelQTrans,
                     'modelQueue' => $modelQueue,
                     'counter' => $counter,
+                    'data' => [
+                        'counter_service_id' => $counter['counterserviceid'],
+                        'qnumber' => $modelQueue['q_num']
+                    ]
                 ];
             } else {
                 $transaction->rollBack();
@@ -4386,6 +4394,10 @@ class CallingController extends \yii\web\Controller
                     'modelQTrans' => $modelQTrans,
                     'modelQueue' => $modelQueue,
                     'counter' => $counter,
+                    'data' => [
+                        'counter_service_id' => $counter['counterserviceid'],
+                        'qnumber' => $modelQueue['q_num']
+                    ]
                 ];
             } else {
                 $transaction->rollBack();
