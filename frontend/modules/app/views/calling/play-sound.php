@@ -323,6 +323,7 @@ $("#jplayer_inspector").jPlayerInspector({jPlayer:$(jPlayerid)});
 //Socket Event
 socket
 .on('call-screening-room', (res) => {
+    console.log('call-screening-room',res)
     if(res.eventOn == 'tb-waiting'){
         var counters = (model.counterserviceid).split(',');
         if(jQuery.inArray((res.counter.counterserviceid).toString(), counters) != -1) {
@@ -336,6 +337,7 @@ socket
     }
 })
 .on('call-examination-room', (res) => {//เรียกคิวห้องตรวจ /app/calling/examination-room
+    console.log('call-examination-room',res)
     if(res.eventOn == 'tb-waiting'){
         var counters = (model.counterserviceid).split(',');
         if(jQuery.inArray((res.counter.counterserviceid).toString(), counters) != -1) {
@@ -349,6 +351,7 @@ socket
     }
 })
 .on('call-medicine-room', (res) => {//เรียกคิวห้องตรวจ /app/calling/examination-room
+    console.log('call-medicine-room',res)
     if(res.eventOn == 'tb-waiting'){
         var counters = (model.counterserviceid).split(',');
         if(jQuery.inArray((res.counter.counterserviceid).toString(), counters) != -1) {
