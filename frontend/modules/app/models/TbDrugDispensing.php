@@ -41,7 +41,7 @@ class TbDrugDispensing extends \yii\db\ActiveRecord
     {
         return [
             [['pharmacy_drug_id', 'rx_operator_id', 'dispensing_status_id', 'dispensing_by', 'created_by', 'updated_by'], 'integer'],
-            [['dispensing_date', 'created_at', 'updated_at'], 'safe'],
+            [['dispensing_date', 'created_at', 'updated_at','prescription_date'], 'safe'],
             [['pharmacy_drug_name', 'deptname'], 'string', 'max' => 50],
             [['HN', 'pt_name', 'doctor_name', 'note'], 'string', 'max' => 255],
         ];
@@ -61,6 +61,7 @@ class TbDrugDispensing extends \yii\db\ActiveRecord
             'HN' => 'HN',
             'pt_name' => 'ชื่อผู้รับบริการ',
             'doctor_name' => 'ชื่อแพทย์สั่งยา',
+            'prescription_date' => 'วันที่สั่ง',
             'dispensing_date' => 'จ่ายยาเมื่อ',
             'dispensing_status_id' => 'สถานะการจ่ายยา',
             'dispensing_by' => 'ผู้จ่ายยา',
@@ -68,7 +69,7 @@ class TbDrugDispensing extends \yii\db\ActiveRecord
             'created_by' => 'สร้างรายการโดย',
             'updated_at' => 'ปรับปรุงรายการเมื่อ',
             'updated_by' => 'ปรับปรุงรายการโดย',
-            'note' => 'หมายเหตุการจ่ายยา',
+            'note' => 'หมายเหตุจ่ายยา',
         ];
     }
 

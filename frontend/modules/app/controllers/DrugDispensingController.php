@@ -437,10 +437,10 @@ class DrugDispensingController extends Controller
             ->orderBy('tb_drug_dispensing.dispensing_id ASC')
             ->one();
         if ($request->isAjax) {
-
             if ($request->isPost) {
                 $model->dispensing_status_id = 2;
             }
+
             /*
             *   Process for ajax request
             */
@@ -453,7 +453,7 @@ class DrugDispensingController extends Controller
                         'query' => $query
                     ]),
                 ];
-            } else if ($model->load($request->post(), '') && $model->save()) {
+           } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => "จ่ายยา",

@@ -38,47 +38,73 @@ $this->registerCss('
 <div class="panel-body">
     <?php $form = ActiveForm::begin(['id' => 'form-update-dispensing', 'type' => ActiveForm::TYPE_HORIZONTAL,]); ?>
 
-
     <div class="form-group row">
         <?= Html::label('เลขที่ใบสั่งยา', '', ['class' => 'col-sm-2 control-label']) ?>
         <div class="col-md-3">
-            <?php echo Html::input('text', 'rx_operator_id', $model['rx_operator_id'], ['class' => 'form-control']) ?>
+            <?php echo Html::input('text', 'rx_operator_id', $model['rx_operator_id'], [
+                'class' => 'form-control',
+                'readonly' => true
+                ])
+            ?>
         </div>
 
         <?= Html::label('ชื่อร้านยา', '', ['class' => 'col-sm-2 control-label']) ?>
         <div class="col-md-5">
-            <?php echo Html::input('text', 'pharmacy_drug_name', $model['pharmacy_drug_name'], ['class' => 'form-control']) ?>
+            <?php echo Html::input('text', 'pharmacy_drug_name', $model['pharmacy_drug_name'], [
+                'class' => 'form-control',
+                'readonly' => true
+                ]) 
+            ?>
         </div>
     </div>
 
     <div class="form-group row">
         <?= Html::label('HN', '', ['class' => 'col-sm-2 control-label']) ?>
         <div class="col-md-3">
-            <?php echo Html::input('text', 'HN', $model['HN'], ['class' => 'form-control']) ?>
+            <?php echo Html::input('text', 'HN', $model['HN'], ['class' => 'form-control','readonly' => true]) ?>
         </div>
 
         <?= Html::label('ชื่อผู้รับบริการ', '', ['class' => 'col-sm-2 control-label']) ?>
         <div class="col-md-5">
-            <?php echo Html::input('text', 'pt_name', $model['pt_name'], ['class' => 'form-control']) ?>
+            <?php echo Html::input('text', 'pt_name', $model['pt_name'], ['class' => 'form-control','readonly' => true]) ?>
         </div>
     </div>
 
     <div class="form-group row">
         <?= Html::label('วันที่สั่งยา', '', ['class' => 'col-sm-2 control-label']) ?>
         <div class="col-md-3">
-            <?php echo Html::input('text', 'prescription_date', $model['prescription_date'], ['class' => 'form-control']) ?>
+            <?php echo Html::input('text', 'prescription_date', Yii::$app->formatter->asDate($model['prescription_date'], 'php:d/m/Y'), [
+                 'class' => 'form-control',
+                  'readonly' => true,
+                ])
+            ?>
         </div>
 
         <?= Html::label('แพทย์ผู้สั่งยา', '', ['class' => 'col-sm-2 control-label']) ?>
         <div class="col-md-5">
-            <?php echo Html::input('text', 'doctor_name', $model['doctor_name'], ['class' => 'form-control']) ?>
+            <?php echo Html::input('text', 'doctor_name', $model['doctor_name'], [
+                'class' => 'form-control',
+                'readonly' => true
+                ]) 
+            ?>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <?= Html::activeLabel($model, 'note', ['class' => 'col-sm-2 control-label']) ?>
+        <div class="col-md-10">
+            <?php echo  $form->field($model, 'note',['showLabels'=> false])->textarea()->label(false) ?>
         </div>
     </div>
 
     <?php if (Yii::$app->controller->action->id == 'update-dispensing') : ?>
         <div class="form-group row">
             <div class="col-md-12 text-right">
-                <?= Html::a('จ่ายยา', ['/app/drug-dispensing/update-dispensing', 'id' => $model['dispensing_id']], ['class' => 'btn btn-success', 'id' => 'update']) ?>
+                <?= Html::a('จ่ายยา', ['/app/drug-dispensing/update-dispensing', 'id' => $model['dispensing_id']], [
+                    'class' => 'btn btn-success', 
+                    'id' => 'update'
+                    ])
+                ?>
                 <?= Html::button('ปิดหน้า', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]) ?>
             </div>
         </div>
