@@ -102,7 +102,7 @@ io.on("connection", function(socket) {
   });
   //สร้างรายการรับยาใกล้บ้าน
   socket.on("create-drug-dispensing", function(res) {
-    socket.emit("create-drug-dispensing", res);
+    io.emit("create-drug-dispensing", res);
   });
 
   //Display
