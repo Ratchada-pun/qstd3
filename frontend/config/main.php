@@ -241,6 +241,7 @@ return [
             'app/calling/end-queue',
             'app/calling/send-to-doctor',
             'app/drug-dispensing/create-drug-dispensing',
+            'app/kiosk/scan-queue-mobile',
         ]
     ],
     'params' => $params,

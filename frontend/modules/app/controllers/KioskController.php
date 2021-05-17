@@ -57,7 +57,7 @@ class KioskController extends \yii\web\Controller
 					],
 					[
 						'allow' => true,
-						'actions' => ['led-options', 'pt-right', 'create-queue'],
+						'actions' => ['led-options', 'pt-right', 'create-queue', 'scan-queue-mobile'],
 						'roles' => ['?'],
 					],
 				],
@@ -77,7 +77,10 @@ class KioskController extends \yii\web\Controller
 	 */
 	public function beforeAction($action)
 	{
-		if ($action->id == 'create-queue') {
+		if (in_array($action->id, [
+			'create-queue',
+			'scan-queue-mobile'
+			])) {
 			$this->enableCsrfValidation = false;
 		}
 
@@ -973,6 +976,57 @@ class KioskController extends \yii\web\Controller
 			}
 		} else {
 			return null;
+		}
+	}
+
+
+	public function actionScanQueueMobile() //update สถานะ คิว 6 จาก mobile เป็น สถานะ 1 จากตู้ kiosk
+	{
+		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+		$params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+		$qn =  ArrayHelper::getValue($params, 'qn', null);  //หมายเลข qn
+
+		if (!$qn) {
+			throw new HttpException(400, 'invalid qn');
+		}
+
+		\Yii::$app->response->format = Response::FORMAT_JSON;
+		$db = Yii::$app->db;
+		$transaction = $db->beginTransaction();
+
+		try {
+			$modelQueue = TbQuequ::find()
+				->where(['q_qn' => $qn, 'q_status_id' => [6]]) //สถานะคิวจาก mobile
+				->andWhere('DATE(q_timestp) = CURRENT_DATE')
+				->one();
+			if (!$modelQueue) {
+				throw new HttpException(404, 'ไม่พบรายการคิว');
+			}
+			$modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids']]);
+
+			$modelQueue->q_status_id = 1;
+			$modelQTrans->service_status_id = 1;
+
+			if ($modelQueue->save() && $modelQTrans->save()) {
+				$transaction->commit();
+				return [
+					'modelQueue' => $modelQueue,
+					'modelQTrans' => $modelQTrans,
+				];
+			} else if ($modelQueue->errors) {
+				$transaction->rollBack();
+				throw new HttpException(422, Json::encode($modelQueue->errors));
+			} else if ($modelQTrans->errors) {
+				$transaction->rollBack();
+				throw new HttpException(422, Json::encode($modelQTrans->errors));
+			}
+		} catch (\Exception $e) {
+			$transaction->rollBack();
+			throw $e;
+		} catch (\Throwable $e) {
+			$transaction->rollBack();
+			throw $e;
 		}
 	}
 
