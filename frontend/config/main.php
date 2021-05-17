@@ -240,6 +240,7 @@ return [
             'app/calling/hold-queue',
             'app/calling/end-queue',
             'app/calling/send-to-doctor',
+            'app/drug-dispensing/create-drug-dispensing',
         ]
     ],
     'params' => $params,

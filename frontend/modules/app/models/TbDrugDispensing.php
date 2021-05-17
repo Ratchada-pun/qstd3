@@ -3,7 +3,9 @@
 namespace frontend\modules\app\models;
 
 use Yii;
-
+use yii\behaviors\BlameableBehavior;
+use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
 /**
  * This is the model class for table "tb_drug_dispensing".
  *
@@ -32,6 +34,26 @@ class TbDrugDispensing extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'tb_drug_dispensing';
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by',
+            ],
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+                // if you're using datetime instead of UNIX timestamp:
+                'value' => Yii::$app->formatter->asDate('now','php:Y-m-d H:i:s')
+            ],
+        ];
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use homer\assets\SocketIOAsset;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\bootstrap\Modal;
@@ -8,9 +9,12 @@ use johnitvn\ajaxcrud\CrudAsset;
 use johnitvn\ajaxcrud\BulkButtonWidget;
 use yii\bootstrap\Tabs;
 use homer\assets\SweetAlert2Asset;
+use homer\assets\ToastrAsset;
 use PHPUnit\Util\Log\JSON;
 
 SweetAlert2Asset::register($this);
+SocketIOAsset::register($this);
+ToastrAsset::register($this);
 
 /* @var $this yii\web\View */
 /* @var $searchModel frontend\modules\app\models\TbDrugDispensingSearch */

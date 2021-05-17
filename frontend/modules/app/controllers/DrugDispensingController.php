@@ -23,18 +23,35 @@ use yii\helpers\Url;
 use yii\httpclient\Client;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
+use frontend\modules\app\traits\ModelTrait;
 
 /**
  * DrugDispensingController implements the CRUD actions for TbDrugDispensing model.
  */
 class DrugDispensingController extends Controller
 {
+    use ModelTrait;
     /**
      * @inheritdoc
      */
     public function behaviors()
     {
         return [
+
+            'access' => [
+				'class' => AccessControl::className(),
+				'rules' => [
+					[
+						'allow' => true,
+						'roles' => ['@'],
+					],
+					[
+						'allow' => true,
+						'actions' => ['create-drug-dispensing'],
+						'roles' => ['?'],
+					],
+				],
+			],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -45,6 +62,18 @@ class DrugDispensingController extends Controller
             ],
         ];
     }
+
+    /**
+	 * @inheritdoc
+	 */
+	public function beforeAction($action)
+	{
+		if ($action->id == 'create-drug-dispensing') {
+			$this->enableCsrfValidation = false;
+		}
+		return parent::beforeAction($action);
+	}
+
 
     /**
      * Lists all TbDrugDispensing models.
@@ -439,6 +468,8 @@ class DrugDispensingController extends Controller
         if ($request->isAjax) {
             if ($request->isPost) {
                 $model->dispensing_status_id = 2;
+                $model->dispensing_date = Yii::$app->formatter->asDate('now','php:Y-m-d H:i:s');
+                $model->dispensing_by = Yii::$app->user->identity->id;
             }
 
             /*
@@ -453,7 +484,7 @@ class DrugDispensingController extends Controller
                         'query' => $query
                     ]),
                 ];
-           } else if ($model->load($request->post()) && $model->save()) {
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
                     'title' => "จ่ายยา",
@@ -884,8 +915,8 @@ class DrugDispensingController extends Controller
                 [
                     'attribute' => 'personal_drug_date_create',
                     'value' => function ($model) {
-                       // return $model['personal_drug_date_create'] ? Yii::$app->formatter->asDate($model['personal_drug_date_create'], 'php:d/m/Y') : '';
-                       return empty($model['personal_drug_date_create']) ? '-' : Yii::$app->formatter->asDate($model['personal_drug_date_create'], 'php:d/m/Y');
+                        // return $model['personal_drug_date_create'] ? Yii::$app->formatter->asDate($model['personal_drug_date_create'], 'php:d/m/Y') : '';
+                        return empty($model['personal_drug_date_create']) ? '-' : Yii::$app->formatter->asDate($model['personal_drug_date_create'], 'php:d/m/Y');
                     },
                 ],
                 [
@@ -893,7 +924,7 @@ class DrugDispensingController extends Controller
                     'value' => function ($model) {
                         return empty($model['personal_drug_date_update']) ? '-' : Yii::$app->formatter->asDate($model['personal_drug_date_update'], 'php:d/m/Y');
                     },
-                   
+
                 ],
                 [
                     'attribute' => 'is_active',
@@ -914,7 +945,7 @@ class DrugDispensingController extends Controller
                     // ],
                     'buttons' => [
                         'update' => function ($url, $model, $key) {
-                            if($model['is_active'] == 0 ){
+                            if ($model['is_active'] == 0) {
                                 return Html::a('เปิดใช้งาน', $url, [
                                     'class' => 'btn btn-success', 'data-confirm' => 'คุณแน่ใจหรือไม่ที่จะเปิดรายการนี้?',
                                     'data-method' => 'POST'
@@ -1107,7 +1138,7 @@ class DrugDispensingController extends Controller
             ->setFormat(Client::FORMAT_JSON)
             ->addHeaders(['content-type' => 'application/json'])
             ->setUrl('http://chainathospital.org/coreapi/api/core_system/personal_drug')
-            ->setData(['hn'=>$hn])
+            ->setData(['hn' => $hn])
             ->send();
         if ($response->isOk) {
             if ($request->isAjax) {
@@ -1279,6 +1310,89 @@ class DrugDispensingController extends Controller
             }
         } else {
             return $this->render('_form_pharmcy', []);
+        }
+    }
+
+    public function  actionCreateDrugDispensing() //สร้างรายการรับยาใกล้บ้าน
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+
+
+        if (!ArrayHelper::getValue($params, 'patient_info', null)) {
+			throw new HttpException(400, 'invalid patient_info.');
+		}
+		if (!ArrayHelper::getValue($params, 'rx_list_by_qn', null)) {
+			throw new HttpException(400, 'invalid rx_list_by_qn.');
+		}
+		if (!ArrayHelper::getValue($params, 'dispensing_status_id', null)) {
+			throw new HttpException(400, 'invalid dispensing_status_id.');
+		}
+
+        $patient_info = $params['patient_info']; // ข้อมูลผู้ป่วย pt_name,hn,cid
+        $HN = ArrayHelper::getValue($patient_info, 'hn', null);  //หมายเลข hn
+        $pt_name = ArrayHelper::getValue($patient_info, 'pt_name', null); // ชื่อผู้ป่วย
+
+        
+
+        $rx_list_by_qn = $params['rx_list_by_qn']; //รายการใบสั่งยา by qn
+        $rx_operator_id = ArrayHelper::getValue($rx_list_by_qn, 'rx_operator_id', null); //เลขที่ใบสั่งยา
+        $pharmacy_drug_id = ArrayHelper::getValue($rx_list_by_qn, 'pharmacy_drug_id', null);//id ร้านขายยา
+        $pharmacy_drug_name = ArrayHelper::getValue($rx_list_by_qn, 'pharmacy_drug_name', null);  //ชื่อ ร้านขายยา
+        $doctor_name = ArrayHelper::getValue($rx_list_by_qn, 'doctor_name', null); // ชื่อแพทย์สั่งยา
+        $prescription_date = ArrayHelper::getValue($rx_list_by_qn, 'prescription_date', null); // วันที่สั่งยา
+       // $deptname = ArrayHelper::getValue($rx_list_by_qn, 'deptname', null); //ชื่อแผนก
+
+
+
+        $dispensing_status_id = ArrayHelper::getValue($params, 'dispensing_status_id', 1); //สถานะ
+        //  $deptname = ArrayHelper::getValue($params, 'deptname', null); //ชื่อแผนก
+
+       // $modelService = $this->findModelService($deptname); // กลุ่มบริการ
+
+
+
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+
+        try {
+            $modelDrug = TbDrugDispensing::find()
+                ->where([
+                    'hn' => $HN,
+                    'rx_operator_id' => $rx_operator_id
+                ])
+                ->andWhere('DATE(created_at) = CURRENT_DATE')
+                ->one();
+
+            if (!$modelDrug) {
+                $modelDrug = new TbDrugDispensing();
+            }
+            $modelDrug->setAttributes([
+                'pharmacy_drug_id' => $pharmacy_drug_id,
+                'pharmacy_drug_name' => $pharmacy_drug_name,
+                'rx_operator_id' => $rx_operator_id,
+                'HN' => $HN,
+                'pt_name' => $pt_name,
+                'doctor_name' => $doctor_name,
+                'prescription_date' => $prescription_date,
+                'dispensing_status_id' => $dispensing_status_id, //สถานะ
+            ]);
+
+            if ($modelDrug->save()) {
+                $transaction->commit();
+                return [
+                    'modelDrug' => $modelDrug,
+                ];
+            } else {
+                $transaction->rollBack();
+                throw new HttpException(422, Json::encode($modelDrug->errors));
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
         }
     }
 }
