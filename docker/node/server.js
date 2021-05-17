@@ -39,9 +39,11 @@ app.use(function(req, res, next) {
 
 var indexRouter = require("./routes/index");
 var callingRouter = require("./routes/calling");
+var dispensingRouter = require("./routes/dispensing");
 
 app.use("/api", indexRouter);
 app.use("/api/calling", callingRouter);
+app.use("/api/dispensing", dispensingRouter);
 
 //connection
 io.on("connection", function(socket) {
@@ -97,6 +99,10 @@ io.on("connection", function(socket) {
 
   socket.on("transfer-examination-room", function(res) {
     socket.broadcast.emit("transfer-examination-room", res);
+  });
+  //สร้างรายการรับยาใกล้บ้าน
+  socket.on("create-drug-dispensing", function(res) {
+    socket.emit("create-drug-dispensing", res);
   });
 
   //Display

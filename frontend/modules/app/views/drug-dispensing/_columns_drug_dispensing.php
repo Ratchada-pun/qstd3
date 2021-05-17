@@ -113,3 +113,14 @@ use kartik\select2\Select2;
         }'
     ]
 ]); ?>
+
+<?php
+$this->registerJs(<<<JS
+socket
+.on('create-drug-dispensing', (res) => {
+	dt_tbdrugdispensing.ajax.reload();
+});
+
+JS
+);
+?>
