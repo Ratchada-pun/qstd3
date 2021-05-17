@@ -1,8 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const axios = require('axios');
-//axios.defaults.baseURL = 'http://q.chainathospital.org';
-axios.defaults.baseURL = 'http://queue-chainat.local';
+axios.defaults.baseURL = 'http://q.chainathospital.org';
 
 router.post('/create', async function(req, res) {
     try {
