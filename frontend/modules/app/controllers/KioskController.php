@@ -32,6 +32,7 @@ use frontend\modules\app\models\TbCaller;
 use frontend\modules\app\models\TbKiosk;
 use frontend\modules\app\models\TbTokenNhso;
 use frontend\modules\app\traits\ModelTrait;
+use frontend\modules\kiosk\models\TbServiceStatus;
 use homer\helpers\Enum;
 use yii\helpers\FileHelper;
 use yii\web\HttpException;
@@ -57,7 +58,7 @@ class KioskController extends \yii\web\Controller
 					],
 					[
 						'allow' => true,
-						'actions' => ['led-options', 'pt-right', 'create-queue', 'scan-queue-mobile'],
+						'actions' => ['led-options', 'pt-right', 'create-queue', 'scan-queue-mobile', 'queue-list'],
 						'roles' => ['?'],
 					],
 				],
@@ -79,8 +80,9 @@ class KioskController extends \yii\web\Controller
 	{
 		if (in_array($action->id, [
 			'create-queue',
-			'scan-queue-mobile'
-			])) {
+			'scan-queue-mobile',
+			'get-queue-list'
+		])) {
 			$this->enableCsrfValidation = false;
 		}
 
@@ -786,7 +788,20 @@ class KioskController extends \yii\web\Controller
 			$pt_pic = $this->uploadPicture($picture, $hn);
 			$modelQueue->pt_pic = $pt_pic;
 			if ($modelQueue->save()) {
+				$modelQstatus = TbServiceStatus::findOne($modelQueue['q_status_id']);
 				$modelQtrans = TbQtrans::findOne(['q_ids' => $modelQueue->q_ids]);
+				$queue_left = (new \yii\db\Query()) //คิวรอ
+					->select([
+						'count(`tb_quequ`.`q_ids`) as `queue_left`'
+					])
+					->from('`tb_quequ`')
+					->where([
+						'`tb_quequ`.`serviceid`' => $serviceid,
+					])
+					->where('q_status_id <> :q_status_id', [':q_status_id' => 4])
+					->andWhere('q_ids < :q_ids', [':q_ids' => $modelQueue['q_ids']])
+					->andWhere('DATE(q_timestp) = CURRENT_DATE')
+					->count();
 				if (!$modelQtrans) {
 					$modelQtrans = new TbQtrans();
 				}
@@ -802,6 +817,8 @@ class KioskController extends \yii\web\Controller
 					return [
 						'modelQueue' => $modelQueue,
 						'modelQtrans' => $modelQtrans,
+						'service_status_name' => $modelQstatus['service_status_name'],
+						'queue_left' => $queue_left
 					];
 				} else {
 					$transaction->rollBack();
@@ -1029,6 +1046,52 @@ class KioskController extends \yii\web\Controller
 			throw $e;
 		}
 	}
+
+
+	public function actionQueueList($hn) //สถานะคิว
+	{
+
+		\Yii::$app->response->format = Response::FORMAT_JSON;
+
+		if (!$hn) {
+			throw new HttpException(400, 'invalid hn.');
+		}
+		$q_status = (new \yii\db\Query())  //สถานะคิว
+			->select([
+				'q.q_ids AS q_ids',
+				'q.q_num AS q_num',
+				'q.q_hn AS q_hn',
+				'q.q_vn AS q_vn',
+				'q.serviceid AS serviceid',
+				'tb_servicegroup.servicegroup_name AS servicegroup_name',
+				'tb_deptcode.deptname AS deptname',
+				'tb_service_status.service_status_name AS service_status_name',
+				'(
+						SELECT
+							count( `tb_quequ`.`q_ids` ) 
+						FROM
+							`tb_quequ` 
+						WHERE
+							q_status_id <> 4 
+							AND serviceid = q.serviceid 
+							AND q_ids < q.q_ids 
+							AND DATE( tb_quequ.q_timestp ) = CURRENT_DATE 
+						) AS queue_left'
+			])
+			->from('tb_quequ as q')
+			->innerJoin('tb_service_status ON ( q.q_status_id = tb_service_status.service_status_id )')
+			->innerJoin('tb_service ON ( q.serviceid = tb_service.serviceid )')
+			->innerJoin('tb_servicegroup ON ( tb_service.service_groupid = tb_servicegroup.servicegroupid )')
+			->innerJoin('tb_deptcode ON ( tb_servicegroup.servicegroup_code = tb_deptcode.deptcode )')
+			->where([
+				'q.q_hn' => $hn
+			])
+			->andWhere('DATE( q.q_timestp ) = CURRENT_DATE')
+			->all();
+
+		return $q_status;
+	}
+
 
 
 
