@@ -1409,6 +1409,9 @@ class DrugDispensingController extends Controller
         if (!$hn) {
             throw new HttpException(400, 'invalid hn.');
         }
+        if (!$date) {
+            throw new HttpException(400, 'invalid date.');
+        }
 
         $query = (new \yii\db\Query())  //สถานะคิว
             ->select([
