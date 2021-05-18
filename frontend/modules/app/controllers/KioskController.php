@@ -1089,7 +1089,19 @@ class KioskController extends \yii\web\Controller
 			->andWhere('DATE( q.q_timestp ) = CURRENT_DATE')
 			->all();
 
-		return $q_status;
+		if (!$q_status) {
+			return [
+				'status' => false,
+				'message' => 'ไม่พบข้อมูล HN กรุณาตรวจสอบข้อมูล!',
+				'data' => $q_status
+			];
+		} else {
+			return [
+				'status' => true,
+				'message' => 'success',
+				'data' => $q_status
+			];
+		}
 	}
 
 
