@@ -24,6 +24,8 @@ use yii\httpclient\Client;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
 use frontend\modules\app\traits\ModelTrait;
+use kartik\form\ActiveForm;
+
 
 /**
  * DrugDispensingController implements the CRUD actions for TbDrugDispensing model.
@@ -1400,7 +1402,7 @@ class DrugDispensingController extends Controller
         }
     }
 
-    public function actionDrugDispensingList($hn) //รายการรับยาใกล้บ้านให้ Mobile
+    public function actionDrugDispensingList($hn, $date = null) //รายการรับยาใกล้บ้านให้ Mobile
     {
         \Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -1408,7 +1410,7 @@ class DrugDispensingController extends Controller
             throw new HttpException(400, 'invalid hn.');
         }
 
-        $drug = (new \yii\db\Query())  //สถานะคิว
+        $query = (new \yii\db\Query())  //สถานะคิว
             ->select([
                 'tb_drug_dispensing.rx_operator_id',
                 'tb_drug_dispensing.pharmacy_drug_name',
@@ -1423,11 +1425,26 @@ class DrugDispensingController extends Controller
             ->innerJoin('tb_dispensing_status', ' tb_drug_dispensing.dispensing_status_id = tb_dispensing_status.dispensing_status_id')
             ->where([
                 'tb_drug_dispensing.HN' => $hn
-            ])
-            ->andWhere('DATE( tb_drug_dispensing.prescription_date ) = CURRENT_DATE')
-            ->all();
+            ]);
+        if ($date) {
+            $query->andWhere(['DATE( tb_drug_dispensing.prescription_date )' => $date]);
+        } else {
+            $query->andWhere('DATE( tb_drug_dispensing.prescription_date ) = CURRENT_DATE');
+        }
 
-
-        return $drug;
+        $drug = $query->all();
+        if (!$drug) {
+            return [
+                'status' => false,
+                'message' => 'ไม่พบข้อมูล HN กรุณาตรวจสอบข้อมูล!',
+                'data' => $drug
+            ];
+        } else {
+            return [
+                'status' => true,
+                'message' => 'success',
+                'data' => $drug
+            ];
+        }
     }
 }
