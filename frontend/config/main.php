@@ -241,7 +241,8 @@ return [
             'app/calling/end-queue',
             'app/calling/send-to-doctor',
             'app/drug-dispensing/create-drug-dispensing',
-            'app/kiosk/scan-queue-mobile',
+            'app/kiosk/scan-queue-mobile-qn',
+            'app/kiosk/scan-queue-mobile-hn',
             'app/kiosk/queue-list',
             'app/drug-dispensing/drug-dispensing-list',
         ]

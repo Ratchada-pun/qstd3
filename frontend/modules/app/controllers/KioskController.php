@@ -58,7 +58,7 @@ class KioskController extends \yii\web\Controller
 					],
 					[
 						'allow' => true,
-						'actions' => ['led-options', 'pt-right', 'create-queue', 'scan-queue-mobile', 'queue-list'],
+						'actions' => ['led-options', 'pt-right', 'create-queue', 'scan-queue-mobile-qn', 'scan-queue-mobile-hn','queue-list'],
 						'roles' => ['?'],
 					],
 				],
@@ -80,7 +80,8 @@ class KioskController extends \yii\web\Controller
 	{
 		if (in_array($action->id, [
 			'create-queue',
-			'scan-queue-mobile',
+			'scan-queue-mobile-qn',
+			'scan-queue-mobile-hn',
 			'get-queue-list'
 		])) {
 			$this->enableCsrfValidation = false;
@@ -997,7 +998,7 @@ class KioskController extends \yii\web\Controller
 	}
 
 
-	public function actionScanQueueMobile() //update สถานะ คิว 6 จาก mobile เป็น สถานะ 1 จากตู้ kiosk
+	public function actionScanQueueMobileQn() //update สถานะ คิว 6 จาก mobile เป็น สถานะ 1 จากตู้ kiosk 
 	{
 		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
@@ -1015,6 +1016,57 @@ class KioskController extends \yii\web\Controller
 		try {
 			$modelQueue = TbQuequ::find()
 				->where(['q_qn' => $qn, 'q_status_id' => [6]]) //สถานะคิวจาก mobile
+				->andWhere('DATE(q_timestp) = CURRENT_DATE')
+				->one();
+			if (!$modelQueue) {
+				throw new HttpException(404, 'ไม่พบรายการคิว');
+			}
+			$modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids']]);
+
+			$modelQueue->q_status_id = 1;
+			$modelQTrans->service_status_id = 1;
+
+			if ($modelQueue->save() && $modelQTrans->save()) {
+				$transaction->commit();
+				return [
+					'modelQueue' => $modelQueue,
+					'modelQTrans' => $modelQTrans,
+				];
+			} else if ($modelQueue->errors) {
+				$transaction->rollBack();
+				throw new HttpException(422, Json::encode($modelQueue->errors));
+			} else if ($modelQTrans->errors) {
+				$transaction->rollBack();
+				throw new HttpException(422, Json::encode($modelQTrans->errors));
+			}
+		} catch (\Exception $e) {
+			$transaction->rollBack();
+			throw $e;
+		} catch (\Throwable $e) {
+			$transaction->rollBack();
+			throw $e;
+		}
+	}
+
+
+	public function actionScanQueueMobileHn() //update สถานะ คิว 6 จาก mobile เป็น สถานะ 1 จากตู้ kiosk โดย HN
+	{
+		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+		$params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+		$hn =  ArrayHelper::getValue($params, 'hn', null);  //หมายเลข hn
+
+		if (!$hn) {
+			throw new HttpException(400, 'invalid hn');
+		}
+
+		\Yii::$app->response->format = Response::FORMAT_JSON;
+		$db = Yii::$app->db;
+		$transaction = $db->beginTransaction();
+
+		try {
+			$modelQueue = TbQuequ::find()
+				->where(['q_hn' => $hn, 'q_status_id' => [6]]) //สถานะคิวจาก mobile
 				->andWhere('DATE(q_timestp) = CURRENT_DATE')
 				->one();
 			if (!$modelQueue) {
