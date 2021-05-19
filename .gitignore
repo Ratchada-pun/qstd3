@@ -36,3 +36,5 @@ phpunit.phar
 /composer.lock
 node_modules
 .env
+
+/chainatweb
