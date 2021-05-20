@@ -12,10 +12,10 @@ services:
       - ./docker/mysql/data/:/var/lib/mysql
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - MYSQL_ROOT_PASSWORD=root_db
-      - MYSQL_DATABASE=db_pattani
+      - MYSQL_ROOT_PASSWORD=Q2020@Admin
+      - MYSQL_DATABASE=db_chainathos
       - MYSQL_USER=admin
-      - MYSQL_PASSWORD=b8888888
+      - MYSQL_PASSWORD=Admin@Q2020
     ports:
       - "3306:3306"
     networks:
@@ -27,23 +27,6 @@ services:
     restart: always
     volumes:
       - .:/var/www/html
-      - ./docker/php/php-fpm.conf:/usr/local/etc/php-fpm.conf
-      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
-      - ./docker/logs/php-fpm:/var/log/php-fpm
-      #- /etc/localtime:/etc/localtime:ro
-    expose:
-      - "9000"
-    depends_on:
-      - redis
-    networks:
-      - backend
-  
-  php_srisawat:
-    build: ./docker/php
-    container_name: lemp_php-fpm_srisawat
-    restart: always
-    volumes:
-      - ../../sisawat:/var/www/html
       - ./docker/php/php-fpm.conf:/usr/local/etc/php-fpm.conf
       - ./docker/php/php.ini:/usr/local/etc/php/php.ini
       - ./docker/logs/php-fpm:/var/log/php-fpm
@@ -70,23 +53,6 @@ services:
       - php
     ports:
       - 80:80
-    networks:
-      - backend
-      - frontend
-  nginx_srisawat:
-    image: nginx:stable-alpine
-    container_name: lemp_nginx_srisawat
-    restart: always
-    volumes:
-      - ../../sisawat:/var/www/html
-      - ./docker/nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
-      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./docker/logs/nginx:/var/log/nginx
-      - /etc/localtime:/etc/localtime:ro
-    depends_on:
-      - php_srisawat
-    ports:
-      - 8082:8082
     networks:
       - backend
       - frontend
@@ -137,6 +103,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     links:
       - db
+    networks:
+      - backend  
 
 networks:
   frontend:

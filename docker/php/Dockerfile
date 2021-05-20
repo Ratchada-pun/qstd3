@@ -15,7 +15,6 @@ RUN cp /usr/share/zoneinfo/Asia/Bangkok /etc/localtime \
 
 # Install Composer && Assets Plugin
 RUN php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/local/bin --filename=composer \
-&& composer global require --no-progress "fxp/composer-asset-plugin:~1.2" \
 && apk del tzdata \
 && rm -rf /var/cache/apk/*
 

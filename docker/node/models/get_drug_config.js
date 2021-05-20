@@ -1,3 +1,4 @@
+
 const db = require('../db')
 class Drugconfig {
     static getItems() {

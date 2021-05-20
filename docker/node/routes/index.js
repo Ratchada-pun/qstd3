@@ -4,8 +4,6 @@ const Servicegroup = require('../models/get_servicegroup_list')
 const Service = require('../models/get_service_list')
 const Servicecounter = require('../models/get_counterservice_list')
 const Drugconfig = require('../models/get_drug_config')
-
-
 var assert = require('http-assert')
 
 /* GET home page. */
@@ -115,10 +113,5 @@ router.get('/get_drug_config', async function(req, res, next) {
     }
 
 });
-
-
-
-
-
 
 module.exports = router;
