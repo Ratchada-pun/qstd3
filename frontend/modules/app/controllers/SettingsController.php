@@ -1250,6 +1250,7 @@ class SettingsController extends \yii\web\Controller
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
+                $model->servicestatus_default = 1;
                 return [
                     'title'     => "จัดการกลุ่มบริการ",
                     'content'   => $this->renderAjax('_form_service_group', [

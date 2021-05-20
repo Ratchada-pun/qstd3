@@ -97,7 +97,7 @@ $this->registerCss('
                         ])
                     ->from('tb_service_status')
                     ->all(),'service_status_id','service_status_name'), 
-                'options' => ['placeholder' => 'service status...'],
+                'options' => ['placeholder' => 'เลือก สถานะคิว...'],
                 'pluginOptions' => [
                     'allowClear' => true
                 ],

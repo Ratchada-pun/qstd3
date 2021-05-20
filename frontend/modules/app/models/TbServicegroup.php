@@ -30,21 +30,32 @@ class TbServicegroup extends \yii\db\ActiveRecord
     {
         return [
             [['servicegroup_order', 'servicegroup_name'], 'required'],
-            [['servicegroup_order','servicegroup_status'], 'integer'],
+            [['servicegroup_type_id', 'servicegroup_order', 'subservice_status', 'servicegroup_status', 'show_on_kiosk', 'show_on_mobile', 'servicestatus_default'], 'integer'],
+            [['servicegroup_code'], 'string', 'max' => 50],
             [['servicegroup_name'], 'string', 'max' => 100],
+            [['servicegroup_prefix'], 'string', 'max' => 2],
+            [['servicegroup_clinic'], 'string', 'max' => 1],
         ];
     }
 
-    /**
-     * @inheritdoc
+     /**
+     * {@inheritdoc}
      */
     public function attributeLabels()
     {
         return [
             'servicegroupid' => 'เลขที่กลุ่มบริการ',
+            'servicegroup_code' => 'ชื่อกลุ่มบริการ',
+            'servicegroup_type_id' => 'รหัสประเภทกลุ่มบริการ',
             'servicegroup_name' => 'ชื่อกลุ่มบริการ',
+            'servicegroup_prefix' => 'ตัวอักษร/ตัวเลข นำหน้าคิว',
             'servicegroup_order' => 'ลำดับการแสดง',
-            'servicegroup_status' => 'สถานะการเปิดกลุ่มบริการ'
+            'subservice_status' => 'สถานะการเปิดsubmenu',
+            'servicegroup_status' => 'สถานะการเปิดแผนก',
+            'show_on_kiosk' => 'แสดงบน kisok',
+            'show_on_mobile' => 'แสดงผลบน mobile app',
+            'servicestatus_default' => 'ค่าเริ่มต้นของการทำรายการบน mobile',
+            'servicegroup_clinic' => 'T=เป็นคลีนิคตรวจรักษา F=เป็นแผนกอื่นๆ',
         ];
     }
 

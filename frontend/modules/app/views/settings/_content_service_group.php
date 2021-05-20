@@ -57,7 +57,7 @@ use yii\helpers\Url;
                 var data = api.rows(i).data();
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        \'<tr class="warning"><td colspan="\'+columns.length+\'">\'+group+\' <a href="/app/settings/update-service-group?id=\'+data[0].service_groupid+\'" class="btn btn-xs btn-success" role="modal-remote"><i class="fa fa-plus"></i></a> </td></tr>\'
+                        \'<tr class="warning"><td colspan="\'+columns.length+\'">\'+group+\' <a href="/app/settings/update-service-group?id=\'+data[0].servicegroupid+\'" class="btn btn-xs btn-success" role="modal-remote"><i class="fa fa-plus"></i></a> </td></tr>\'
                     );
                     last = group;
                 }
