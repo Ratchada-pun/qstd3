@@ -4470,7 +4470,7 @@ class CallingController extends \yii\web\Controller
             $modelCaller->counter_service_id = $counter_service_id;
             $modelCaller->call_status = TbCaller::STATUS_FINISHED;
 
-            $modelQTrans->service_status_id = 4;
+            $modelQTrans->service_status_id = 5;
             $modelQueue->q_status_id = 5;
 
             $modelQueuetran = new TbQtrans();
