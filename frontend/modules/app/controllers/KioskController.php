@@ -1139,10 +1139,10 @@ class KioskController extends \yii\web\Controller
 						) AS queue_left'
 			])
 			->from('tb_quequ as q')
-			->innerJoin('tb_service_status ON ( q.q_status_id = tb_service_status.service_status_id )')
-			->innerJoin('tb_service ON ( q.serviceid = tb_service.serviceid )')
-			->innerJoin('tb_servicegroup ON ( tb_service.service_groupid = tb_servicegroup.servicegroupid )')
-			->innerJoin('tb_deptcode ON ( tb_servicegroup.servicegroup_code = tb_deptcode.deptcode )')
+			->innerJoin('tb_service_status','q.q_status_id = tb_service_status.service_status_id')
+			->innerJoin('tb_service','q.serviceid = tb_service.serviceid')
+			->innerJoin('tb_servicegroup','tb_service.service_groupid = tb_servicegroup.servicegroupid')
+			->leftJoin('tb_deptcode','tb_servicegroup.servicegroup_code = tb_deptcode.deptcode')
 			->where([
 				'q.q_hn' => $hn
 			])
