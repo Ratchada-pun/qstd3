@@ -29,6 +29,7 @@ use frontend\modules\app\models\mobile\TbQuequ;
 use frontend\modules\app\models\TbQtrans;
 use frontend\modules\app\models\TbTicket;
 use frontend\modules\app\models\TbCaller;
+use frontend\modules\app\models\TbDrugDispensing;
 use frontend\modules\app\models\TbKiosk;
 use frontend\modules\app\models\TbTokenNhso;
 use frontend\modules\app\traits\ModelTrait;
@@ -438,12 +439,14 @@ class KioskController extends \yii\web\Controller
 		}
 	}
 
-	public function actionPrintTicket($id)
+	public function actionPrintTicket($id) //บัตรคิว
 	{
 		$model = $this->findModelQuequ($id);
 		$service = $this->findModelService($model['serviceid']);
 		$ticket = $this->findModelTicket($service['prn_profileid']);
 		$y = \Yii::$app->formatter->asDate('now', 'php:Y');
+		$modelDrugDispensing = TbDrugDispensing::findOne(['HN' => $model['q_hn']]); 
+
 		$sql = 'SELECT
                 Count(tb_quequ.q_ids) as count
                 FROM
@@ -462,10 +465,14 @@ class KioskController extends \yii\web\Controller
 			'{q_hn}' => $model->q_hn,
 			'{pt_name}' => $model->pt_name,
 			'{q_num}' => $model->q_num,
+			'{q_vn}' => $model->q_vn,
+			'{q_qn}' => $model->q_qn,
+			'{rx_q}' => $model->rx_q,
+			'{pharmacy_drug_name}' => $modelDrugDispensing->pharmacy_drug_name,//ชื่อร้านขายยา
 			'{pt_visit_type}' => '',
 			'{sec_name}' => '',
 			'{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i'),
-			'{user_print}' => Yii::$app->user->identity->profile->name,
+			'{user_print}' => Yii::$app->user->isGuest ? 'Kiosk' : Yii::$app->user->identity->profile->name,
 			'{qwaiting}' => $count,
 			'/img/logo/logoBBH.png' => $ticket->logo_path ? $ticket->logo_base_url . '/' . $ticket->logo_path : '/img/logo/logoBBH.png'
 		]);
@@ -473,7 +480,8 @@ class KioskController extends \yii\web\Controller
 			'model' => $model,
 			'ticket' => $ticket,
 			'template' => $template,
-			'service' => $service
+			'service' => $service,
+			'modelDrugDispensing' => $modelDrugDispensing
 		]);
 	}
 
