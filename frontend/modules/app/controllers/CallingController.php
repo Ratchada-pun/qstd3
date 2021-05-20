@@ -4154,11 +4154,11 @@ class CallingController extends \yii\web\Controller
         return $columns->renderDataColumns();
     }
 
-    public function actionCallingQueue() //เรียกคิว
+    public function actionCallingQueue($q,$service_id,$counter_service_id) //เรียกคิว
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+        $params = Yii::$app->request->get();
 
         $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
         $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
@@ -4244,11 +4244,11 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionHoldQueue() //เรียกพักคิว
+    public function actionHoldQueue($q,$service_id,$counter_service_id) //พักคิว
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+        $params = Yii::$app->getRequest()->get();
 
         $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
         $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
@@ -4332,11 +4332,11 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionEndQueue() //เรียกจบคิว
+    public function actionEndQueue($q,$service_id,$counter_service_id) //เรียกจบคิว
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+        $params = Yii::$app->getRequest()->get();
 
         $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
         $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
@@ -4358,7 +4358,7 @@ class CallingController extends \yii\web\Controller
 
         try {
             $modelQueue = TbQuequ::find()
-                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [2, 3]])
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [2, 3, 5]])
                 ->andWhere('DATE(q_timestp) = CURRENT_DATE')
                 ->one();
             if (!$modelQueue) {
@@ -4420,11 +4420,11 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionSendToDoctor() //ส่งตรวจห้องหมอ
+    public function actionSendToDoctor($q,$service_id,$counter_service_id) //ส่งห้องแพทย์
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+        $params = Yii::$app->getRequest()->get();
 
         $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
         $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
