@@ -21,6 +21,7 @@ use frontend\modules\app\models\TbCaller;
 use frontend\modules\app\traits\ModelTrait;
 use frontend\modules\app\models\LabItems;
 use frontend\modules\app\models\TbService;
+use yii\helpers\Url;
 
 class DisplayController extends \yii\web\Controller
 {
@@ -96,7 +97,12 @@ class DisplayController extends \yii\web\Controller
             $mapArr = [];
             foreach ($map as $m) {
                 $rows = (new \yii\db\Query())
-                    ->select(['tb_quequ.q_num', 'tb_doctor.doctor_name'])
+                    ->select([
+                        'tb_quequ.q_num',
+                        'tb_doctor.doctor_name',
+                        'tb_quequ.pt_name',
+                        'tb_quequ.pt_pic'
+                    ])
                     ->from('tb_caller')
                     ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_caller.q_ids')
                     ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
@@ -109,7 +115,12 @@ class DisplayController extends \yii\web\Controller
                     $mapArr[$m] = $rows['q_num'];
                 } else {
                     $rows = (new \yii\db\Query())
-                        ->select(['tb_quequ.q_num', 'tb_doctor.doctor_name'])
+                        ->select([
+                            'tb_quequ.q_num',
+                            'tb_doctor.doctor_name',
+                            'tb_quequ.pt_name',
+                            'tb_quequ.pt_pic'
+                        ])
                         ->from('tb_caller')
                         ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_caller.q_ids')
                         ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
@@ -137,7 +148,9 @@ class DisplayController extends \yii\web\Controller
                         'counterservice_callnumber' => '-',
                         'serviceid' => '',
                         'service_name' => '',
-                        'service_prefix' => ''
+                        'service_prefix' => '',
+                        'pt_name' => '-',
+                        'pt_pic' => '-'
                     ];
                     $array[] = $arr;
                 }
@@ -159,7 +172,33 @@ class DisplayController extends \yii\web\Controller
                     [
                         'attribute' => 'q_num',
                         'value' => function ($model, $key, $index, $column) {
-                            return Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]);
+                            return '<table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                            <tr style="border:0px;">
+                                <td rowspan="2" style="border-top:0px;vertical-align: middle;">
+                                    '.Html::beginTag('div' ,['style' => 'margin: auto;']) .
+                                Html::img(empty($model['pt_pic']) ? Url::base(true).'/img/admin.png' : $model['pt_pic'],['width' => '140px']) .
+                                Html::endTag('div').'
+                                </td>
+                                <td style="border-top:0px; width: 40%">
+                                    '.Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]).'
+                                </td>
+                                <td style="border-top:0px; width: 40%">
+                                   '.Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]).'
+                                </td>
+                            </tr>
+                            <tr style="border:0px;">
+                                <td colspan="2" style="border-top:0px; text-align:center">
+                                    '.Html::tag('text', $model['pt_name'], []) .'
+                                </td>
+                            </tr>
+                        </table>';
+                            
+                            // Html::beginTag('div', ['class' => '', 'style' => 'display: flex;justify-content: space-between;']) .
+                            //     Html::beginTag('div') .
+                            //      .
+                            //     .
+                            //     Html::endTag('div') .
+                            //     Html::endTag('div');
                         },
                         'format' => 'raw',
                     ],
@@ -184,6 +223,13 @@ class DisplayController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'service_prefix',
+                    ],
+                    [
+                        'attribute' => 'pt_name',
+                        'format' => 'raw',
+                    ],
+                    [
+                        'attribute' => 'pt_pic',
                     ],
                 ]
             ]);
@@ -544,7 +590,9 @@ class DisplayController extends \yii\web\Controller
                 'tb_counterservice.counterservice_callnumber',
                 'tb_service.serviceid',
                 'tb_service.service_name',
-                'tb_service.service_prefix'
+                'tb_service.service_prefix',
+                'tb_quequ.pt_name',
+                'tb_quequ.pt_pic'
             ])
             ->from('tb_caller')
             ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_caller.q_ids')
@@ -577,7 +625,9 @@ class DisplayController extends \yii\web\Controller
                 'tb_counterservice.counterservice_callnumber',
                 'tb_service.serviceid',
                 'tb_service.service_name',
-                'tb_service.service_prefix'
+                'tb_service.service_prefix',
+                'tb_quequ.pt_name',
+                'tb_quequ.pt_pic'
             ])
             ->from('tb_caller')
             ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_caller.q_ids')
