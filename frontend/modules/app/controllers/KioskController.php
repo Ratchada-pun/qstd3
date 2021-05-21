@@ -734,13 +734,13 @@ class KioskController extends \yii\web\Controller
 		$modelService = $this->findModelService($serviceid); // กลุ่มบริการ
 		$modelServiceGroup = $this->findModelServiceGroup($servicegroupid); // กลุ่มแผนก
 
-		$vn = null;
-		if (is_array($data_visit) && !empty($data_visit) && $data_visit != null) {
-			$visit = array_filter($data_visit, function ($v, $k) use ($modelService) {
-				return $v['main_dep'] == $modelService['main_dep'];
-			}, ARRAY_FILTER_USE_BOTH);
-			$vn = ArrayHelper::getValue($visit, '0.vn', null);
-		}
+		$vn = ArrayHelper::getValue($params, 'vn', null);
+		// if (is_array($data_visit) && !empty($data_visit) && $data_visit != null) {
+		// 	$visit = array_filter($data_visit, function ($v, $k) use ($modelService) {
+		// 		return $v['main_dep'] == $modelService['main_dep'];
+		// 	}, ARRAY_FILTER_USE_BOTH);
+		// 	$vn = ArrayHelper::getValue($visit, '0.vn', null);
+		// }
 
 		if ($appoint) {
 			$maininscl_name = ArrayHelper::getValue($appoint, 'appoint_right', null); //ชื่อสิทธิ์
