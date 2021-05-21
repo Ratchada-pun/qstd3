@@ -734,7 +734,7 @@ class KioskController extends \yii\web\Controller
 		$modelService = $this->findModelService($serviceid); // กลุ่มบริการ
 		$modelServiceGroup = $this->findModelServiceGroup($servicegroupid); // กลุ่มแผนก
 
-		$vn = ArrayHelper::getValue($params, 'vn', null);
+		$vn = ArrayHelper::getValue($patient_info, 'vn', null);
 		// if (is_array($data_visit) && !empty($data_visit) && $data_visit != null) {
 		// 	$visit = array_filter($data_visit, function ($v, $k) use ($modelService) {
 		// 		return $v['main_dep'] == $modelService['main_dep'];
