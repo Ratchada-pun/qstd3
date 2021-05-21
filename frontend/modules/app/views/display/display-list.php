@@ -14,7 +14,7 @@ $this->title = 'Display';
 	<?php foreach ($displays as $key => $display) { ?>
 
 	<?php if($display['lab_display'] == 1) : ?>
-		<div class="col-md-6" style="">
+		<div class="col-md-6">
 	        <div class="hpanel">
 	            <div class="panel-body">
 	                <div class="text-center">
@@ -28,7 +28,7 @@ $this->title = 'Display';
 	        </div>
 	    </div>
 	<?php else: ?>
-		<div class="col-md-6" style="">
+		<div class="col-md-6">
 	        <div class="hpanel">
 	            <div class="panel-body">
 	                <div class="text-center">

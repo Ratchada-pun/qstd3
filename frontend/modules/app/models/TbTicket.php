@@ -63,7 +63,7 @@ class TbTicket extends \yii\db\ActiveRecord
     {
         return [
             'ids' => 'Ids',
-            'hos_name_th' => 'ชื่อ รพ. ไทย',
+            'hos_name_th' => 'ชื่อบัตรคิว',
             'hos_name_en' => 'ชื่อ รพ. อังกฤษ',
             'template' => 'แบบบัตรคิว',
             'default_template' => 'ต้นฉบับบัตรคิว',

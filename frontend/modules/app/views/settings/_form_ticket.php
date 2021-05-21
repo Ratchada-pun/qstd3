@@ -258,19 +258,20 @@ $this->registerCssFile("@web/css/80mm.css", [
     </div>
 
     <div class="form-group">
-        <?= Html::activeLabel($model, 'hos_name_th', ['label' => 'ชื่อ รพ. (ไทย)','class'=>'col-sm-2 control-label']) ?>
+        <?= Html::activeLabel($model, 'hos_name_th', ['label' => 'ชื่อบัตรคิว','class'=>'col-sm-2 control-label']) ?>
         <div class="col-sm-4">
             <?= $form->field($model, 'hos_name_th',['showLabels'=>false])->textInput([
-                'placeholder' => 'ชื่อ รพ. (ไทย)'
+                'placeholder' => 'ชื่อบัตรคิว'
             ]); ?>
         </div>
-
+    <?php /*
         <?= Html::activeLabel($model, 'hos_name_en', ['label' => 'ชื่อ รพ. (อังกฤษ)','class'=>'col-sm-2 control-label']) ?>
         <div class="col-sm-4">
             <?= $form->field($model, 'hos_name_en',['showLabels'=>false])->textInput([
                 'placeholder' => 'ชื่อ รพ. (อังกฤษ)'
             ]); ?>
         </div>
+    */?>
     </div>
 
     <div class="form-group">

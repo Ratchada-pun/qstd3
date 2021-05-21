@@ -69,12 +69,12 @@ $this->registerJs(<<<JS
 });
 $(window).on('load', function() {
     //Barcode
-    $("#bcTarget").barcode("{$model->q_ids}", "$ticket->barcode_type",{
+    $("#bcTarget").barcode("{$model->q_qn}", "$ticket->barcode_type",{
         fontSize: 10,
         showHRI: true
     });
     //QRCode
-    jQuery('#qrcode').qrcode({width: 100,height: 100,text: "{$baseUrl}/mobile-view?id={$model->q_ids}" });
+    jQuery('#qrcode').qrcode({width: 100,height: 100,text: "{$baseUrl}/mobile-view?id={$model->q_qn}" });
     //Print
     window.print();
     window.onafterprint = function(){
