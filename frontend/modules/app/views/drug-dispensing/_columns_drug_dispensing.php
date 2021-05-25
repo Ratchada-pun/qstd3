@@ -23,6 +23,7 @@ use kartik\select2\Select2;
                         ['content' => 'HN', 'options' => []],
                         ['content' => 'ชื่อผู้รับบริการ', 'options' => []],
                         ['content' => 'วันที่สั่งยา', 'options' => []],
+                        ['content' => 'แผนก', 'options' => []],
                         ['content' => 'แพทย์ผู้สั่งยา', 'options' => []],
                         ['content' => 'วันที่จ่ายยา', 'options' => []],
                         ['content' => 'สถานะ', 'options' => []],
@@ -35,7 +36,7 @@ use kartik\select2\Select2;
                     'columns' => [
                         ['content' => '', 'options' => ['colspan' => 2]],
                         ['content' => 'ชื่อร้าน', 'options' => []],
-                        ['content' => '', 'options' => ['colspan' => 7]],
+                        ['content' => '', 'options' => ['colspan' => 8]],
                     ]
                 ]
             ],
@@ -100,6 +101,7 @@ use kartik\select2\Select2;
             ["data" => "HN", "className" => "dt-body-left dt-head-nowrap", "title" => "HN"],
             ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อผู้รับบริการ"],
             ["data" => "prescription_date", "className" => "dt-body-left dt-head-nowrap", "title" => "วันที่สั่งยา"],
+            ["data" => "deptname", "className" => "dt-body-left dt-head-nowrap", "title" => "แผนก"],
             ["data" => "doctor_name", "className" => "dt-body-left dt-head-nowrap", "title" => "แพทย์ผู้สั่งยา"],
             ["data" => "dispensing_date", "className" => "dt-body-left dt-head-nowrap", "title" => "วันที่จ่ายยา"],
             ["data" => "dispensing_status_des", "className" => "dt-body-left dt-head-nowrap", "title" => "สถานะ"],

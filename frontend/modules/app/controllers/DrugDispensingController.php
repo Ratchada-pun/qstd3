@@ -337,6 +337,7 @@ class DrugDispensingController extends Controller
                     'tb_drug_dispensing.updated_at',
                     'tb_drug_dispensing.updated_by',
                     'tb_drug_dispensing.note',
+                    'tb_drug_dispensing.deptname',
                     'tb_dispensing_status.dispensing_status_des',
                     'tb_drug_dispensing.pharmacy_drug_name'
                 ])
@@ -374,6 +375,9 @@ class DrugDispensingController extends Controller
                         'value' => function ($model) {
                             return $model['prescription_date'] ? Yii::$app->formatter->asDate($model['prescription_date'], 'php:d/m/Y') : '';
                         },
+                    ],
+                    [
+                        'attribute' => 'deptname',
                     ],
                     [
                         'attribute' => 'doctor_name',
@@ -1347,7 +1351,8 @@ class DrugDispensingController extends Controller
         $pharmacy_drug_name = ArrayHelper::getValue($rx_list_by_qn, 'pharmacy_drug_name', null);  //ชื่อ ร้านขายยา
         $doctor_name = ArrayHelper::getValue($rx_list_by_qn, 'doctor_name', null); // ชื่อแพทย์สั่งยา
         $prescription_date = ArrayHelper::getValue($rx_list_by_qn, 'prescription_date', null); // วันที่สั่งยา
-        // $deptname = ArrayHelper::getValue($rx_list_by_qn, 'deptname', null); //ชื่อแผนก
+        $dept_code = ArrayHelper::getValue($rx_list_by_qn, 'dept_code', null); //รหัสแผนก
+        $deptname = ArrayHelper::getValue($rx_list_by_qn, 'department', null); //ชื่อแผนก
 
 
 
@@ -1382,6 +1387,8 @@ class DrugDispensingController extends Controller
                 'doctor_name' => $doctor_name,
                 'prescription_date' => $prescription_date,
                 'dispensing_status_id' => $dispensing_status_id, //สถานะ
+                'dept_code' => $dept_code, //สถานะ
+                'deptname' => $deptname, //สถานะ
             ]);
 
             if ($modelDrug->save()) {
