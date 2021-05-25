@@ -21,6 +21,7 @@ use frontend\modules\app\models\TbCaller;
 use frontend\modules\app\traits\ModelTrait;
 use frontend\modules\app\models\LabItems;
 use frontend\modules\app\models\TbService;
+use frontend\modules\app\models\TbSoundStation;
 use yii\helpers\Url;
 
 class DisplayController extends \yii\web\Controller
@@ -68,9 +69,12 @@ class DisplayController extends \yii\web\Controller
         $counter = $this->findModelCounterserviceType($config['counterservice_id']);
         $config->service_id = !empty($config['service_id']) ? explode(",", $config['service_id']) : [];
         $config->counterservice_id = !empty($config['counterservice_id']) ? explode(",", $config['counterservice_id']) : [];
+
+        $station = $config['sound_station_id'] ? TbSoundStation::findOne($config['sound_station_id']) : new TbSoundStation();
         return $this->render('index', [
             'config' => $config,
-            'counter' => $counter
+            'counter' => $counter,
+            'station' => $station
         ]);
     }
 
@@ -83,13 +87,17 @@ class DisplayController extends \yii\web\Controller
         ]);
     }
 
-    public function actionDataDisplay()
+    public function actionDataDisplay($id)
     {
         $request = Yii::$app->request;
+        $config = $this->findModelDisplayConfig($id);
+        $counter = $this->findModelCounterserviceType($config['counterservice_id']);
+        $config->service_id = !empty($config['service_id']) ? explode(",", $config['service_id']) : [];
+        $config->counterservice_id = !empty($config['counterservice_id']) ? explode(",", $config['counterservice_id']) : [];
 
         if ($request->isAjax) {
             \Yii::$app->response->format = Response::FORMAT_JSON;
-            $config = $request->post('config', []);
+            //$config = $request->post('config', []);
             $query = $this->findDisplayData($config);
 
             $map = ArrayHelper::map($query, 'serviceid', 'service_prefix');
@@ -171,28 +179,117 @@ class DisplayController extends \yii\web\Controller
                 'columns' => [
                     [
                         'attribute' => 'q_num',
-                        'value' => function ($model, $key, $index, $column) {
-                            return '<table class="table" style="background-color: inherit;margin-bottom: 0px;">
-                            <tr style="border:0px;">
-                                <td rowspan="2" style="border-top:0px;vertical-align: middle;">
-                                    '.Html::beginTag('div' ,['style' => 'margin: auto;']) .
-                                Html::img(empty($model['pt_pic']) ? Url::base(true).'/img/admin.png' : $model['pt_pic'],['width' => '140px']) .
-                                Html::endTag('div').'
-                                </td>
-                                <td style="border-top:0px; width: 40%">
-                                    '.Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]).'
-                                </td>
-                                <td style="border-top:0px; width: 40%">
-                                   '.Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]).'
-                                </td>
-                            </tr>
-                            <tr style="border:0px;">
-                                <td colspan="2" style="border-top:0px; text-align:center">
-                                    '.Html::tag('text', $model['pt_name'], []) .'
-                                </td>
-                            </tr>
-                        </table>';
-                            
+                        'value' => function ($model, $key, $index, $column) use ($config) {
+                            if ($config['pt_name'] == 1 && $config['pt_pic'] == 1) {
+                                return '
+                                <table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tr style="border:0px;">
+                                        <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
+                                        ' . Html::beginTag('div', ['style' => 'margin: auto;']) .
+                                    Html::img(empty($model['pt_pic']) ? Url::base(true) . '/img/admin.png' : $model['pt_pic'], ['width' => '140px']) .
+                                    Html::endTag('div') . '
+                                        </td>
+    
+                                        <td  style="border-top:0px; width: 60%">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
+                                        
+                                        <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        </td>
+                                    </tr>
+                                    <tr  style="border:0px;">
+                                        <td style="border-top:0px; text-align:center;width:60%">
+                                        ' . Html::tag('text', $model['pt_name'], []) . '
+                                        </td>
+                                    </tr>
+                                </table>
+                                ';
+                            } else if ($config['pt_name'] == 1 && $config['pt_pic'] == 0) {
+                                return '
+                                <table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tr style="border:0px;">
+    
+                                        <td  style="border-top:0px; width: 80%">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
+                                        
+                                        <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        </td>
+                                    </tr>
+                                    <tr  style="border:0px;">
+                                        <td style="border-top:0px; text-align:center;width:80%">
+                                        ' . Html::tag('text', $model['pt_name'], []) . '
+                                        </td>
+                                    </tr>
+                                </table>
+                                ';
+                            } else if ($config['pt_name'] == 0 && $config['pt_pic'] == 1) {
+
+                                return '
+                                <table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tr style="border:0px;">
+                                        <td style="border-top:0px;vertical-align: middle; width:20%">
+                                        ' . Html::beginTag('div', ['style' => 'margin: auto;']) .
+                                    Html::img(empty($model['pt_pic']) ? Url::base(true) . '/img/admin.png' : $model['pt_pic'], ['width' => '140px']) .
+                                    Html::endTag('div') . '
+                                        </td>
+    
+                                        <td  style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
+                                        
+                                        <td style="border-top:0px; width: 40%;vertical-align: middle;">
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        </td>
+                                    </tr>
+                                    
+                                </table>
+                                ';
+                            } else if ($config['pt_name'] == 0 && $config['pt_pic'] == 0) {
+                                return '
+                                <table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tr style="border:0px;">
+                                        <td  style="border-top:0px; width: 50%;vertical-align: middle;">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
+                                        
+                                        <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        </td>
+                                    </tr>
+                                    
+                                </table>
+                                ';
+                            }else{
+                                return '
+                                <table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tr style="border:0px;">
+                                        <td  style="border-top:0px; width: 50%;vertical-align: middle;">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
+                                        
+                                        <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        </td>
+                                    </tr>
+                                    
+                                </table>
+                                ';
+                            }
+
+                            //     return '<table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                            //     <tr style="border:0px;">
+                            //         <td rowspan="2" style="border-top:0px;vertical-align: middle;">
+                            //             '.Html::beginTag('div' ,['style' => 'margin: auto;']) .
+                            //         Html::img(empty($model['pt_pic']) ? Url::base(true).'/img/admin.png' : $model['pt_pic'],['width' => '140px']) .
+                            //         Html::endTag('div').'
+                            //         </td>
+                            //         <td style="border-top:0px; width: 40%">
+                            //             '.Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]).'
+                            //         </td>
+                            //         <td style="border-top:0px; width: 40%">
+                            //            '.Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]).'
+                            //         </td>
+                            //     </tr>
+                            //     <tr style="border:0px;">
+                            //         <td colspan="2" style="border-top:0px; text-align:center">
+                            //             '.Html::tag('text', $model['pt_name'], []) .'
+                            //         </td>
+                            //     </tr>
+                            // </table>';
+
                             // Html::beginTag('div', ['class' => '', 'style' => 'display: flex;justify-content: space-between;']) .
                             //     Html::beginTag('div') .
                             //      .

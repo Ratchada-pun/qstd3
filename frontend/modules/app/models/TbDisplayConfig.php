@@ -59,10 +59,10 @@ class TbDisplayConfig extends \yii\db\ActiveRecord
     {
         return [
             [['display_name'], 'required'],
-            [['display_limit', 'display_status','lab_display'], 'integer'],
+            [['display_limit', 'display_status','lab_display','pt_name','pt_pic'], 'integer'],
             [['display_name', 'title_left', 'title_right', 'title_latest', 'table_title_left', 'table_title_right', 'title_latest_right', 'hold_label', 'text_marquee', 'title_left_color', 'title_right_color', 'title_latest_color', 'table_title_left_color', 'table_title_right_color', 'title_latest_right_color', 'font_cell_display_color', 'cell_hold_bg_color', 'header_latest_color', 'cell_latest_color', 'font_cell_latest_color', 'border_cell_latest_color', 'hold_bg_color', 'hold_font_color', 'hold_border_color', 'font_marquee_color'], 'string', 'max' => 255],
             [['header_color', 'column_color', 'background_color', 'font_color', 'border_color', 'title_color'], 'string', 'max' => 100],
-            [['service_id'],'safe']
+            [['service_id','sound_station_id'],'safe']
         ];
     }
 
@@ -108,7 +108,10 @@ class TbDisplayConfig extends \yii\db\ActiveRecord
             'hold_font_color' => Yii::t('app', 'Hold Font Color'),
             'hold_border_color' => Yii::t('app', 'Hold Border Color'),
             'font_marquee_color' => Yii::t('app', 'Font Marquee Color'),
-            'lab_display' => 'แสดงผล Lab เท่านั้น'
+            'lab_display' => 'แสดงผล Lab เท่านั้น',
+            'sound_station_id' => 'รหัสเครื่องเสียง',
+            'pt_name' => 'ชื่อผู้ป่วย',
+            'pt_pic' => 'ภาพ',
         ];
     }
 

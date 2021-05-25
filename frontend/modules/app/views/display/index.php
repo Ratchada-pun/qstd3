@@ -73,6 +73,8 @@ $this->registerCss('
         border-left: 5px solid ' . $config['border_color'] . ' !important;
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
+        border: 5px solid #ffffff !important;
+        border-radius: 10px;
     }
     table.table-display tbody tr td.td-right{
         border-top: 5px solid ' . $config['border_color'] . ' !important;
@@ -94,6 +96,8 @@ $this->registerCss('
         border-left: 5px solid ' . $config['border_color'] . ' !important;
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
+        border: 5px solid #ffffff !important;
+        border-radius: 10px;
     }
     /*  */
     table.table-display2 tbody tr td.td-left{
@@ -131,7 +135,6 @@ $this->registerCss('
 $this->registerJs('var counter = ' . Json::encode($counter) . '; ', View::POS_HEAD);
 $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD);
 ?>
-
 <div class="container">
     <div class="row">
         <div class="col-xs-8 col-sm-8 col-md-8 border-right" style="text-align: center;">
@@ -201,6 +204,12 @@ $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD
         </div>
     <?php endif; ?>
 </div>
+
+
+<?php echo $this->render('play-sound' ,['model' => $station]) ?>
+
+
+
 <?php
 #Table Display
 echo Datatables::widget([
@@ -208,11 +217,11 @@ echo Datatables::widget([
     'select2' => true,
     'clientOptions' => [
         'ajax' => [
-            'url' => Url::base(true) . '/app/display/data-display',
-            'data' => [
-                'config' => $config
-            ],
-            'type' => 'POST'
+            'url' => Url::to(['/app/display/data-display', 'id' => $config['display_ids']]) ,
+            // 'data' => [
+            //     'config' => $config
+            // ],
+            // 'type' => 'POST'
         ],
         "dom" => "t",
         "language" => array_merge(Yii::$app->params['dtLanguage'], [
