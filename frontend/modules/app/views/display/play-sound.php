@@ -132,7 +132,7 @@ div#jp_container * {
 <div class="row" style="height: 1px;">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" >
         <div class="hpanel">
-            <div class="panel-body">
+            <div class="panel-body" style="background: inherit;border: 1px solid inherit;">
             <?php /*
                 <?php $form = ActiveForm::begin([
                         'id' => 'calling-form',
