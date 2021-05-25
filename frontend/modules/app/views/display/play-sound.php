@@ -119,6 +119,15 @@ li.jp-unmute,
     font-size: 0.8em;
     cursor: default;
 }
+div#jp_container * {
+    background: inherit !important;
+}
+.ui-state-default {
+    border: 1px solid inherit !important;
+}
+.ui-widget-content {
+    color: white;
+}
 </style>
 <div class="row" style="height: 1px;">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" >
