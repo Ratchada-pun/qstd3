@@ -132,7 +132,7 @@ li.jp-unmute,
 <div class="row" style="height: 1px;">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" >
         <div class="hpanel">
-            <div class="panel-body" style="background: inherit;border: 1px solid inherit;">
+            <div class="panel-body">
             <?php /*
                 <?php $form = ActiveForm::begin([
                         'id' => 'calling-form',
