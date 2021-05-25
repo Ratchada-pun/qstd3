@@ -1,5 +1,4 @@
 <?php
-
 use yii\jui\JuiAsset;
 use homer\assets\jPlayerAsset;
 use homer\assets\SocketIOAsset;
@@ -19,129 +18,113 @@ ToastrAsset::register($this);
 SweetAlert2Asset::register($this);
 $bundle = jPlayerAsset::register($this);
 $bundle->js[] = 'vendor/jPlayer/dist/add-on/jquery.jplayer.inspector.js';
-$this->registerJs('var baseUrl = ' . Json::encode(Url::base(true)) . '; ', View::POS_HEAD);
-$this->registerJs('var model = ' . Json::encode($model) . '; ', View::POS_HEAD);
+$this->registerJs('var baseUrl = '.Json::encode(Url::base(true)).'; ',View::POS_HEAD);
+$this->registerJs('var model = '.Json::encode($model).'; ',View::POS_HEAD);
 
 $this->title  = 'โปรแกรมเสียงเรียกคิว';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <style>
-    .jp-gui {
-        position: relative;
-        padding: 20px;
-        width: auto;
-    }
-
-    .jp-gui.jp-no-volume {
-        width: 432px;
-    }
-
-    .jp-gui ul {
-        margin: 0;
-        padding: 0;
-    }
-
-    .jp-gui ul li {
-        position: relative;
-        float: left;
-        list-style: none;
-        margin: 2px;
-        padding: 4px 0;
-        cursor: pointer;
-    }
-
-    .jp-gui ul li a {
-        margin: 0 4px;
-    }
-
-    .jp-gui li.jp-repeat,
-    .jp-gui li.jp-repeat-off {
-        margin-left: 344px;
-    }
-
-    .jp-gui li.jp-mute,
-    .jp-gui li.jp-unmute {
-        margin-left: 20px;
-    }
-
-    .jp-gui li.jp-volume-max {
-        margin-left: 120px;
-    }
-
-    li.jp-pause,
-    li.jp-repeat-off,
-    li.jp-unmute,
-    .jp-no-solution {
-        display: none;
-    }
-
-    .jp-progress-slider {
-        position: absolute;
-        top: 28px;
-        left: 100px;
-        width: 300px;
-    }
-
-    .jp-progress-slider .ui-slider-handle {
-        cursor: pointer;
-    }
-
-    .jp-volume-slider {
-        position: absolute;
-        top: 31px;
-        left: 508px;
-        width: 100px;
-        height: .4em;
-    }
-
-    .jp-volume-slider .ui-slider-handle {
-        height: .8em;
-        width: .8em;
-        cursor: pointer;
-    }
-
-    .jp-gui.jp-no-volume .jp-volume-slider {
-        display: none;
-    }
-
-    .jp-current-time,
-    .jp-duration {
-        position: absolute;
-        top: 42px;
-        font-size: 0.8em;
-        cursor: default;
-    }
-
-    .jp-current-time {
-        left: 100px;
-    }
-
-    .jp-duration {
-        left: 360px;
-    }
-
-    .jp-gui.jp-no-volume .jp-duration {
-        right: 70px;
-    }
-
-    .jp-clearboth {
-        clear: both;
-    }
-
-    .jp-jplayer {
-        width: auto !important;
-        height: auto !important;
-    }
-
-    .jp-title {
-        left: 140px;
-        position: absolute;
-        top: 42px;
-        font-size: 0.8em;
-        cursor: default;
-    }
+.jp-gui {
+	position:relative;
+	padding:20px;
+	width:auto;
+}
+.jp-gui.jp-no-volume {
+	width:432px;
+}
+.jp-gui ul {
+	margin:0;
+	padding:0;
+}
+.jp-gui ul li {
+	position:relative;
+	float:left;
+	list-style:none;
+	margin:2px;
+	padding:4px 0;
+	cursor:pointer;
+}
+.jp-gui ul li a {
+	margin:0 4px;
+}
+.jp-gui li.jp-repeat,
+.jp-gui li.jp-repeat-off {
+	margin-left:344px;
+}
+.jp-gui li.jp-mute,
+.jp-gui li.jp-unmute {
+	margin-left:20px;
+}
+.jp-gui li.jp-volume-max {
+	margin-left:120px;
+}
+li.jp-pause,
+li.jp-repeat-off,
+li.jp-unmute,
+.jp-no-solution {
+	display:none;
+}
+.jp-progress-slider {
+	position:absolute;
+	top:28px;
+	left:100px;
+	width:300px;
+}
+.jp-progress-slider .ui-slider-handle {
+	cursor:pointer;
+}
+.jp-volume-slider {
+	position:absolute;
+	top:31px;
+	left:508px;
+	width:100px;
+	height:.4em;
+}
+.jp-volume-slider .ui-slider-handle {
+	height:.8em;
+	width:.8em;
+	cursor:pointer;
+}
+.jp-gui.jp-no-volume .jp-volume-slider {
+	display:none;
+}
+.jp-current-time,
+.jp-duration {
+	position:absolute;
+	top:42px;
+	font-size:0.8em;
+	cursor:default;
+}
+.jp-current-time {
+	left:100px;
+}
+.jp-duration {
+	left:360px;
+}
+.jp-gui.jp-no-volume .jp-duration {
+	right:70px;
+}
+.jp-clearboth {
+	clear:both;
+}
+.jp-jplayer {
+    width: auto !important;
+    height: auto !important;
+}
+.jp-title {
+    left: 140px;
+    position: absolute;
+    top: 42px;
+    font-size: 0.8em;
+    cursor: default;
+}
 </style>
-<?php /*
+<div class="row" style="height: 1px;">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="height: 1px;">
+        <div class="hpanel">
+            <div class="panel-body">
+            <?php /*
                 <?php $form = ActiveForm::begin([
                         'id' => 'calling-form',
                         'type' => 'horizontal',
@@ -174,42 +157,44 @@ $this->params['breadcrumbs'][] = $this->title;
                     </div>
                 </div>
                 <?php ActiveForm::end() ?>
-                */ ?>
+                */?>
+                <section>
+                    <div id="jquery_jplayer_N" class="jp-jplayer"></div>
 
-<section>
-    <div id="jquery_jplayer_N" class="jp-jplayer"></div>
-
-    <div id="jp_container">
-        <div class="jp-gui ui-widget ui-widget-content ui-corner-all">
-            <ul>
-                <li class="jp-play ui-state-default ui-corner-all"><a href="javascript:;" class="jp-play ui-icon ui-icon-play" tabindex="1" title="play">play</a></li>
-                <li class="jp-pause ui-state-default ui-corner-all"><a href="javascript:;" class="jp-pause ui-icon ui-icon-pause" tabindex="1" title="pause">pause</a></li>
-                <li class="jp-stop ui-state-default ui-corner-all"><a href="javascript:;" class="jp-stop ui-icon ui-icon-stop" tabindex="1" title="stop">stop</a></li>
-                <li class="jp-repeat ui-state-default ui-corner-all"><a href="javascript:;" class="jp-repeat ui-icon ui-icon-refresh" tabindex="1" title="repeat">repeat</a></li>
-                <li class="jp-repeat-off ui-state-default ui-state-active ui-corner-all"><a href="javascript:;" class="jp-repeat-off ui-icon ui-icon-refresh" tabindex="1" title="repeat off">repeat off</a></li>
-                <li class="jp-mute ui-state-default ui-corner-all"><a href="javascript:;" class="jp-mute ui-icon ui-icon-volume-off" tabindex="1" title="mute">mute</a></li>
-                <li class="jp-unmute ui-state-default ui-state-active ui-corner-all"><a href="javascript:;" class="jp-unmute ui-icon ui-icon-volume-off" tabindex="1" title="unmute">unmute</a></li>
-                <li class="jp-volume-max ui-state-default ui-corner-all"><a href="javascript:;" class="jp-volume-max ui-icon ui-icon-volume-on" tabindex="1" title="max volume">max volume</a></li>
-            </ul>
-            <div class="jp-progress-slider"></div>
-            <div class="jp-volume-slider"></div>
-            <div class="jp-current-time"></div>
-            <div class="jp-title"></div>
-            <div class="jp-duration"></div>
-            <div class="jp-clearboth"></div>
-        </div>
-        <div class="jp-playlist">
-            <ul>
-                <li></li>
-            </ul>
+                    <div id="jp_container">
+                        <div class="jp-gui ui-widget ui-widget-content ui-corner-all">
+                            <ul>
+                                <li class="jp-play ui-state-default ui-corner-all"><a href="javascript:;" class="jp-play ui-icon ui-icon-play" tabindex="1" title="play">play</a></li>
+                                <li class="jp-pause ui-state-default ui-corner-all"><a href="javascript:;" class="jp-pause ui-icon ui-icon-pause" tabindex="1" title="pause">pause</a></li>
+                                <li class="jp-stop ui-state-default ui-corner-all"><a href="javascript:;" class="jp-stop ui-icon ui-icon-stop" tabindex="1" title="stop">stop</a></li>
+                                <li class="jp-repeat ui-state-default ui-corner-all"><a href="javascript:;" class="jp-repeat ui-icon ui-icon-refresh" tabindex="1" title="repeat">repeat</a></li>
+                                <li class="jp-repeat-off ui-state-default ui-state-active ui-corner-all"><a href="javascript:;" class="jp-repeat-off ui-icon ui-icon-refresh" tabindex="1" title="repeat off">repeat off</a></li>
+                                <li class="jp-mute ui-state-default ui-corner-all"><a href="javascript:;" class="jp-mute ui-icon ui-icon-volume-off" tabindex="1" title="mute">mute</a></li>
+                                <li class="jp-unmute ui-state-default ui-state-active ui-corner-all"><a href="javascript:;" class="jp-unmute ui-icon ui-icon-volume-off" tabindex="1" title="unmute">unmute</a></li>
+                                <li class="jp-volume-max ui-state-default ui-corner-all"><a href="javascript:;" class="jp-volume-max ui-icon ui-icon-volume-on" tabindex="1" title="max volume">max volume</a></li>
+                            </ul>
+                            <div class="jp-progress-slider"></div>
+                            <div class="jp-volume-slider"></div>
+                            <div class="jp-current-time"></div>
+                            <div class="jp-title"></div>
+                            <div class="jp-duration"></div>
+                            <div class="jp-clearboth"></div>
+                        </div>
+                        <!-- <div class="jp-playlist">
+                            <ul>
+                                <li></li>
+                            </ul>
+                        </div> -->
+                    </div>
+                    <div id="jplayer_inspector"></div>
+                </section>
+            </div>
         </div>
     </div>
-    <div id="jplayer_inspector"></div>
-</section>
+</div>
 
 <?php
-$this->registerJs(
-    <<<JS
+$this->registerJs(<<<JS
 var jPlayerid = "#jquery_jplayer_N";
 var jp_container = "#jp_container";
 var i = 0;
