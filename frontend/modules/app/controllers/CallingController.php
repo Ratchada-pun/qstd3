@@ -3608,6 +3608,7 @@ class CallingController extends \yii\web\Controller
                 $data[] = [
                     'sound' => $this->getMediaSound($row['q_num'], $row['counter_service_id']),
                     'model' => $row,
+                    'modelCaller' => $row,
                     'counter' => ['counterservice_type' => $row['counterservice_type']],
                     'data' => $row,
                 ];
