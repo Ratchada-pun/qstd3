@@ -205,7 +205,7 @@ $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD
     <?php endif; ?>
 </div>
 
-<div style="display: none;">
+<div style="position: fixed;left: 0;right: 0;bottom: 0;">
 <?php echo $this->render('play-sound' ,['model' => $station]) ?>
 </div>
 
