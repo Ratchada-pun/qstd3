@@ -205,8 +205,10 @@ $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD
     <?php endif; ?>
 </div>
 
-
+<div style="display: none;">
 <?php echo $this->render('play-sound' ,['model' => $station]) ?>
+</div>
+
 
 
 
