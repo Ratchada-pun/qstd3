@@ -120,8 +120,8 @@ li.jp-unmute,
     cursor: default;
 }
 </style>
-<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+<div class="row" style="height: 1px;">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="height: 1px;">
         <div class="hpanel">
             <div class="panel-body">
                 <?php $form = ActiveForm::begin([
