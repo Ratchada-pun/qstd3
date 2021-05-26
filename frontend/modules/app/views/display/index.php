@@ -11,7 +11,7 @@ use yii\web\View;
 use yii\helpers\Html;
 
 ModernBlinkAsset::register($this);
-SocketIOAsset::register($this);
+// SocketIOAsset::register($this);
 ToastrAsset::register($this);
 
 $this->title = 'Display ' . $config['display_name'];
@@ -205,7 +205,7 @@ $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD
     <?php endif; ?>
 </div>
 
-<div style="position: fixed;left: 0;right: 0;bottom: 0;">
+<div style="position: fixed;left: 0;right: 0;bottom: 0; display:none">
 <?php echo $this->render('play-sound' ,['model' => $station]) ?>
 </div>
 
@@ -385,6 +385,10 @@ echo Datatables::widget([
 <?php
 $this->registerJsFile(
     '@web/vendor/moment/moment.js',
+    ['depends' => [\yii\web\JqueryAsset::className()]]
+);
+$this->registerJsFile(
+    '@web/js/socket.io.min.js',
     ['depends' => [\yii\web\JqueryAsset::className()]]
 );
 $this->registerJs(

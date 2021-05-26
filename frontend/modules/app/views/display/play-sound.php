@@ -140,6 +140,9 @@ $this->params['breadcrumbs'][] = $this->title;
         font-size: 0.8em;
         cursor: default;
     }
+    .ui-widget-content{
+        color: #222222;
+    }
 
     /* div#jp_container * {
     background: inherit !important;
