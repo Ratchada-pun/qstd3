@@ -315,7 +315,8 @@ var myPlaylist = new jPlayerPlaylist({
         var current = myPlaylist.current;
         var data = myPlaylist.playlist[current];
         if(data.wav.indexOf("please.wav") >= 0){
-            socket.emit('display', data);//sending data
+            
+            // socket.emit('display', data);//sending data
             //toastr.success(' ' + data.title, 'Calling!', {timeOut: 5000,positionClass: "toast-top-right"});
         }
         if(data.wav.indexOf("Prompt1_Sir.wav") >= 0 || data.wav.indexOf("Prompt2_Sir.wav") >= 0){
@@ -392,47 +393,26 @@ $("#jplayer_inspector").jPlayerInspector({jPlayer:$(jPlayerid)});
 
 //Socket Event
 socket
-.on('call-screening-room', (res) => {
-    console.log('call-screening-room',res)
-    if(res.eventOn == 'tb-waiting'){
+.on('call', (res) => {
+    if(model != null && Object.keys(model).length){
         var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
         if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
-            Queue.addMedia(res);
-        }
-    }else{
-        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
-        if(jQuery.inArray(parseInt(res.data.counter_service_id), counters) != -1) {
-            Queue.addMedia(res);
-        }
-    }
-})
-.on('call-examination-room', (res) => {//เรียกคิวห้องตรวจ /app/calling/examination-room
-    console.log('call-examination-room',res)
-    if(res.eventOn == 'tb-waiting'){
-        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
-        if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
-            Queue.addMedia(res);
-        }
-    }else{
-        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
-        if(jQuery.inArray(parseInt(res.data.counter_service_id), counters) != -1) {
-            Queue.addMedia(res);
+            if(jQuery.inArray((res.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
+                Display.reloadDisplay();
+                Display.reloadDisplay2();
+                Display.reloadHold();
+                
+                setTimeout(function(){
+                    Queue.addMedia(res);
+                    Display.blink({title: res.modelQueue.q_num});
+                }, 1000);
+            }
         }
     }
-})
-.on('call-medicine-room', (res) => {//เรียกคิวห้องตรวจ /app/calling/examination-room
-    console.log('call-medicine-room',res)
-    if(res.eventOn == 'tb-waiting'){
-        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
-        if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
-            Queue.addMedia(res);
-        }
-    }else{
-        var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
-        if(jQuery.inArray(parseInt(res.data.counter_service_id), counters) != -1) {
-            Queue.addMedia(res);
-        }
-    }
+    
+    // if(jQuery.inArray(parseInt(res.data.counter_service_id), counters) != -1) {
+    //     Queue.addMedia(res);
+    // }
 });
 
 Queue = {

@@ -615,7 +615,7 @@ Queue = {
                                     self.reloadTbWaiting();//โหลดข้อมูลคิวรอพบแพทย์ใหม่
                                     self.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
                                     self.toastrSuccess('CALL ' + data.qnumber);
-                                    socket.emit('call-examination-room', res);//sending data
+                                    socket.emit('call', res);//sending data
                                     resolve();
                                 }else{
                                     self.ajaxAlertWarning();
@@ -673,7 +673,7 @@ Queue = {
                                 if(res.status == 200){
                                     //dt_tbcalling.ajax.reload();//โหลดข้อมูลกำลังเรียก
                                     self.toastrSuccess('RECALL ' + data.qnumber);
-                                    socket.emit('call-examination-room', res);//sending data
+                                    socket.emit('call', res);//sending data
                                     resolve();
                                 }else{
                                     self.ajaxAlertWarning();
@@ -729,7 +729,7 @@ Queue = {
                                     self.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
                                     self.reloadTbHold();//โหลดข้อมูลพักคิวใหม่
                                     self.toastrSuccess('HOLD ' + data.qnumber);
-                                    socket.emit('hold-examination-room', res);//sending data
+                                    socket.emit('hold', res);//sending data
                                     resolve();
                                 }else{//error
                                     self.ajaxAlertWarning();
@@ -857,7 +857,7 @@ Queue = {
                                     self.reloadTbCalling();//โหลดข้อมูลกำลังเรียก
                                     self.reloadTbHold();//โหลดข้อมูลพักคิว
                                     self.toastrSuccess('CALL ' + data.qnumber);
-                                    socket.emit('call-examination-room', res);//sending data
+                                    socket.emit('call', res);//sending data
                                     resolve();
                                 }else{//error
                                     self.ajaxAlertWarning();
@@ -913,7 +913,7 @@ Queue = {
                                     self.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
                                     self.reloadTbHold();//โหลดข้อมูลพักคิวใหม่
                                     self.toastrSuccess('END ' + data.qnumber);
-                                    socket.emit('endq-examination-room', res);//sending data
+                                    socket.emit('finish', res);//sending data
                                     resolve();
                                 }else{//error
                                     self.ajaxAlertWarning();
@@ -1040,7 +1040,7 @@ Queue = {
                                 if(res.status == 200){//success
                                     self.reloadTbCalling();//โหลดข้อมูล
                                     self.toastrSuccess('END ' + data.qnumber);
-                                    socket.emit('endq-examination-room', res);//sending data
+                                    socket.emit('finish', res);//sending data
                                     resolve();
                                 }else{//error
                                     self.ajaxAlertWarning();
@@ -1103,7 +1103,7 @@ Queue = {
                                 if(res.status == 200){
                                     self.reloadTbWaiting();//โหลดข้อมูลคิวรอพบแพทย์ใหม่
                                     self.toastrSuccess('END ' + data.qnumber);
-                                    socket.emit('endq-examination-room', res);//sending data
+                                    socket.emit('finish', res);//sending data
                                     resolve();
                                 }else{
                                     self.ajaxAlertWarning();
@@ -1193,9 +1193,9 @@ Queue = {
 //socket event
 $(function() {
     socket
-    .on('endq-screening-room', (res) => {
+    .on('finish', (res) => {
         var services = (modelProfile.service_id).split(',');
-        if(jQuery.inArray((res.modelQ.serviceid).toString(), services) != -1) {//ถ้าคิวมีใน service profile
+        if(jQuery.inArray((res.modelQueue.serviceid).toString(), services) != -1) {//ถ้าคิวมีใน service profile
             if(localStorage.getItem('playsound-pagecalling') == 'on'){
                 var player = $("#jplayer_notify").jPlayer({
                     ready: function () {
@@ -1211,10 +1211,10 @@ $(function() {
                 $('#jplayer_notify').jPlayer("play");
             }
             Queue.reloadTbWaiting();//โหลดข้อมูลรอเรียก
-            Queue.toastrWarning('ผู้ป่วยลงทะเบียนใหม่!',res.modelQ.pt_name);
+            Queue.toastrWarning('ผู้ป่วยลงทะเบียนใหม่!',res.modelQueue.pt_name);
         }
     })
-    .on('call-examination-room', (res) => {//เรียกคิวรอ
+    .on('call', (res) => {//เรียกคิวรอ
         if(res.eventOn === 'tb-waiting' && res.state === 'call'){//เรียกคิวจาก table คิวรอพบแพทย์
             Queue.reloadTbWaiting();//โหลดข้อมูลคิวรอพบแพทย์ใหม่
             var counters = modelForm.counter_service;
@@ -1230,7 +1230,7 @@ $(function() {
             }
         }
     })
-    .on('hold-examination-room', (res) => {//Hold คิวห้องตรวจ /kiosk/calling/examination-room
+    .on('hold', (res) => {//Hold คิวห้องตรวจ /kiosk/calling/examination-room
         var counters = modelForm.counter_service;
         if(jQuery.inArray(res.counter.counterserviceid.toString(), counters) != -1){
             Queue.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
@@ -1241,7 +1241,7 @@ $(function() {
         Queue.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
         Queue.reloadTbHold();//โหลดข้อมูลพักคิวใหม่
     })
-    .on('endq-examination-room', (res) => {//จบ Process q /kiosk/calling/examination-room
+    .on('finish', (res) => {//จบ Process q /kiosk/calling/examination-room
         var counters = modelForm.counter_service;
         if(jQuery.inArray(res.counter.counterserviceid.toString(), counters) != -1){
             Queue.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
@@ -1301,7 +1301,7 @@ $('a.activity-callnext').on('click',function(e){
                                 Queue.reloadTbWaiting();//โหลดข้อมูลคิวรอพบแพทย์ใหม่
                                 Queue.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
                                 Queue.toastrSuccess('CALL ' + data[0].qnumber);
-                                socket.emit('call-examination-room', res);//sending data
+                                socket.emit('call', res);//sending data
                                 resolve();
                             }else{
                                 Queue.ajaxAlertWarning();
@@ -1388,7 +1388,7 @@ var \$form = $('#calling-form');
                                 success: function(res){
                                     if(res.status == 200){
                                         Queue.toastrSuccess('RECALL ' + qcall.data.qnumber);
-                                        socket.emit('call-examination-room', res);//sending data
+                                        socket.emit('call', res);//sending data
                                         resolve();
                                     }else{
                                         Queue.ajaxAlertWarning();
@@ -1433,7 +1433,7 @@ var \$form = $('#calling-form');
                                         Queue.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
                                         Queue.reloadTbHold();//โหลดข้อมูลพักคิวใหม่
                                         Queue.toastrSuccess('CALL ' + qcall.data.qnumber);
-                                        socket.emit('call-examination-room', res);//sending data
+                                        socket.emit('call', res);//sending data
                                         resolve();
                                     }else{//error
                                         Queue.ajaxAlertWarning();
@@ -1487,7 +1487,7 @@ var \$form = $('#calling-form');
                                         Queue.reloadTbWaiting();//โหลดข้อมูลคิวรอพบแพทย์ใหม่
                                         Queue.reloadTbCalling();//โหลดข้อมูลกำลังเรียกใหม่
                                         Queue.toastrSuccess('CALL ' + qcall.data.qnumber);
-                                        socket.emit('call-examination-room', res);//sending data
+                                        socket.emit('call', res);//sending data
                                         resolve();
                                     }else{
                                         Queue.ajaxAlertWarning();

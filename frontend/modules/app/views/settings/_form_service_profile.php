@@ -86,6 +86,7 @@ $this->registerCss('
         </div>
     </div>
 
+    <?php /*
     <div class="form-group">
         <?= Html::activeLabel($model, 'service_status_id', ['label' => 'สถานะคิว', 'class' => 'col-sm-2 control-label']) ?>
         <div class="col-sm-4">
@@ -105,6 +106,7 @@ $this->registerCss('
             ]) ?>
         </div>
     </div>
+    */?>
 
     <div class="form-group">
         <?= Html::activeLabel($model, 'service_profile_status', ['label' => 'สถานะ', 'class' => 'col-sm-2 control-label']) ?>

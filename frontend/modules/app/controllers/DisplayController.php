@@ -195,12 +195,12 @@ class DisplayController extends \yii\web\Controller
                                         <td  style="border-top:0px; width: 60%">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
                                         
                                         <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['q_num'])]) . '
                                         </td>
                                     </tr>
                                     <tr  style="border:0px;">
                                         <td style="border-top:0px; text-align:center;width:60%">
-                                        ' . Html::tag('text', $model['pt_name'], []) . '
+                                        ' . Html::tag('text', $model['pt_name'], ['class' => trim($model['q_num'])]) . '
                                         </td>
                                     </tr>
                                 </table>
@@ -213,12 +213,12 @@ class DisplayController extends \yii\web\Controller
                                         <td  style="border-top:0px; width: 80%">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
                                         
                                         <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['q_num'])]) . '
                                         </td>
                                     </tr>
                                     <tr  style="border:0px;">
                                         <td style="border-top:0px; text-align:center;width:80%">
-                                        ' . Html::tag('text', $model['pt_name'], []) . '
+                                        ' . Html::tag('text', $model['pt_name'], ['class' => trim($model['q_num'])]) . '
                                         </td>
                                     </tr>
                                 </table>
@@ -237,7 +237,7 @@ class DisplayController extends \yii\web\Controller
                                         <td  style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
                                         
                                         <td style="border-top:0px; width: 40%;vertical-align: middle;">
-                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['q_num'])]) . '
                                         </td>
                                     </tr>
                                     
@@ -250,7 +250,7 @@ class DisplayController extends \yii\web\Controller
                                         <td  style="border-top:0px; width: 50%;vertical-align: middle;">' . Html::tag('text', $model['q_num'], ['class' => trim($model['q_num'])]) . '</td>
                                         
                                         <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['counterservice_callnumber'])]) . '
+                                        ' . Html::tag('text', $model['counterservice_callnumber'], ['class' => trim($model['q_num'])]) . '
                                         </td>
                                     </tr>
                                     

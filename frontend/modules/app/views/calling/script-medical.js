@@ -82,7 +82,7 @@ Queue = {
                     self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                     self.toastrSuccess("CALL " + data.qnumber);
                     //$("html, body").animate({ scrollTop: 0 }, "slow");
-                    socket.emit("call-screening-room", res); //sending data
+                    socket.emit("call", res); //sending data
                     if (value == 0) {
                       setTimeout(function() {
                         var tr = $("#tb-calling tr#" + res.model.caller_ids),
@@ -102,7 +102,7 @@ Queue = {
                             if (res.status == "200") {
                               self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                               self.toastrSuccess("END " + data.qnumber);
-                              socket.emit("endq-screening-room", res); //sending data
+                              socket.emit("finish", res); //sending data
                               resolve();
                             } else {
                               self.ajaxAlertWarning();
@@ -173,7 +173,7 @@ Queue = {
                     self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
                     self.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
                     self.toastrSuccess("END " + data.qnumber);
-                    socket.emit("endq-screening-room", res); //sending data
+                    socket.emit("finish", res); //sending data
                     resolve();
                   } else {
                     //error
@@ -237,7 +237,7 @@ Queue = {
                   if (res.status == 200) {
                     //Queue.reloadTbCalling();//โหลดข้อมูลกำลังเรียก
                     self.toastrSuccess("RECALL " + data.qnumber);
-                    socket.emit("call-screening-room", res); //sending data
+                    socket.emit("call", res); //sending data
                     resolve();
                   } else {
                     self.ajaxAlertWarning();
@@ -297,7 +297,7 @@ Queue = {
                     self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
                     self.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
                     self.toastrSuccess("HOLD " + data.qnumber);
-                    socket.emit("hold-screening-room", res); //sending data
+                    socket.emit("hold", res); //sending data
                     resolve();
                   } else {
                     //error
@@ -361,7 +361,7 @@ Queue = {
                   if (res.status == "200") {
                     self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                     self.toastrSuccess("END " + data.qnumber);
-                    socket.emit("endq-screening-room", res); //sending data
+                    socket.emit("finish", res); //sending data
                     resolve();
                   } else {
                     self.ajaxAlertWarning();
@@ -424,7 +424,7 @@ Queue = {
                   if (res.status == "200") {
                     self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                     self.toastrSuccess("END " + data.qnumber);
-                    socket.emit("endq-screening-room", res); //sending data
+                    socket.emit("finish", res); //sending data
                     resolve();
                   } else {
                     self.ajaxAlertWarning();
@@ -490,7 +490,7 @@ Queue = {
                     self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                     self.reloadTbHold(); //โหลดข้อมูลพักคิว
                     self.toastrSuccess("CALL " + data.qnumber);
-                    socket.emit("call-screening-room", res); //sending data
+                    socket.emit("call", res); //sending data
                     resolve();
                   } else {
                     //error
@@ -552,7 +552,7 @@ Queue = {
                     self.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
                     self.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
                     self.toastrSuccess("END " + data.qnumber);
-                    socket.emit("endq-screening-room", res); //sending data
+                    socket.emit("finish", res); //sending data
                     resolve();
                   } else {
                     //error
@@ -739,7 +739,7 @@ $(function() {
         });
       }
     })
-    .on("call-screening-room", (res) => {
+    .on("call", (res) => {
       var t1 = $("#tb-waiting").DataTable();
       var t2 = $("#tb-calling").DataTable();
       var t3 = $("#tb-hold").DataTable();
@@ -794,7 +794,7 @@ $(function() {
       //   }
       // }
     })
-    .on("hold-screening-room", (res) => {
+    .on("hold", (res) => {
       var t2 = $("#tb-calling").DataTable();
       var t3 = $("#tb-hold").DataTable();
       t2.rows().every(function(rowIdx, tableLoop, rowLoop) {
@@ -827,7 +827,7 @@ $(function() {
       //   Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
       // }
     })
-    .on("endq-screening-room", (res) => {
+    .on("finish", (res) => {
       var t2 = $("#tb-calling").DataTable();
       var t3 = $("#tb-hold").DataTable();
       t2.rows().every(function(rowIdx, tableLoop, rowLoop) {
@@ -955,7 +955,7 @@ $form.on("beforeSubmit", function() {
                 success: function(res) {
                   if (res.status == 200) {
                     Queue.toastrSuccess("RECALL " + qcall.data.qnumber);
-                    socket.emit("call-screening-room", res); //sending data
+                    socket.emit("call", res); //sending data
                     resolve();
                   } else {
                     Queue.ajaxAlertWarning();
@@ -1005,7 +1005,7 @@ $form.on("beforeSubmit", function() {
                     Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียกใหม่
                     Queue.reloadTbHold(); //โหลดข้อมูลพักคิวใหม่
                     Queue.toastrSuccess("CALL " + qcall.data.qnumber);
-                    socket.emit("call-screening-room", res); //sending data
+                    socket.emit("call", res); //sending data
                     resolve();
                   } else {
                     //error
@@ -1062,7 +1062,7 @@ $form.on("beforeSubmit", function() {
                     Queue.reloadTbCalling(); //โหลดข้อมูลกำลัวเรียกใหม่
                     Queue.toastrSuccess("CALL " + qcall.data.qnumber);
                     //$("html, body").animate({ scrollTop: 0 }, "slow");
-                    socket.emit("call-screening-room", res); //sending data
+                    socket.emit("call", res); //sending data
                     if (value == 0) {
                       setTimeout(function() {
                         var tr = $("#tb-calling tr#" + res.model.caller_ids),
@@ -1082,7 +1082,7 @@ $form.on("beforeSubmit", function() {
                             if (res.status == "200") {
                               Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                               Queue.toastrSuccess("END " + data.qnumber);
-                              socket.emit("endq-screening-room", res); //sending data
+                              socket.emit("finish", res); //sending data
                               resolve();
                             } else {
                               Queue.ajaxAlertWarning();
@@ -1166,7 +1166,7 @@ $("a.activity-callnext").on("click", function(e) {
                   Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                   Queue.toastrSuccess("CALL " + data[0].qnumber);
                   //$("html, body").animate({ scrollTop: 0 }, "slow");
-                  socket.emit("call-screening-room", res); //sending data
+                  socket.emit("call", res); //sending data
                   if (value == 0) {
                     setTimeout(function() {
                       var tr = $("#tb-calling tr#" + res.model.caller_ids),
@@ -1186,7 +1186,7 @@ $("a.activity-callnext").on("click", function(e) {
                           if (res.status == "200") {
                             Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
                             Queue.toastrSuccess("END " + data.qnumber);
-                            socket.emit("endq-screening-room", res); //sending data
+                            socket.emit("finish", res); //sending data
                             resolve();
                           } else {
                             Queue.ajaxAlertWarning();
@@ -1407,7 +1407,7 @@ $("button.on-call-selected").on("click", function(e) {
                   console.log(data);
                   setTimeout(function() {
                     Queue.toastrSuccess("CALL " + data.data.qnumber);
-                    socket.emit("call-screening-room", data); //sending data
+                    socket.emit("call", data); //sending data
                   }, timer);
                   timer = timer + 1500;
                 });
@@ -1417,7 +1417,7 @@ $("button.on-call-selected").on("click", function(e) {
                     console.log(data);
                     setTimeout(function() {
                       Queue.toastrSuccess("END " + data.data.qnumber);
-                      socket.emit("endq-screening-room", data); //sending data
+                      socket.emit("finish", data); //sending data
                     }, timer2);
                     timer2 = timer2 + 1500;
                   });

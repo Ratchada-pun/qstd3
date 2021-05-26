@@ -162,6 +162,7 @@ return [
             'showScriptName' => false,
             'rules' => [
                 'dashboard' => 'site/index',
+                'displaylist' => 'app/display/data-display',
             ],
         ],
         'view' => [

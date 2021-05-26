@@ -219,31 +219,23 @@ echo Datatables::widget([
     'select2' => true,
     'clientOptions' => [
         'ajax' => [
-            'url' => Url::to(['/app/display/data-display', 'id' => $config['display_ids']]) ,
+            'url' => Url::to(['/displaylist', 'id' => $config['display_ids']]) ,
             // 'data' => [
             //     'config' => $config
             // ],
-            // 'type' => 'POST'
+            'type' => 'GET'
         ],
         "dom" => "t",
-        "language" => array_merge(Yii::$app->params['dtLanguage'], [
-            "search" => "_INPUT_ ",
-            "emptyTable" => "-",
-        ]),
+        // "language" => array_merge(Yii::$app->params['dtLanguage'], [
+        //     "search" => "_INPUT_ ",
+        //     "emptyTable" => "-",
+        // ]),
         "pageLength" => empty($config['display_limit']) ? -1 : $config['display_limit'],
         "autoWidth" => false,
         "deferRender" => true,
         "ordering" => false,
         //"order" => [[ 2, "asc" ]],
         "info" => false,
-        "drawCallback" => new JsExpression('function(settings) {
-            var api = this.api();
-        }'),
-        'initComplete' => new JsExpression('
-            function () {
-                var api = this.api();
-            }
-        '),
         'columns' => [
             [
                 "data" => "q_num",
@@ -414,62 +406,21 @@ socket
 		}, 1000);
     }
 })
-.on('hold-screening-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-        Display.reloadHold();
-        Display.removeRow(res);
-        Display.addRows();
-	}
-})
-.on('endq-screening-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-        Display.reloadHold();
-        //Display.reloadDisplay2();
-        Display.removeRow(res);
-        Display.addRows();
-	}
-})
-.on('hold-examination-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-		Display.reloadHold();
-        Display.removeRow(res);
-        Display.addRows();
-	}
-})
-.on('endq-examination-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-        Display.reloadHold();
-        //Display.reloadDisplay2();
-        Display.removeRow(res);
-        Display.addRows();
-	}
-})
-.on('hold-blooddrill-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-		Display.reloadHold();
-        Display.removeRow(res);
-        Display.addRows();
-	}
-})
-.on('endq-blooddrill-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-        Display.reloadHold();
+.on('hold', (res) => {
+    console.log(res)
+	if( jQuery.inArray((res.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
+        Display.reloadDisplay();
         Display.reloadDisplay2();
-        Display.removeRow(res);
-        Display.addRows();
-	}
-})
-.on('hold-medicine-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
 		Display.reloadHold();
         Display.removeRow(res);
         Display.addRows();
 	}
 })
-.on('endq-medicine-room', (res) => {
-	if( jQuery.inArray((res.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-        Display.reloadHold();
-        //Display.reloadDisplay2();
+.on('finish', (res) => {
+	if( jQuery.inArray((res.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
+        Display.reloadDisplay();
+        Display.reloadDisplay2();
+		Display.reloadHold();
         Display.removeRow(res);
         Display.addRows();
 	}
@@ -511,7 +462,7 @@ Display = {
         dt_tabledisplay.row( '#' + res.data.caller_ids ).remove().draw();
     },
     checkService: function(res){
-        if( jQuery.inArray((res.artist.data.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.artist.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
+        if( jQuery.inArray((res.artist.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.artist.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
             return true;
         }else{
             return false;
