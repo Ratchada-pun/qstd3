@@ -323,7 +323,11 @@ $("#jplayer_inspector").jPlayerInspector({jPlayer:$(jPlayerid)});
 //Socket Event
 socket
 .on('call', (res) => {
+    console.log(res)
+    
     var counters = model.counterserviceid ? (model.counterserviceid).split(',') : [];
+    console.log(jQuery.inArray(parseInt(res.counter.counterserviceid), counters))
+    console.log(counters)
     if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
         Queue.addMedia(res);
     }
