@@ -1,13 +1,19 @@
 require("dotenv").config();
 var app = require("express")();
+var cors = require('cors')
 var server = require("http").Server(app);
 var io = require("socket.io")(server, {
-  allowEIO3: true
+  allowEIO3: true,
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
 });
 var port = process.env.PORT || 3000;
 var bodyParser = require("body-parser");
 const ioclient = require("socket.io-client");
-const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
+//const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
+const socketclient = ioclient("http://q.chainathospital.org", { path: "/socket.io" });
 
 socketclient
   .on("connect", () => {
@@ -20,7 +26,7 @@ socketclient
 // require the module
 
 var multiparty = require("multiparty");
-
+app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json());
@@ -108,6 +114,19 @@ io.on("connection", function(socket) {
   //Display
   socket.on("display", function(res) {
     socket.broadcast.emit("display", res);
+  });
+
+  socket.on("call", function(res) {
+    socket.broadcast.emit("call", res);
+  });
+  socket.on("recall", function(res) {
+    socket.broadcast.emit("recall", res);
+  });
+  socket.on("hold", function(res) {
+    socket.broadcast.emit("hold", res);
+  });
+  socket.on("finish", function(res) {
+    socket.broadcast.emit("finish", res);
   });
 
   app.post("/api/save-profile", function(req, res) {
