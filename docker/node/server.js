@@ -12,8 +12,7 @@ var io = require("socket.io")(server, {
 var port = process.env.PORT || 3000;
 var bodyParser = require("body-parser");
 const ioclient = require("socket.io-client");
-//const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
-const socketclient = ioclient("http://q.chainathospital.org", { path: "/socket.io" });
+const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
 
 socketclient
   .on("connect", () => {
