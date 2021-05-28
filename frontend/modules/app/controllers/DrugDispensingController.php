@@ -480,6 +480,7 @@ class DrugDispensingController extends Controller
                 $model->dispensing_status_id = 2;
                 $model->dispensing_date = Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s');
                 $model->dispensing_by = Yii::$app->user->identity->id;
+                $model->note;
             }
 
             /*
@@ -593,7 +594,7 @@ class DrugDispensingController extends Controller
             ->send();
         $query =  [];
         if ($response->isOk) {
-            $query = Json::encode($response->data['data']);
+            $query = Json::encode(ArrayHelper::getValue($response->data,'data',['']));
         }
 
         $dataProvider = new ArrayDataProvider([
@@ -667,6 +668,7 @@ class DrugDispensingController extends Controller
                 'pagination' => [
                     'pageSize' => false,
                 ],
+
                 'key' => 'rx_operator_id'
             ]);
             $columns = Yii::createObject([

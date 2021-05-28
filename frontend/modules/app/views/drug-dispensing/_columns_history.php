@@ -42,6 +42,7 @@ use kartik\select2\Select2;
         'ajax' => [
             'url' => Url::base(true) . '/app/drug-dispensing/data-drug-history'
         ],
+        "order" => [[ 1, 'desc' ]],
         "dom" => "<'pull-left'f><'pull-right'l>t<'pull-left'i>p",
         "language" => array_merge(Yii::$app->params['dtLanguage'], [
             "search" => "_INPUT_ ",
