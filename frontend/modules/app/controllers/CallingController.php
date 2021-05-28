@@ -289,6 +289,7 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
                     'tb_quequ.q_vn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service_status.service_status_name',
@@ -338,6 +339,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -431,6 +435,7 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.call_timestp',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
@@ -486,6 +491,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -591,6 +599,7 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.call_timestp',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
@@ -646,6 +655,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -975,6 +987,7 @@ class CallingController extends \yii\web\Controller
                     'tb_qtrans.service_status_id',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.q_vn',
                     'tb_quequ.pt_name',
                     'tb_counterservice.counterservice_name',
@@ -1022,9 +1035,12 @@ class CallingController extends \yii\web\Controller
                         },
                         'format' => 'raw'
                     ],
-                    // [
-                    //     'attribute' => 'q_hn',
-                    // ],
+                    [
+                        'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
+                    ],
                     [
                         'attribute' => 'pt_name',
                     ],
@@ -1427,6 +1443,7 @@ class CallingController extends \yii\web\Controller
                     'tb_qtrans.service_status_id',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.q_vn as VN',
                     'tb_quequ.pt_visit_type_id',
                     'tb_quequ.pt_name',
@@ -1479,6 +1496,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'VN',
@@ -1620,6 +1640,7 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.q_num',
                     'tb_quequ.q_vn as VN',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
@@ -1669,6 +1690,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'VN',
@@ -2019,6 +2043,7 @@ class CallingController extends \yii\web\Controller
                     'tb_qtrans.service_status_id',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service_status.service_status_name',
@@ -2071,6 +2096,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -2160,6 +2188,7 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.call_timestp',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
@@ -2208,6 +2237,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'pt_name',
@@ -2305,6 +2337,7 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.call_timestp',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
@@ -2352,6 +2385,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'pt_name',

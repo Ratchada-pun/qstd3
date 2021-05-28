@@ -312,7 +312,7 @@ if ($action == 'index') {
                 var rows = api.rows( {page:"current"} ).nodes();
                 var columns = api.columns().nodes();
                 var last=null;
-                api.column(3, {page:"current"} ).data().each( function ( group, i ) {
+                api.column(6, {page:"current"} ).data().each( function ( group, i ) {
                     var data = api.rows(i).data();
                     if ( last !== group ) {
                         if(data[0].quickly == "1"){
@@ -360,13 +360,16 @@ if ($action == 'index') {
                 }')],
                 ["data" => "checkbox", "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
+                ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
+                ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อ"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
                 ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"]
             ],
             "columnDefs" => [
                 [
-                    "targets" => [3, 4],
+                    "targets" => [3,4,6,7],
                     "visible" => false
                 ]
             ],
@@ -449,6 +452,9 @@ if ($action == 'index') {
             'columns' => [
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
+                ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
+                ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อ"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ"],
                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
@@ -456,7 +462,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 4],
+                    "targets" => [2,3,5,7],
                     "visible" => false
                 ]
             ],
@@ -539,6 +545,9 @@ if ($action == 'index') {
             'columns' => [
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
+                ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
+                ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อ"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ"],
                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
@@ -546,7 +555,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 4],
+                    "targets" => [2,3,5,7],
                     "visible" => false
                 ]
             ],
@@ -686,6 +695,7 @@ if ($action == 'index') {
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
                 ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
                 ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง","visible" => false],
@@ -695,12 +705,12 @@ if ($action == 'index') {
                // ["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
                 ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ", "responsivePriority" => 1]
             ],
-            // "columnDefs" => [
-            //     [
-            //         "targets" => [2, 3, 4, 7, 8, 9],
-            //         "visible" => false
-            //     ]
-            // ],
+            "columnDefs" => [
+                [
+                    "targets" => [2,3,4,6,7,8,9],
+                    "visible" => false
+                ]
+            ],
             "buttons" => [
                 [
                     'extend' => 'colvis',
@@ -744,7 +754,7 @@ if ($action == 'index') {
             //"searching" => false,
             "searchHighlight" => true,
             "responsive" => true,
-            "order" => [[8, 'asc']],
+            "order" => [[9, 'asc']],
             "drawCallback" => new JsExpression ('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
@@ -775,6 +785,7 @@ if ($action == 'index') {
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
                 ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
                 ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ"],
@@ -786,7 +797,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [3,6,7,8],
+                    "targets" => [2,3,6,7,8,9],
                     "visible" => false
                 ]
             ],
@@ -833,7 +844,7 @@ if ($action == 'index') {
             //"searching" => false,
             "searchHighlight" => true,
             "responsive" => true,
-            "order" => [[8, 'asc']],
+            "order" => [[9, 'asc']],
             "drawCallback" => new JsExpression ('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
@@ -864,6 +875,7 @@ if ($action == 'index') {
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
                 ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
                 ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ"],
@@ -875,7 +887,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [3,6,7,8],
+                    "targets" => [2,3,6,7,8,9],
                     "visible" => false
                 ]
             ],
@@ -954,6 +966,7 @@ if ($action == 'index') {
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
                 ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
                 ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง"],
@@ -965,7 +978,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 3, 4, 7, 8, 9],
+                    "targets" => [2, 4,5, 7, 8, 9],
                     "visible" => false
                 ]
             ],
@@ -1043,6 +1056,7 @@ if ($action == 'index') {
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
                 ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
                 ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ"],
@@ -1054,7 +1068,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 3, 4, 7, 8, 9],
+                    "targets" => [2, 4, 5, 7, 8, 9],
                     "visible" => false
                 ]
             ],
@@ -1132,6 +1146,7 @@ if ($action == 'index') {
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-money\"></i> คิว"],
                 ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN"],
+                ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
                 ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ"],
@@ -1143,7 +1158,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 3, 4, 7, 8, 9],
+                    "targets" => [2, 4, 5,7, 8, 9],
                     "visible" => false
                 ]
             ],

@@ -261,7 +261,7 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-xs-12 col-sm-12 col-md-4" style="">
+                                <div class="col-xs-12 col-sm-12 col-md-4">
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <div class="clast-queue">
