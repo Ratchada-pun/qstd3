@@ -41,7 +41,7 @@ class TbDrugDispensingSearch extends TbDrugDispensing
      */
     public function search($params)
     {
-        $query = TbDrugDispensing::find();
+        $query = TbDrugDispensing::find()->orderBy('dispensing_id DESC');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
