@@ -22,6 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 [
                     'columns' => [
                         ['content' => '#', 'options' => []],
+                        ['content' => 'id', 'options' => []],
                         ['content' => 'ชื่อร้ายขายยา', 'options' => []],
                         ['content' => 'ที่อยู่', 'options' => []],
                         ['content' => 'วันที่สร้างรายการ', 'options' => []],
@@ -49,6 +50,7 @@ $this->params['breadcrumbs'][] = $this->title;
             "search" => "_INPUT_ " . Html::a(Icon::show('plus').' เพิ่มรายการ', ['drug-dispensing/create-pharmacy'],['class' => 'btn btn-success','role' => 'modal-remote']),
             "searchPlaceholder" => "ค้นหา..."
         ]),
+        "order" => [[ 1, 'desc' ]],
         "pageLength" => 50,
         "lengthMenu" => [[10, 25, 50, 75, 100], [10, 25, 50, 75, 100]],
         "autoWidth" => false,
@@ -62,6 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
         '),
         'columns' => [
             ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
+            ["data" => "pharmacy_drug_id", "className" => "dt-body-left dt-head-nowrap", "title" => "id","visible" => false],
             ["data" => "pharmacy_drug_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อร้านขายา"],
             ["data" => "pharmacy_drug_address", "className" => "dt-body-left dt-head-nowrap", "title" => "ที่อยู่"],
             ["data" => "pharmacy_drug_date_create", "className" => "dt-body-left dt-head-nowrap", "title" => "วันที่สร้าง"],

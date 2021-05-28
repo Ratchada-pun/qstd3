@@ -833,9 +833,7 @@ class DrugDispensingController extends Controller
             'pagination' => [
                 'pageSize' => false,
             ],
-            'sort' => [
-                'attributes' => ['pharmacy_drug_id'],
-            ],
+            
             'key' => 'pharmacy_drug_id'
         ]);
         $columns = Yii::createObject([
@@ -843,6 +841,9 @@ class DrugDispensingController extends Controller
             'dataProvider' => $dataProvider,
             'formatter' => Yii::$app->getFormatter(),
             'columns' => [
+                [
+                    'attribute' => 'pharmacy_drug_id',
+                ],
                 [
                     'attribute' => 'pharmacy_drug_name',
                 ],
@@ -1393,8 +1394,8 @@ class DrugDispensingController extends Controller
                 'doctor_name' => $doctor_name,
                 'prescription_date' => $prescription_date,
                 'dispensing_status_id' => $dispensing_status_id, //สถานะ
-                'dept_code' => $dept_code, //สถานะ
-                'deptname' => $deptname, //สถานะ
+                'dept_code' => $dept_code, //รหัสแผนก
+                'deptname' => $deptname, //ชื่อแผนก
             ]);
 
             if ($modelDrug->save()) {
