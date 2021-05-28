@@ -344,7 +344,7 @@ class DrugDispensingController extends Controller
                 ->from('tb_drug_dispensing')
                 ->leftJoin('tb_dispensing_status', 'tb_dispensing_status.dispensing_status_id = tb_drug_dispensing.dispensing_status_id')
                 ->where(['tb_drug_dispensing.dispensing_status_id' => 1])
-                ->orderBy('tb_drug_dispensing.dispensing_id ASC');
+                ->orderBy('tb_drug_dispensing.dispensing_id DESC');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -660,7 +660,7 @@ class DrugDispensingController extends Controller
                 ->from('tb_drug_dispensing')
                 ->leftJoin('tb_dispensing_status', 'tb_dispensing_status.dispensing_status_id = tb_drug_dispensing.dispensing_status_id')
                 ->where(['tb_drug_dispensing.dispensing_status_id' => [2, 3]])
-                ->orderBy('tb_drug_dispensing.dispensing_id ASC');
+                ->orderBy('tb_drug_dispensing.dispensing_id DESC');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
@@ -833,6 +833,9 @@ class DrugDispensingController extends Controller
             'pagination' => [
                 'pageSize' => false,
             ],
+            'sort' => [
+                'attributes' => ['pharmacy_drug_id'],
+            ],
             'key' => 'pharmacy_drug_id'
         ]);
         $columns = Yii::createObject([
@@ -905,6 +908,9 @@ class DrugDispensingController extends Controller
             'allModels' => $query,
             'pagination' => [
                 'pageSize' => false,
+            ],
+            'sort' => [
+                'attributes' => ['personal_drug_id'],
             ],
             'key' => 'hn'
         ]);
