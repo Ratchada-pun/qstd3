@@ -105,6 +105,17 @@ services:
       - db
     networks:
       - backend  
+  
+  kiosk:
+    build: ./chainatweb
+    container_name: lemp_kiosk
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - backend  
 
 networks:
   frontend:

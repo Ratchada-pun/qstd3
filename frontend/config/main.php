@@ -127,7 +127,7 @@ return [
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',
-            'baseUrl' => $baseUrl,
+            'baseUrl' => '',
         ],
         'user' => [
             'identityClass' => 'homer\user\models\User',
