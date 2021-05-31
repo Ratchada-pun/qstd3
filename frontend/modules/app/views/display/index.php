@@ -407,7 +407,6 @@ socket
     }
 })
 .on('hold', (res) => {
-    console.log(res)
 	if( jQuery.inArray((res.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
         Display.reloadDisplay();
         Display.reloadDisplay2();
