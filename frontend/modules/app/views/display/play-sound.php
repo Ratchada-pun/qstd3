@@ -316,6 +316,12 @@ var myPlaylist = new jPlayerPlaylist({
         var data = myPlaylist.playlist[current];
         if(data.wav.indexOf("please.wav") >= 0){
             
+            Display.reloadDisplay();
+            Display.reloadDisplay2();
+            Display.reloadHold();
+            setTimeout(function(){
+                Display.blink(data);
+            }, 1000);
             // socket.emit('display', data);//sending data
             //toastr.success(' ' + data.title, 'Calling!', {timeOut: 5000,positionClass: "toast-top-right"});
         }
@@ -398,13 +404,13 @@ socket
         var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
         if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
             if(jQuery.inArray((res.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
-                Display.reloadDisplay();
-                Display.reloadDisplay2();
-                Display.reloadHold();
+                // Display.reloadDisplay();
+                // Display.reloadDisplay2();
+                // Display.reloadHold();
                 
                 setTimeout(function(){
                     Queue.addMedia(res);
-                    Display.blink({title: res.modelQueue.q_num});
+                   
                 }, 1000);
             }
         }
