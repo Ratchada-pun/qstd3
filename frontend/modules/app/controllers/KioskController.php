@@ -703,7 +703,7 @@ class KioskController extends \yii\web\Controller
         $patient_info = $params['patient_info']; // ข้อมูลผู้ป่วย pt_name,hn,cid
         $right = $params['right']; //สิทธิ์
         $appoint = ArrayHelper::getValue($params, 'appoint', null); //ข้อมูลนัด
-        $data_visit = ArrayHelper::getValue($patient_info, 'data_visit', []); //ข้อมูลนัด
+        $data_visit = ArrayHelper::getValue($patient_info, 'data_visit', null); //ข้อมูลนัด
 
         $pt_name = ArrayHelper::getValue($patient_info, 'pt_name', null);
         $hn = ArrayHelper::getValue($patient_info, 'hn', null);
@@ -734,11 +734,14 @@ class KioskController extends \yii\web\Controller
         if ($modelServiceGroup == null) {
             throw new NotFoundHttpException('ไม่พบข้อมูลกลุ่มแผนก.');
         }
-        $map_data_visit_qn = ArrayHelper::map($data_visit, 'main_dep', 'qn'); // {010: 2, 020:5}
-        $map_data_visit_vn = ArrayHelper::map($data_visit, 'main_dep', 'vn');
-
-        $qn = ArrayHelper::getValue($map_data_visit_qn, $modelService['main_dep'], null);
-        $vn = ArrayHelper::getValue($map_data_visit_vn, $modelService['main_dep'], null);
+        $qn =  null;
+        $vn = null;
+        if (is_array($data_visit)) {
+            $map_data_visit_qn = ArrayHelper::map($data_visit, 'main_dep', 'qn'); // {010: 2, 020:5}
+            $map_data_visit_vn = ArrayHelper::map($data_visit, 'main_dep', 'vn');
+            $qn = ArrayHelper::getValue($map_data_visit_qn, $modelService['main_dep'], null);
+            $vn = ArrayHelper::getValue($map_data_visit_vn, $modelService['main_dep'], null);
+        }
         // if (is_array($data_visit) && !empty($data_visit) && $data_visit != null) {
         //     $visit = array_filter($data_visit, function ($v, $k) use ($modelService) {
         //         return $v['main_dep'] == $modelService['main_dep'];
