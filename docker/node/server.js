@@ -1,18 +1,26 @@
 require("dotenv").config();
 var app = require("express")();
-var cors = require('cors')
+var cors = require("cors");
 var server = require("http").Server(app);
 var io = require("socket.io")(server, {
   allowEIO3: true,
   cors: {
     origin: "*",
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+  },
 });
 var port = process.env.PORT || 3000;
 var bodyParser = require("body-parser");
 const ioclient = require("socket.io-client");
-const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
+const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
+const admin = require("firebase-admin");
+
+var serviceAccount = require("./chainathos-ef609-firebase-adminsdk-r7eqo-3cfdbddd2d.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://chainathos-ef609-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
 //const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
 
 socketclient
@@ -26,7 +34,7 @@ socketclient
 // require the module
 
 var multiparty = require("multiparty");
-app.use(cors())
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json());
@@ -51,12 +59,21 @@ app.use("/api", indexRouter);
 app.use("/api/calling", callingRouter);
 app.use("/api/dispensing", dispensingRouter);
 
+app.post("/api/send-message", async function(req, res) {
+  try {
+    await admin.messaging().send(req.body.message);
+
+    res.status(200).send({ message: "Successfully sent message." });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 const getClientIp = (socket) => {
   return socket.handshake.headers["x-forwarded-for"]
     ? socket.handshake.headers["x-forwarded-for"].split(/\s*,\s*/)[0]
-    : socket.request.connection.remoteAddress
-}
-
+    : socket.request.connection.remoteAddress;
+};
 
 const EVENTS = {
   PCSC_INITIAL: "PCSC_INITIAL",
@@ -75,7 +92,7 @@ const EVENTS = {
   READING_PROGRESS: "READING_PROGRESS",
   READING_COMPLETE: "READING_COMPLETE",
   READING_FAIL: "READING_FAIL",
-}
+};
 
 //connection
 io.on("connection", function(socket) {
@@ -156,51 +173,51 @@ io.on("connection", function(socket) {
   });
 
   socket.on("get ip", (clientId) => {
-    socket.emit("ip", { ip: getClientIp(socket), clientId: clientId })
-  })
+    socket.emit("ip", { ip: getClientIp(socket), clientId: clientId });
+  });
 
   socket.on("join-room", (config) => {
-    const roomId = getClientIp(socket)
+    const roomId = getClientIp(socket);
 
-    socket.join(roomId)
-    socket.broadcast.to(roomId).emit("user-connected", config)
+    socket.join(roomId);
+    socket.broadcast.to(roomId).emit("user-connected", config);
 
     socket.on("message", (message) => {
-      io.to(roomId).emit("createMessage", message, config)
-    })
+      io.to(roomId).emit("createMessage", message, config);
+    });
 
     socket.on(EVENTS.DEVICE_CONNECTED, (data) => {
-      io.to(roomId).emit(EVENTS.DEVICE_CONNECTED, config)
-    })
+      io.to(roomId).emit(EVENTS.DEVICE_CONNECTED, config);
+    });
 
     socket.on(EVENTS.DEVICE_DISCONNECTED, (data) => {
-      io.to(roomId).emit(EVENTS.DEVICE_DISCONNECTED, config)
-    })
+      io.to(roomId).emit(EVENTS.DEVICE_DISCONNECTED, config);
+    });
 
     socket.on(EVENTS.CARD_INSERTED, (data) => {
-      io.to(roomId).emit(EVENTS.CARD_INSERTED, config)
-    })
+      io.to(roomId).emit(EVENTS.CARD_INSERTED, config);
+    });
 
     socket.on(EVENTS.CARD_REMOVED, (data) => {
-      io.to(roomId).emit(EVENTS.CARD_REMOVED, config)
-    })
+      io.to(roomId).emit(EVENTS.CARD_REMOVED, config);
+    });
 
     socket.on(EVENTS.READING_START, (data) => {
-      io.to(roomId).emit(EVENTS.READING_START, config)
-    })
+      io.to(roomId).emit(EVENTS.READING_START, config);
+    });
 
     socket.on(EVENTS.READING_COMPLETE, (data) => {
-      io.to(roomId).emit(EVENTS.READING_COMPLETE, data, config)
-    })
+      io.to(roomId).emit(EVENTS.READING_COMPLETE, data, config);
+    });
 
     socket.on(EVENTS.READING_FAIL, (data) => {
-      io.to(roomId).emit(EVENTS.READING_FAIL, config)
-    })
+      io.to(roomId).emit(EVENTS.READING_FAIL, config);
+    });
 
     socket.on("disconnect", () => {
-      socket.broadcast.to(roomId).emit("user-disconnected", config)
-    })
-  })
+      socket.broadcast.to(roomId).emit("user-disconnected", config);
+    });
+  });
 
   app.post("/api/save-profile", function(req, res) {
     if (!req.body) return res.sendStatus(400);

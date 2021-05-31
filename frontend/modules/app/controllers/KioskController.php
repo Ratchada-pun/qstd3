@@ -723,6 +723,7 @@ class KioskController extends \yii\web\Controller
         $quickly = ArrayHelper::getValue($params, 'quickly', null); //ความด่วนของคิว
         $u_id = ArrayHelper::getValue($params, 'u_id', null); //รหัสผู้ใช้งาน Mobile
         $q_status_id = ArrayHelper::getValue($params, 'q_status_id', 1); //สถานะ
+        $token = ArrayHelper::getValue($params, 'token');  //รหัสแจ้งเตือน
 
         // data models
         $modelService = TbService::findOne($serviceid); // กลุ่มบริการ
@@ -773,6 +774,8 @@ class KioskController extends \yii\web\Controller
                 ]);
             } else {
                 $maininscl_name = $modelQueue['maininscl_name'];
+                $token = $modelQueue['token'];
+                $u_id = $modelQueue['u_id'];
                 $tslotid = $modelQueue['tslotid'];
                 $q_num = $modelQueue['q_num'];
             }
@@ -796,6 +799,7 @@ class KioskController extends \yii\web\Controller
                 'tslotid' => $tslotid,
                 'quickly' => 0, //ความด่วนของคิว default 0
                 'u_id' => $u_id, //รหัสผู้ใช้งาน Mobile
+                'token' => $token, //รหัสแจ้งเตือน
                 //'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6
             ]);
             $pt_pic = $this->uploadPicture($picture, $hn);
