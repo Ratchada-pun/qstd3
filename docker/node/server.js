@@ -12,7 +12,8 @@ var io = require("socket.io")(server, {
 var port = process.env.PORT || 3000;
 var bodyParser = require("body-parser");
 const ioclient = require("socket.io-client");
-const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
+const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
+//const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
 
 socketclient
   .on("connect", () => {
@@ -49,6 +50,32 @@ var dispensingRouter = require("./routes/dispensing");
 app.use("/api", indexRouter);
 app.use("/api/calling", callingRouter);
 app.use("/api/dispensing", dispensingRouter);
+
+const getClientIp = (socket) => {
+  return socket.handshake.headers["x-forwarded-for"]
+    ? socket.handshake.headers["x-forwarded-for"].split(/\s*,\s*/)[0]
+    : socket.request.connection.remoteAddress
+}
+
+
+const EVENTS = {
+  PCSC_INITIAL: "PCSC_INITIAL",
+  PCSC_CLOSE: "PCSC_CLOSE",
+
+  DEVICE_WAITING: "DEVICE_WAITING",
+  DEVICE_CONNECTED: "DEVICE_CONNECTED",
+  DEVICE_ERROR: "DEVICE_ERROR",
+  DEVICE_DISCONNECTED: "DEVICE_DISCONNECTED",
+
+  CARD_INSERTED: "CARD_INSERTED",
+  CARD_REMOVED: "CARD_REMOVED",
+
+  READING_INIT: "READING_INIT",
+  READING_START: "READING_START",
+  READING_PROGRESS: "READING_PROGRESS",
+  READING_COMPLETE: "READING_COMPLETE",
+  READING_FAIL: "READING_FAIL",
+}
 
 //connection
 io.on("connection", function(socket) {
@@ -127,6 +154,53 @@ io.on("connection", function(socket) {
   socket.on("finish", function(res) {
     socket.broadcast.emit("finish", res);
   });
+
+  socket.on("get ip", (clientId) => {
+    socket.emit("ip", { ip: getClientIp(socket), clientId: clientId })
+  })
+
+  socket.on("join-room", (config) => {
+    const roomId = getClientIp(socket)
+
+    socket.join(roomId)
+    socket.broadcast.to(roomId).emit("user-connected", config)
+
+    socket.on("message", (message) => {
+      io.to(roomId).emit("createMessage", message, config)
+    })
+
+    socket.on(EVENTS.DEVICE_CONNECTED, (data) => {
+      io.to(roomId).emit(EVENTS.DEVICE_CONNECTED, config)
+    })
+
+    socket.on(EVENTS.DEVICE_DISCONNECTED, (data) => {
+      io.to(roomId).emit(EVENTS.DEVICE_DISCONNECTED, config)
+    })
+
+    socket.on(EVENTS.CARD_INSERTED, (data) => {
+      io.to(roomId).emit(EVENTS.CARD_INSERTED, config)
+    })
+
+    socket.on(EVENTS.CARD_REMOVED, (data) => {
+      io.to(roomId).emit(EVENTS.CARD_REMOVED, config)
+    })
+
+    socket.on(EVENTS.READING_START, (data) => {
+      io.to(roomId).emit(EVENTS.READING_START, config)
+    })
+
+    socket.on(EVENTS.READING_COMPLETE, (data) => {
+      io.to(roomId).emit(EVENTS.READING_COMPLETE, data, config)
+    })
+
+    socket.on(EVENTS.READING_FAIL, (data) => {
+      io.to(roomId).emit(EVENTS.READING_FAIL, config)
+    })
+
+    socket.on("disconnect", () => {
+      socket.broadcast.to(roomId).emit("user-disconnected", config)
+    })
+  })
 
   app.post("/api/save-profile", function(req, res) {
     if (!req.body) return res.sendStatus(400);

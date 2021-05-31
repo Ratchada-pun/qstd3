@@ -22,6 +22,7 @@
         "axios": "^0.21.1",
         "body-parser": "^1.19.0",
         "bootstrap": "^3.4.1",
+        "cors": "^2.8.5",
         "dotenv": "^8.6.0",
         "express": "^4.17.1",
         "http-assert": "^1.4.1",
@@ -31,7 +32,7 @@
         "nodemon": "^1.19.4",
         "qs": "^6.10.1",
         "querystring": "^0.2.1",
-        "socket.io": "^3.1.0",
+        "socket.io": "^4.1.2",
         "socket.io-client": "^4.1.1"
     }
 }

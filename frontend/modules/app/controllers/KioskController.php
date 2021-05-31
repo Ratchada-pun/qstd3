@@ -465,7 +465,7 @@ class KioskController extends \yii\web\Controller
             '{q_vn}' => $model->q_vn,
             '{q_qn}' => $model->q_qn,
             '{rx_q}' => $model->rx_q,
-            '{pharmacy_drug_name}' => $modelDrugDispensing->pharmacy_drug_name, //ชื่อร้านขายยา
+            '{pharmacy_drug_name}' => ArrayHelper::getValue($modelDrugDispensing, 'pharmacy_drug_name', ''), //ชื่อร้านขายยา
             '{pt_visit_type}' => '',
             '{sec_name}' => '',
             '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i'),
@@ -687,9 +687,9 @@ class KioskController extends \yii\web\Controller
         if (!ArrayHelper::getValue($params, 'patient_info', null)) {
             throw new HttpException(400, 'invalid patient_info.');
         }
-        if (!ArrayHelper::getValue($params, 'right', null)) {
-            throw new HttpException(400, 'invalid right.');
-        }
+        // if (!ArrayHelper::getValue($params, 'right', null)) {
+        //     throw new HttpException(400, 'invalid right.');
+        // }
         if (!ArrayHelper::getValue($params, 'servicegroupid', null)) {
             throw new HttpException(400, 'invalid servicegroupid.');
         }
@@ -725,14 +725,14 @@ class KioskController extends \yii\web\Controller
         $q_status_id = ArrayHelper::getValue($params, 'q_status_id', 1); //สถานะ
 
         // data models
-		$modelService = TbService::findOne($serviceid); // กลุ่มบริการ
-		if ($modelService == null) {
-			throw new NotFoundHttpException('ไม่พบข้อมูลแผนก.');
-        } 
-		$modelServiceGroup = TbServicegroup::findOne($servicegroupid); // กลุ่มบริการ
-		if ($modelServiceGroup == null) {
-			throw new NotFoundHttpException('ไม่พบข้อมูลกลุ่มแผนก.');
-        } 
+        $modelService = TbService::findOne($serviceid); // กลุ่มบริการ
+        if ($modelService == null) {
+            throw new NotFoundHttpException('ไม่พบข้อมูลแผนก.');
+        }
+        $modelServiceGroup = TbServicegroup::findOne($servicegroupid); // กลุ่มบริการ
+        if ($modelServiceGroup == null) {
+            throw new NotFoundHttpException('ไม่พบข้อมูลกลุ่มแผนก.');
+        }
         $map_data_visit_qn = ArrayHelper::map($data_visit, 'main_dep', 'qn'); // {010: 2, 020:5}
         $map_data_visit_vn = ArrayHelper::map($data_visit, 'main_dep', 'vn');
 
@@ -772,6 +772,7 @@ class KioskController extends \yii\web\Controller
                     'service_numdigit' => $modelService['service_numdigit'],
                 ]);
             } else {
+                $maininscl_name = $modelQueue['maininscl_name'];
                 $tslotid = $modelQueue['tslotid'];
                 $q_num = $modelQueue['q_num'];
             }
@@ -803,9 +804,9 @@ class KioskController extends \yii\web\Controller
                 $modelQstatus = TbServiceStatus::findOne($modelQueue['q_status_id']);
                 $modelQtrans = TbQtrans::findOne(['q_ids' => $modelQueue->q_ids]);
                 $queue_left = (new \yii\db\Query()) //คิวรอ
-                ->select([
-                    'count(`tb_quequ`.`q_ids`) as `queue_left`',
-                ])
+                    ->select([
+                        'count(`tb_quequ`.`q_ids`) as `queue_left`',
+                    ])
                     ->from('`tb_quequ`')
                     ->where([
                         '`tb_quequ`.`serviceid`' => $serviceid,
@@ -852,9 +853,9 @@ class KioskController extends \yii\web\Controller
     private function getSlot($serviceid, $tslotid = [])
     {
         $query = (new \yii\db\Query()) //หา slot เวลาที่ต้องสร้างคิว
-        ->select([
-            'tb_service_tslot.*',
-        ])
+            ->select([
+                'tb_service_tslot.*',
+            ])
             ->from('tb_service_tslot')
             ->where(['tb_service_tslot.serviceid' => $serviceid]);
         if ($tslotid) {
@@ -1121,18 +1122,18 @@ class KioskController extends \yii\web\Controller
             throw new HttpException(400, 'invalid hn.');
         }
         $q_status = (new \yii\db\Query()) //สถานะคิว
-        ->select([
-            'q.q_ids AS q_ids',
-            'q.q_num AS q_num',
-            'q.q_hn AS q_hn',
-            'q.q_vn AS q_vn',
-            'q.q_qn AS q_qn',
-            'q.q_status_id AS q_status_id',
-            'q.serviceid AS serviceid',
-            'tb_servicegroup.servicegroup_name AS servicegroup_name',
-            'tb_deptcode.deptname AS deptname',
-            'tb_service_status.service_status_name AS service_status_name',
-            '(
+            ->select([
+                'q.q_ids AS q_ids',
+                'q.q_num AS q_num',
+                'q.q_hn AS q_hn',
+                'q.q_vn AS q_vn',
+                'q.q_qn AS q_qn',
+                'q.q_status_id AS q_status_id',
+                'q.serviceid AS serviceid',
+                'tb_servicegroup.servicegroup_name AS servicegroup_name',
+                'tb_deptcode.deptname AS deptname',
+                'tb_service_status.service_status_name AS service_status_name',
+                '(
 						SELECT
 							count( `tb_quequ`.`q_ids` )
 						FROM
@@ -1143,7 +1144,7 @@ class KioskController extends \yii\web\Controller
 							AND q_ids < q.q_ids
 							AND DATE( tb_quequ.q_timestp ) = CURRENT_DATE
 						) AS queue_left',
-        ])
+            ])
             ->from('tb_quequ as q')
             ->innerJoin('tb_service_status', 'q.q_status_id = tb_service_status.service_status_id')
             ->innerJoin('tb_service', 'q.serviceid = tb_service.serviceid')
@@ -1153,6 +1154,7 @@ class KioskController extends \yii\web\Controller
                 'q.q_hn' => $hn,
             ])
             ->andWhere('DATE( q.q_timestp ) = CURRENT_DATE')
+            ->orderBy('q.q_ids desc')
             ->all();
 
         if (!$q_status) {

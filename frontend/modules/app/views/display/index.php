@@ -240,13 +240,13 @@ echo Datatables::widget([
             [
                 "data" => "q_num",
                 "className" => "dt-center dt-head-nowrap th-left td-left",
-                // "title" => $config['table_title_left'],
+                "title" => $config['table_title_left'],
                 "orderable" => false
             ],
             [
                 "data" => "service_number",
                 "className" => "dt-body-center dt-head-nowrap th-right td-right vertical-align-middle",
-                // "title" => $config['table_title_right'],
+                 "title" => $config['table_title_right'],
                 "orderable" => false
             ],
             [
