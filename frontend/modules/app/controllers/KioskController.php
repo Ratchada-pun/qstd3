@@ -805,8 +805,11 @@ class KioskController extends \yii\web\Controller
                 'token' => $token, //รหัสแจ้งเตือน
                 //'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6
             ]);
-            $pt_pic = $this->uploadPicture($picture, $hn);
-            $modelQueue->pt_pic = $pt_pic;
+            if(!empty($picture)){
+                $pt_pic = $this->uploadPicture($picture, $hn);
+                $modelQueue->pt_pic = $pt_pic;
+            }
+            
             if ($modelQueue->save()) {
                 $modelQstatus = TbServiceStatus::findOne($modelQueue['q_status_id']);
                 $modelQtrans = TbQtrans::findOne(['q_ids' => $modelQueue->q_ids]);
