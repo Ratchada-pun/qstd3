@@ -1,6 +1,5 @@
-version: '3'
+version: "3"
 services:
-
   db:
     image: mariadb
     container_name: lemp_mariadb_demo
@@ -38,7 +37,6 @@ services:
     networks:
       - backend
 
-
   nginx:
     image: nginx:stable-alpine
     container_name: lemp_nginx_demo
@@ -57,14 +55,14 @@ services:
       - backend
       - frontend
 
-#memcached:
-        ##    image: memcached:latest
-        ##    container_name: lemp_memcached
-        ##    ports:
-        ##      - "11211:11211"
-        ##    volumes:
-      ##      - /etc/localtime:/etc/localtime:ro
-      ##    restart: always
+  #memcached:
+  ##    image: memcached:latest
+  ##    container_name: lemp_memcached
+  ##    ports:
+  ##      - "11211:11211"
+  ##    volumes:
+  ##      - /etc/localtime:/etc/localtime:ro
+  ##    restart: always
 
   redis:
     image: redis
@@ -104,18 +102,29 @@ services:
     links:
       - db
     networks:
-      - backend  
-  
-  kiosk:
-    build: ./chainatweb
-    container_name: lemp_kiosk
+      - backend
+
+  kioskregis:
+    build: ./chainatkioskregis
+    container_name: lemp_kioskregis
     restart: always
     ports:
       - "8080:8080"
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:
-      - backend  
+      - backend
+
+  kioskmed:
+    build: ./chainatkioskmed
+    container_name: lemp_kioskmed
+    restart: always
+    ports:
+      - "8081:8081"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - backend
 
 networks:
   frontend:
