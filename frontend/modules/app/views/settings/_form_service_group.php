@@ -35,8 +35,8 @@ CSS
             'placeholder' => 'ชื่อกลุ่มบริการ'
         ]); ?>
     </div>
-    <?= Html::activeLabel($model, 'servicegroup_order', ['label' => 'ลำดับ', 'class' => 'col-sm-1 control-label']) ?>
-    <div class="col-sm-4">
+    <?= Html::activeLabel($model, 'servicegroup_order', ['label' => 'ลำดับ', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-2">
         <?= $form->field($model, 'servicegroup_order', ['showLabels' => false])->textInput([
             'placeholder' => 'ลำดับ'
         ]); ?>
@@ -64,13 +64,50 @@ CSS
         );
         ?>
     </div>
-    <?= Html::activeLabel($model, 'servicegroup_clinic', ['label' => 'ประเภท', 'class' => 'col-sm-1 control-label']) ?>
+    <?= Html::activeLabel($model, 'servicegroup_clinic', ['label' => 'ประเภท', 'class' => 'col-sm-2 control-label']) ?>
     <div class="col-sm-4">
         <?= $form->field($model, 'servicegroup_clinic', ['showLabels' => false])->RadioList(
             [
-                1 => 'คลินิก',
-                0 => 'อื่นๆ'
+                'T' => 'คลินิก',
+                'F' => 'อื่นๆ'
             ],
+            [
+                'inline' => true,
+                'item' => function ($index, $label, $name, $checked, $value) {
+                    $return = '<div class="radio"><label style="font-size: 1em">';
+                    $return .= Html::radio($name, $checked, ['value' => $value]);
+                    $return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+                    $return .= '</label></div>';
+                    return $return;
+                }
+            ]
+        );
+        ?>
+    </div>
+</div>
+
+<div class="form-group">
+    <?= Html::activeLabel($model, 'show_on_kiosk', ['label' => 'แสดงบน kiosk', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'show_on_kiosk', ['showLabels' => false])->RadioList(
+            [0 => 'No', 1 => 'Yes'],
+            [
+                'inline' => true,
+                'item' => function ($index, $label, $name, $checked, $value) {
+                    $return = '<div class="radio"><label style="font-size: 1em">';
+                    $return .= Html::radio($name, $checked, ['value' => $value]);
+                    $return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+                    $return .= '</label></div>';
+                    return $return;
+                }
+            ]
+        );
+        ?>
+    </div>
+    <?= Html::activeLabel($model, 'show_on_mobile', ['label' => 'แสดงบน mobile', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'show_on_mobile', ['showLabels' => false])->RadioList(
+            [0 => 'No', 1 => 'Yes'],
             [
                 'inline' => true,
                 'item' => function ($index, $label, $name, $checked, $value) {
