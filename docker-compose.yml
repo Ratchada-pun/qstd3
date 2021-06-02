@@ -101,6 +101,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     links:
       - db
+      - redis
+    environment:
+      - NODE_ENV=production
     networks:
       - backend
 
