@@ -1,9 +1,12 @@
 <?php
+
+use frontend\modules\app\models\TbService;
 use kartik\widgets\DatePicker;
 use kartik\widgets\ActiveForm;
 use yii\helpers\Html;
 use kartik\grid\GridView;
 use homer\widgets\highcharts\Highcharts;
+use kartik\select2\Select2;
 use yii\bootstrap\Tabs;
 use yii\helpers\ArrayHelper;
 
@@ -41,7 +44,27 @@ echo $this->render('_tabs');
                     ]);
                     ?>
                 </div>
+
+            </div>
+            <div class="form-group">
+            <?= Html::label('เลือกแผนก', '', ['class' => 'col-sm-2 control-label']) ?>
                 <div class="col-sm-4">
+                    <?= Select2::widget([
+                        'name' => 'serviceid',
+                        'data' => ArrayHelper::map(TbService::find()->all(), 'serviceid' , 'service_name'),
+                        'value' => isset($_POST['serviceid']) ? $_POST['serviceid'] : null,
+                        'options' => [
+                            'placeholder' => 'เลือกแผนก ...',
+                        ],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ]);
+                    ?>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-6" style="text-align: right;">
                     <?= Html::a('Reset',['duration-summary'], ['class' => 'btn btn-danger']) ?>
                     <?= Html::submitButton('<i class="glyphicon glyphicon-import"></i> แสดงข้อมูล', ['class' => 'btn btn-primary']); ?>
                 </div>

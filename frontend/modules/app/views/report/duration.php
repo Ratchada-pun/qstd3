@@ -1,4 +1,6 @@
 <?php
+
+use frontend\modules\app\models\TbService;
 use kartik\widgets\DatePicker;
 use kartik\widgets\ActiveForm;
 use yii\helpers\Html;
@@ -6,6 +8,7 @@ use homer\widgets\highcharts\Highcharts;
 use yii\helpers\ArrayHelper;
 use yii\web\JsExpression;
 use kartik\grid\GridView;
+use kartik\select2\Select2;
 
 $this->title = 'รายงาน';
 ?>
@@ -15,30 +18,53 @@ echo $this->render('_tabs');
 <div class="tab-content">
     <div id="tab-2" class="tab-pane active">
         <div class="panel-body" style="background: #fff;">
-            <?php $form = ActiveForm::begin(['type'=>ActiveForm::TYPE_HORIZONTAL]); ?>
+            <?php $form = ActiveForm::begin(['type' => ActiveForm::TYPE_HORIZONTAL]); ?>
             <div class="form-group">
-                <?= Html::label('เลือกวันที่', '',[ 'class'=>'col-sm-2 control-label']) ?>
-                <div class="col-sm-4">
+                <?= Html::label('เลือกวันที่', '', ['class' => 'col-sm-2 control-label']) ?>
+                <div class="col-sm-3">
                     <?php
                     $value = isset($_POST['from_date']) ? $_POST['from_date'] : date('Y-m-d');
                     echo DatePicker::widget([
-                        'name' => 'from_date', 
+                        'name' => 'from_date',
                         'value' => $value,
-                        'options' => ['placeholder' => 'Select date ...','autocomplete' =>'off','readonly' => true],
+                        'options' => ['placeholder' => 'Select date ...', 'autocomplete' => 'off', 'readonly' => true],
                         'pluginOptions' => [
                             'format' => 'yyyy-mm-dd',
                             'todayHighlight' => true,
-                            'autoclose'=>true,
-                        ]
+                            'autoclose' => true,
+                        ],
+                        'options' => [
+                            'placeholder' => 'เลือกวันที่ ...',
+                        ],
                     ]);
                     ?>
                 </div>
-                <div class="col-sm-4">
-                    <?= Html::a('Reset',['duration'], ['class' => 'btn btn-danger']) ?>
+
+                <?= Html::label('เลือกแผนก', '', ['class' => 'col-sm-2 control-label']) ?>
+                <div class="col-sm-3">
+                    <?= Select2::widget([
+                        'name' => 'serviceid',
+                        'data' => ArrayHelper::map(TbService::find()->all(), 'serviceid' , 'service_name'),
+                        'value' => isset($_POST['serviceid']) ? $_POST['serviceid'] : null,
+                        'options' => [
+                            'placeholder' => 'เลือกแผนก ...',
+                        ],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ]);
+                    ?>
+                </div>
+
+                <div class="col-sm-2">
+                    <?= Html::a('Reset', ['duration'], ['class' => 'btn btn-danger']) ?>
                     <?= Html::submitButton('<i class="glyphicon glyphicon-import"></i> แสดงข้อมูล', ['class' => 'btn btn-primary']); ?>
                 </div>
             </div>
-            <?php ActiveForm::end();?>
+            <div class="form-group">
+               
+            </div>
+            <?php ActiveForm::end(); ?>
             <hr>
             <div class="row">
                 <div class="col-sm-12">
@@ -48,13 +74,13 @@ echo $this->render('_tabs');
                             "chart" => [
                                 "type" => 'column'
                             ],
-                            'title' => ['text' => 'กราฟแสดงจำนวนผู้ที่มาใช้บริการตามช่วงเวลา ('.Yii::$app->formatter->asDate($value, 'php:d/m/Y').')'],
+                            'title' => ['text' => 'กราฟแสดงจำนวนผู้ที่มาใช้บริการตามช่วงเวลา (' . Yii::$app->formatter->asDate($value, 'php:d/m/Y') . ')'],
                             // 'xAxis' => [
                             //     'categories' => $categories,
                             //     'crosshair' => true
                             // ],
                             'subtitle' => [
-                                'text' => 'จำนวนคิวทั้งหมด '.$total
+                                'text' => 'จำนวนคิวทั้งหมด ' . $total
                             ],
                             'xAxis' => [
                                 'type' => 'category'
@@ -62,7 +88,7 @@ echo $this->render('_tabs');
                             'yAxis' => [
                                 'min' => 0,
                                 'title' => [
-                                    'text' => 'จำนวน (ทั้งหมด '.$total.' คิว)'
+                                    'text' => 'จำนวน (ทั้งหมด ' . $total . ' คิว)'
                                 ]
                             ],
                             'tooltip' => [
@@ -116,129 +142,129 @@ echo $this->render('_tabs');
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                <?php
-                echo GridView::widget([
-                    'dataProvider'=> $dataProvider,
-                    'caption' => 'ตารางสรุปจำนวนผู้ที่มาใช้บริการตามช่วงเวลา ('.Yii::$app->formatter->asDate($value, 'php:d/m/Y').')',
-                    'toolbar' => [
-                        '{export}',
-                    ],
-                    'panel' => [
-                        'heading'=>false,
-                        'type'=>'success',
-                        'before'=>'',
-                        'after'=>'',
-                        'footer'=>false
-                    ],
-                    'columns' => [
-                        [
-                            'class' => '\kartik\grid\SerialColumn'
+                    <?php
+                    echo GridView::widget([
+                        'dataProvider' => $dataProvider,
+                        'caption' => 'ตารางสรุปจำนวนผู้ที่มาใช้บริการตามช่วงเวลา (' . Yii::$app->formatter->asDate($value, 'php:d/m/Y') . ')',
+                        'toolbar' => [
+                            '{export}',
                         ],
-                        [
-                            'header' => 'วันที่',
-                            'hAlign' => 'center',
-                            'value' => function($model, $key, $index) use ($value){
-                                return $value;
-                            },
-                            'noWrap' => true
+                        'panel' => [
+                            'heading' => false,
+                            'type' => 'success',
+                            'before' => '',
+                            'after' => '',
+                            'footer' => false
                         ],
-                        [
-                            'attribute' => 't_6',
-                            'header' => '06:00-07:00',
-                            'hAlign' => 'center',
+                        'columns' => [
+                            [
+                                'class' => '\kartik\grid\SerialColumn'
+                            ],
+                            [
+                                'header' => 'วันที่',
+                                'hAlign' => 'center',
+                                'value' => function ($model, $key, $index) use ($value) {
+                                    return $value;
+                                },
+                                'noWrap' => true
+                            ],
+                            [
+                                'attribute' => 't_6',
+                                'header' => '06:00-07:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_7',
+                                'header' => '07:00-08:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_8',
+                                'header' => '08:00-09:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_9',
+                                'header' => '09:00-10:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_10',
+                                'header' => '10:00-11:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_11',
+                                'header' => '11:00-12:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'class' => '\kartik\grid\FormulaColumn',
+                                'header' => 'ช่วงเช้า<br>06:00-12:00',
+                                'hAlign' => 'center',
+                                'value' => function ($model, $key, $index, $widget) {
+                                    $p = compact('model', 'key', 'index');
+                                    // Write your formula below
+                                    return $widget->col(2, $p) + $widget->col(3, $p) + $widget->col(4, $p) + $widget->col(5, $p) + $widget->col(6, $p) + $widget->col(7, $p);
+                                },
+                                'contentOptions' => ['style' => 'background-color:#ddd;'],
+                                'headerOptions' => ['style' => 'background-color:#ddd;'],
+                            ],
+                            [
+                                'attribute' => 't_12',
+                                'header' => '12:00-13:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_13',
+                                'header' => '13:00-14:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_14',
+                                'header' => '14:00-15:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_15',
+                                'header' => '15:00-16:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_16',
+                                'header' => '16:00-17:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'attribute' => 't_17',
+                                'header' => '17:00-18:00',
+                                'hAlign' => 'center',
+                            ],
+                            [
+                                'class' => '\kartik\grid\FormulaColumn',
+                                'header' => 'ช่วงบ่าย<br>12:00-18:00',
+                                'hAlign' => 'center',
+                                'value' => function ($model, $key, $index, $widget) {
+                                    $p = compact('model', 'key', 'index');
+                                    // Write your formula below
+                                    return $widget->col(9, $p) + $widget->col(10, $p) + $widget->col(11, $p) + $widget->col(12, $p) + $widget->col(13, $p) + $widget->col(14, $p);
+                                },
+                                'contentOptions' => ['style' => 'background-color:#ddd;'],
+                                'headerOptions' => ['style' => 'background-color:#ddd;'],
+                                'noWrap' => true
+                            ],
+                            [
+                                'header' => 'รวม',
+                                'hAlign' => 'center',
+                                'value' => function ($model, $key, $index) use ($total) {
+                                    return $total;
+                                },
+                            ],
                         ],
-                        [
-                            'attribute' => 't_7',
-                            'header' => '07:00-08:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_8',
-                            'header' => '08:00-09:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_9',
-                            'header' => '09:00-10:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_10',
-                            'header' => '10:00-11:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_11',
-                            'header' => '11:00-12:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'class' => '\kartik\grid\FormulaColumn',
-                            'header' => 'ช่วงเช้า<br>06:00-12:00',
-                            'hAlign' => 'center',
-                            'value' => function ($model, $key, $index, $widget) {
-                                $p = compact('model', 'key', 'index');
-                                // Write your formula below
-                                return $widget->col(2, $p) + $widget->col(3, $p) + $widget->col(4, $p) + $widget->col(5, $p) + $widget->col(6, $p)+ $widget->col(7, $p);
-                            },
-                            'contentOptions' => ['style' => 'background-color:#ddd;'],
-                            'headerOptions' => ['style' => 'background-color:#ddd;'],
-                        ],
-                        [
-                            'attribute' => 't_12',
-                            'header' => '12:00-13:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_13',
-                            'header' => '13:00-14:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_14',
-                            'header' => '14:00-15:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_15',
-                            'header' => '15:00-16:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_16',
-                            'header' => '16:00-17:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'attribute' => 't_17',
-                            'header' => '17:00-18:00',
-                            'hAlign' => 'center',
-                        ],
-                        [
-                            'class' => '\kartik\grid\FormulaColumn',
-                            'header' => 'ช่วงบ่าย<br>12:00-18:00',
-                            'hAlign' => 'center',
-                            'value' => function ($model, $key, $index, $widget) {
-                                $p = compact('model', 'key', 'index');
-                                // Write your formula below
-                                return $widget->col(9, $p) + $widget->col(10, $p) + $widget->col(11, $p) + $widget->col(12, $p) + $widget->col(13, $p)+ $widget->col(14, $p);
-                            },
-                            'contentOptions' => ['style' => 'background-color:#ddd;'],
-                            'headerOptions' => ['style' => 'background-color:#ddd;'],
-                            'noWrap' => true
-                        ],
-                        [
-                            'header' => 'รวม',
-                            'hAlign' => 'center',
-                            'value' => function($model, $key, $index) use ($total){
-                                return $total;
-                            },
-                        ],
-                    ],
-                    'responsive'=>true,
-                    'hover'=>true
-                ]);
-                ?>
+                        'responsive' => true,
+                        'hover' => true
+                    ]);
+                    ?>
                 </div>
             </div>
         </div>

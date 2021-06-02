@@ -36,12 +36,14 @@ echo $this->render('_tabs');
                     ]); ?>
                 </div>
             </div>
+            <?php /*
             <div class="form-group">
                 <?= Html::activeLabel($searchModel, 'pt_name', [ 'class'=>'col-sm-2 control-label']) ?>
                 <div class="col-sm-4">
                     <?= $form->field($searchModel, 'pt_name',['showLabels'=>false])->textInput(['placeholder'=>'']); ?>
                 </div>
             </div>
+            */?>
             <div class="form-group">
                 <?= Html::activeLabel($searchModel, 'q_hn', [ 'class'=>'col-sm-2 control-label']) ?>
                 <div class="col-sm-4">
@@ -85,7 +87,7 @@ echo $this->render('_tabs');
                     'group' => true,
                 ],
                 [
-                    'attribute' => 'checkin_date',
+                    'attribute' => 'q_timestp',
                     'group' => true,
                 ],
                 [

@@ -62,9 +62,9 @@ class ReportSearchModel extends Model
             'pt_name' => 'ชื่อ-นามสกุล',
             'q_hn' => 'HN',
             'qtrans_created_at' => '',
-            'caller_updated_at' => 'End Time',
+            'caller_updated_at' => 'เวลาสิ้นสุด',
             'caller_ids' => '',
-            'call_timestp' => 'Calling Time',
+            'call_timestp' => 'เวลาเรียก',
             't_hours' => '',
             't_minutes' => '',
             't_seconds' => '',
@@ -83,7 +83,8 @@ class ReportSearchModel extends Model
             'caller_updated_at2' => 'End Time',
             't_total'  => 'รวมเวลาที่ใช้บริการ',
             'service_name' => 'ชื่อบริการ',
-            'servicegroup_name' => 'กลุ่มบริการ'
+            'servicegroup_name' => 'กลุ่มบริการ',
+            'q_timestp' => 'เวลาเริ่มใช้บริการ'
         ];
     }
 
@@ -93,24 +94,25 @@ class ReportSearchModel extends Model
         $enddate = $this->enddate.' 23:59:59';
         $params1 = [':startdate' => $startdate, ':enddate' => $enddate];
         $sql1 = 'SELECT
-        tb_qtrans_data.ids,
-        tb_qtrans_data.q_ids,
-        tb_qtrans_data.checkin_date,
-        tb_qtrans_data.checkout_date,
-        tb_quequ_data.q_num,
-        tb_quequ_data.pt_name,
-        tb_quequ_data.q_hn,
-        tb_qtrans_data.created_at AS qtrans_created_at,
-        tb_caller_data.updated_at AS caller_updated_at,
-        tb_caller_data.caller_ids,
-        tb_caller_data.call_timestp,
-        MOD(HOUR(TIMEDIFF(tb_qtrans_data.created_at, tb_caller_data.updated_at)), 24) AS t_hours,
-        MINUTE(TIMEDIFF(tb_qtrans_data.created_at, tb_caller_data.updated_at)) AS t_minutes,
-        SECOND(TIMEDIFF(tb_qtrans_data.created_at, tb_caller_data.updated_at)) AS t_seconds,
+       tb_qtrans.ids,
+        tb_qtrans.q_ids,
+        tb_qtrans.checkin_date,
+        tb_qtrans.checkout_date,
+        tb_quequ.q_num,
+        tb_quequ.pt_name,
+        tb_quequ.q_hn,
+        tb_quequ.q_timestp,
+        tb_qtrans.created_at AS qtrans_created_at,
+        tb_caller.updated_at AS caller_updated_at,
+        tb_caller.caller_ids,
+        tb_caller.call_timestp,
+        MOD(HOUR(TIMEDIFF(tb_qtrans.created_at, tb_caller.updated_at)), 24) AS t_hours,
+        MINUTE(TIMEDIFF(tb_qtrans.created_at, tb_caller.updated_at)) AS t_minutes,
+        SECOND(TIMEDIFF(tb_qtrans.created_at, tb_caller.updated_at)) AS t_seconds,
         CONCAT(
-        MOD(HOUR(TIMEDIFF(tb_qtrans_data.created_at, tb_caller_data.updated_at)), 24), \' ชม. \',
-        MINUTE(TIMEDIFF(tb_qtrans_data.created_at, tb_caller_data.updated_at)), \' น. \',
-        SECOND(TIMEDIFF(tb_qtrans_data.created_at, tb_caller_data.updated_at)), \' วินาที\') AS t_waiting_to_finished,
+        MOD(HOUR(TIMEDIFF(tb_qtrans.created_at, tb_caller.updated_at)), 24), \' ชม. \',
+        MINUTE(TIMEDIFF(tb_qtrans.created_at, tb_caller.updated_at)), \' น. \',
+        SECOND(TIMEDIFF(tb_qtrans.created_at, tb_caller.updated_at)), \' วินาที\') AS t_waiting_to_finished,
         tb_service_status.service_status_name,
         tb_counterservice.counterservice_name,
         tb_counterservice_type.counterservice_type,
@@ -118,18 +120,18 @@ class ReportSearchModel extends Model
         tb_service.service_name,
         tb_servicegroup.servicegroup_name
         FROM
-        tb_qtrans_data
-        INNER JOIN tb_quequ_data ON tb_quequ_data.q_ids = tb_qtrans_data.q_ids
-        INNER JOIN tb_caller_data ON tb_caller_data.qtran_ids = tb_qtrans_data.ids
-        INNER JOIN tb_service_status ON tb_service_status.service_status_id = tb_qtrans_data.service_status_id
-        INNER JOIN tb_counterservice ON tb_counterservice.counterserviceid = tb_caller_data.counter_service_id
-        INNER JOIN tb_counterservice_type ON tb_counterservice.counterservice_type = tb_counterservice_type.counterservice_typeid
-        INNER JOIN tb_service ON tb_service.serviceid = tb_quequ_data.serviceid
-        INNER JOIN tb_servicegroup ON tb_service.service_groupid = tb_servicegroup.servicegroupid
+        tb_qtrans
+        LEFT JOIN tb_quequ ON tb_quequ.q_ids = tb_qtrans.q_ids
+        LEFT JOIN tb_caller ON tb_caller.qtran_ids = tb_qtrans.ids
+        LEFT JOIN tb_service_status ON tb_service_status.service_status_id = tb_qtrans.service_status_id
+        LEFT JOIN tb_counterservice ON tb_counterservice.counterserviceid = tb_caller.counter_service_id
+        LEFT JOIN tb_counterservice_type ON tb_counterservice.counterservice_type = tb_counterservice_type.counterservice_typeid
+        LEFT JOIN tb_service ON tb_service.serviceid = tb_quequ.serviceid
+        LEFT JOIN tb_servicegroup ON tb_service.service_groupid = tb_servicegroup.servicegroupid
         WHERE
-        (tb_qtrans_data.created_at BETWEEN :startdate AND :enddate) AND tb_quequ_data.pt_name <> \'\' AND tb_counterservice_type.counterservice_typeid = 5
+        (tb_qtrans.created_at BETWEEN :startdate AND :enddate) AND tb_quequ.pt_name <> \'\'
         ORDER BY
-        tb_quequ_data.q_ids ASC';
+        tb_quequ.q_ids ASC';
         $query1 = Yii::$app->db->createCommand($sql1)->bindValues($params1)->queryAll();
 
         $records = [];
@@ -150,35 +152,34 @@ class ReportSearchModel extends Model
                 $records[] = ArrayHelper::merge($data,$arr); */
             }else{
                 $sql = 'SELECT
-                tb_caller_data.ids,
-                tb_caller_data.caller_ids,
-                tb_caller_data.q_ids,
-                tb_caller_data.qtran_ids,
-                tb_caller_data.servicegroupid,
-                tb_caller_data.counter_service_id,
-                tb_caller_data.call_timestp,
-                tb_caller_data.created_by,
-                tb_caller_data.created_at,
-                tb_caller_data.updated_by,
-                tb_caller_data.updated_at,
-                tb_caller_data.call_status,
+                tb_caller.caller_ids,
+                tb_caller.q_ids,
+                tb_caller.qtran_ids,
+                tb_caller.servicegroupid,
+                tb_caller.counter_service_id,
+                tb_caller.call_timestp,
+                tb_caller.created_by,
+                tb_caller.created_at,
+                tb_caller.updated_by,
+                tb_caller.updated_at,
+                tb_caller.call_status,
                 tb_counterservice.counterservice_name,
                 tb_counterservice_type.counterservice_type,
-                tb_quequ_data.q_num,
+                tb_quequ.q_num,
                 tb_service.serviceid,
                 tb_service.service_name,
                 tb_servicegroup.servicegroup_name
                 FROM
-                tb_caller_data
-                INNER JOIN tb_counterservice ON tb_counterservice.counterserviceid = tb_caller_data.counter_service_id
-                INNER JOIN tb_counterservice_type ON tb_counterservice.counterservice_type = tb_counterservice_type.counterservice_typeid
-                INNER JOIN tb_quequ_data ON tb_quequ_data.q_ids = tb_caller_data.q_ids
-                INNER JOIN tb_service ON tb_service.serviceid = tb_quequ_data.serviceid
-                INNER JOIN tb_servicegroup ON tb_service.service_groupid = tb_servicegroup.servicegroupid
+                tb_caller
+                LEFT JOIN tb_counterservice ON tb_counterservice.counterserviceid = tb_caller.counter_service_id
+                LEFT JOIN tb_counterservice_type ON tb_counterservice.counterservice_type = tb_counterservice_type.counterservice_typeid
+                LEFT JOIN tb_quequ ON tb_quequ.q_ids = tb_caller.q_ids
+                LEFT JOIN tb_service ON tb_service.serviceid = tb_quequ.serviceid
+                LEFT JOIN tb_servicegroup ON tb_service.service_groupid = tb_servicegroup.servicegroupid
                 WHERE
-                tb_caller_data.q_ids = :q_ids AND
-                tb_caller_data.qtran_ids = :qtran_ids AND
-                tb_caller_data.caller_ids <> :caller_ids
+                tb_caller.q_ids = :q_ids AND
+                tb_caller.qtran_ids = :qtran_ids AND
+                tb_caller.caller_ids <> :caller_ids
                 ';
                 $params = [':q_ids' => $data['q_ids'], ':qtran_ids' => $data['ids'],':caller_ids' => $data['caller_ids']];
                 $model = Yii::$app->db->createCommand($sql)->bindValues($params)->queryOne();
