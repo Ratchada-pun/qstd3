@@ -39,7 +39,7 @@ class TbService extends \yii\db\ActiveRecord
     {
         return [
             [['service_name', 'prn_profileid', 'prn_copyqty', 'service_prefix', 'service_numdigit', 'service_status'], 'required'],
-            [['service_groupid', 'prn_profileid', 'prn_copyqty', 'service_numdigit', 'service_md_name_id', 'print_by_hn', 'quickly', 'show_on_kiosk', 'show_on_mobile', 'prn_profileid_quickly'], 'integer'],
+            [['service_groupid', 'prn_profileid', 'prn_copyqty', 'service_numdigit', 'service_md_name_id', 'print_by_hn', 'quickly', 'show_on_kiosk', 'show_on_mobile', 'prn_profileid_quickly','service_type_id'], 'integer'],
             [['service_name', 'btn_kiosk_name'], 'string', 'max' => 100],
             [['service_route'], 'string', 'max' => 11],
             [['service_prefix'], 'string', 'max' => 2],
@@ -74,6 +74,7 @@ class TbService extends \yii\db\ActiveRecord
             'btn_kiosk_name' => 'ชื่อปุ่ม Kiosk',
             'prn_profileid_quickly' => 'แบบการพิมพ์บัตรคิวด่วน',
             'main_dep' => 'รหัสแผนก',
+            'service_type_id' => 'ประเภทบริการ',
         ];
     }
 

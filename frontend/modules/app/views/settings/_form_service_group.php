@@ -197,6 +197,21 @@ CSS
                                 'theme' => Select2::THEME_BOOTSTRAP,
                             ]) ?>
                         </div>
+
+                        <?= Html::activeLabel($modelService, "[{$index}]service_type_id", ['label' => 'ประเภทบริการ', 'class' => 'col-sm-1 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelService, "[{$index}]service_type_id", ['showLabels' => false])->widget(Select2::classname(), [
+                                'data' => ArrayHelper::map((new \yii\db\Query())
+                                    ->select(['*'])
+                                    ->from('tb_service_type')
+                                    ->all(), 'service_type_id', 'service_type_name'),
+                                'options' => ['placeholder' => 'เลือกประเภทบริการ...'],
+                                'pluginOptions' => [
+                                    'allowClear' => true
+                                ],
+                                'theme' => Select2::THEME_BOOTSTRAP,
+                            ]) ?>
+                        </div>
                         
                         <?php /*
                             <div class="col-sm-4">
