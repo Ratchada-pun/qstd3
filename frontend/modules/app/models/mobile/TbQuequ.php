@@ -187,8 +187,10 @@ class TbQuequ extends \yii\db\ActiveRecord
                 if ($modelQueue && !empty($modelQueue['token'])) {
                     $client = new Client();
                     $client->createRequest()
+                        ->setFormat(Client::FORMAT_JSON)
                         ->setMethod('POST')
                         ->setUrl(Yii::$app->params['messageURL'])
+                        ->addHeaders(['content-type' => 'application/json'])
                         ->setData([
                             'message' => [
                                 'data' => [

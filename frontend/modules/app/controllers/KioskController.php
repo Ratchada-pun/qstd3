@@ -778,7 +778,7 @@ class KioskController extends \yii\web\Controller
                 ]);
             } else {
                 $maininscl_name = $modelQueue['maininscl_name'];
-                $token = $modelQueue['token'];
+                // $token = $modelQueue['token'];
                 $u_id = $modelQueue['u_id'];
                 $tslotid = $modelQueue['tslotid'];
                 $q_num = $modelQueue['q_num'];
@@ -841,8 +841,10 @@ class KioskController extends \yii\web\Controller
                     if (!empty($modelQueue['token'])) {
                         $client = new Client();
                         $client->createRequest()
+                            ->setFormat(Client::FORMAT_JSON)
                             ->setMethod('POST')
                             ->setUrl(Yii::$app->params['messageURL'])
+                            ->addHeaders(['content-type' => 'application/json'])
                             ->setData([
                                 'message' => [
                                     'data' => [
@@ -850,7 +852,7 @@ class KioskController extends \yii\web\Controller
                                     ],
                                     'notification' => [
                                         'title' => 'จองคิวสำเร็จ!',
-                                        'body' => 'หมายเลขคิวของคุณคือ '. $modelQueue['q_num']
+                                        'body' => 'หมายเลขคิวของคุณคือ ' . $modelQueue['q_num']
                                     ],
                                     'token' => $modelQueue['token']
                                 ],
@@ -1074,8 +1076,10 @@ class KioskController extends \yii\web\Controller
                 if (!empty($modelQueue['token'])) {
                     $client = new Client();
                     $client->createRequest()
+                        ->setFormat(Client::FORMAT_JSON)
                         ->setMethod('POST')
                         ->setUrl(Yii::$app->params['messageURL'])
+                        ->addHeaders(['content-type' => 'application/json'])
                         ->setData([
                             'message' => [
                                 'data' => [
@@ -1144,8 +1148,10 @@ class KioskController extends \yii\web\Controller
                 if (!empty($modelQueue['token'])) {
                     $client = new Client();
                     $client->createRequest()
+                        ->setFormat(Client::FORMAT_JSON)
                         ->setMethod('POST')
                         ->setUrl(Yii::$app->params['messageURL'])
+                        ->addHeaders(['content-type' => 'application/json'])
                         ->setData([
                             'message' => [
                                 'data' => [
