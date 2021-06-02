@@ -28,6 +28,7 @@ use yii\helpers\FileHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\Url;
+use yii\httpclient\Client;
 use yii\web\Controller;
 use yii\web\HttpException;
 use yii\web\MethodNotAllowedHttpException;
@@ -805,11 +806,11 @@ class KioskController extends \yii\web\Controller
                 'token' => $token, //รหัสแจ้งเตือน
                 //'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6
             ]);
-            if(!empty($picture)){
+            if (!empty($picture)) {
                 $pt_pic = $this->uploadPicture($picture, $hn);
                 $modelQueue->pt_pic = $pt_pic;
             }
-            
+
             if ($modelQueue->save()) {
                 $modelQstatus = TbServiceStatus::findOne($modelQueue['q_status_id']);
                 $modelQtrans = TbQtrans::findOne(['q_ids' => $modelQueue->q_ids]);
@@ -837,6 +838,25 @@ class KioskController extends \yii\web\Controller
                 ]);
                 if ($modelQtrans->save()) {
                     $transaction->commit();
+                    if (!empty($modelQueue['token'])) {
+                        $client = new Client();
+                        $client->createRequest()
+                            ->setMethod('POST')
+                            ->setUrl(Yii::$app->params['messageURL'])
+                            ->setData([
+                                'message' => [
+                                    'data' => [
+                                        'type' => 'create-queue'
+                                    ],
+                                    'notification' => [
+                                        'title' => 'จองคิวสำเร็จ!',
+                                        'body' => 'หมายเลขคิวของคุณคือ '. $modelQueue['q_num']
+                                    ],
+                                    'token' => $modelQueue['token']
+                                ],
+                            ])
+                            ->send();
+                    }
                     return [
                         'modelQueue' => $modelQueue,
                         'modelQtrans' => $modelQtrans,
@@ -1051,6 +1071,25 @@ class KioskController extends \yii\web\Controller
 
             if ($modelQueue->save() && $modelQTrans->save()) {
                 $transaction->commit();
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'scan-mobile'
+                                ],
+                                'notification' => [
+                                    'title' => 'ลงทะเบียนสำเร็จ!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'modelQueue' => $modelQueue,
                     'modelQTrans' => $modelQTrans,
@@ -1102,6 +1141,25 @@ class KioskController extends \yii\web\Controller
 
             if ($modelQueue->save() && $modelQTrans->save()) {
                 $transaction->commit();
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'scan-mobile'
+                                ],
+                                'notification' => [
+                                    'title' => 'ลงทะเบียนสำเร็จ!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'modelQueue' => $modelQueue,
                     'modelQTrans' => $modelQTrans,

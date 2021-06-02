@@ -19,7 +19,7 @@ var serviceAccount = require("./chainathos-ef609-firebase-adminsdk-r7eqo-3cfdbdd
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://chainathos-ef609-default-rtdb.asia-southeast1.firebasedatabase.app"
+  databaseURL: "https://chainathos-ef609-default-rtdb.asia-southeast1.firebasedatabase.app",
 });
 //const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
 
@@ -54,6 +54,7 @@ app.use(function(req, res, next) {
 var indexRouter = require("./routes/index");
 var callingRouter = require("./routes/calling");
 var dispensingRouter = require("./routes/dispensing");
+var messageQueue = require("./jobs")(admin);
 
 app.use("/api", indexRouter);
 app.use("/api/calling", callingRouter);
@@ -63,6 +64,15 @@ app.post("/api/send-message", async function(req, res) {
   try {
     await admin.messaging().send(req.body.message);
 
+    res.status(200).send({ message: "Successfully sent message." });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+app.post("/api/add-message", async function(req, res) {
+  try {
+    await messageQueue.add(req.body.message);
     res.status(200).send({ message: "Successfully sent message." });
   } catch (error) {
     res.status(500).send(error);

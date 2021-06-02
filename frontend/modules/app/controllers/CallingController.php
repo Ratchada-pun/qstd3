@@ -28,12 +28,13 @@ use frontend\modules\app\models\TbCaller;
 use frontend\modules\app\models\TbSoundStation;
 use frontend\modules\app\models\TbServicegroup;
 use frontend\modules\app\models\TbCounterservice;
-use frontend\modules\app\models\TbQuequ;
+use frontend\modules\app\models\mobile\TbQuequ;
 use frontend\modules\app\models\LabItems;
 use frontend\modules\app\models\TbQtrans;
 use frontend\modules\app\models\QueuesInterface;
 use frontend\modules\app\models\QueuesInterfaceSearch;
 use kartik\form\ActiveForm;
+use yii\httpclient\Client;
 
 class CallingController extends \yii\web\Controller
 {
@@ -749,6 +750,27 @@ class CallingController extends \yii\web\Controller
                 if ($model->save() && $modelTrans->save() && $modelQ->save()) {
                     $data['counter_service_id'] = $counter['counterserviceid'];
                     $transaction->commit();
+
+                    $modelQ->sendMessage($modelQ['serviceid']);
+                    if (!empty($modelQueue['token'])) {
+                        $client = new Client();
+                        $client->createRequest()
+                            ->setMethod('POST')
+                            ->setUrl(Yii::$app->params['messageURL'])
+                            ->setData([
+                                'message' => [
+                                    'data' => [
+                                        'type' => 'call-queue'
+                                    ],
+                                    'notification' => [
+                                        'title' => 'ถึงคิวของคุณแล้ว!',
+                                        'body' => $modelQueue['q_num']
+                                    ],
+                                    'token' => $modelQueue['token']
+                                ],
+                            ])
+                            ->send();
+                    }
                     return [
                         'status' => '200',
                         'message' => 'success',
@@ -802,6 +824,26 @@ class CallingController extends \yii\web\Controller
             $modelTrans->service_status_id = 2;
             $modelQ->q_status_id = 2;
             if ($model->save() && $modelTrans->save() && $modelQ->save()) {
+                $modelQ->sendMessage($modelQ['serviceid']);
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'call-queue'
+                                ],
+                                'notification' => [
+                                    'title' => 'ถึงคิวของคุณแล้ว!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -846,6 +888,26 @@ class CallingController extends \yii\web\Controller
 
             $modelQ->q_status_id = 3;
             if ($model->save() && $modelQtran->save() && $modelQ->save()) {
+                $modelQ->sendMessage($modelQ['serviceid']);
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'hold-queue'
+                                ],
+                                'notification' => [
+                                    'title' => 'คิวของคุณเรียกผ่านไปแล้ว!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -891,6 +953,7 @@ class CallingController extends \yii\web\Controller
             $modelQ->q_status_id = 4;
 
             if ($model->save() && $modelQtran->save() && $modelQ->save()) {
+                $modelQ->sendMessage($modelQ['serviceid']);
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2954,6 +3017,25 @@ class CallingController extends \yii\web\Controller
 
                 if ($model->save() && $modelTrans->save() && $modelQ->save()) {
                     $transaction->commit();
+                    if (!empty($modelQueue['token'])) {
+                        $client = new Client();
+                        $client->createRequest()
+                            ->setMethod('POST')
+                            ->setUrl(Yii::$app->params['messageURL'])
+                            ->setData([
+                                'message' => [
+                                    'data' => [
+                                        'type' => 'call-queue'
+                                    ],
+                                    'notification' => [
+                                        'title' => 'ถึงคิวของคุณแล้ว!',
+                                        'body' => $modelQueue['q_num']
+                                    ],
+                                    'token' => $modelQueue['token']
+                                ],
+                            ])
+                            ->send();
+                    }
                     return [
                         'status' => '200',
                         'message' => 'success',
@@ -3070,6 +3152,26 @@ class CallingController extends \yii\web\Controller
             $modelQ->q_status_id = 2;
             $modelQtran->service_status_id = 2;
             if ($model->save() && $modelQ->save() && $modelQtran->save()) {
+
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'call-queue'
+                                ],
+                                'notification' => [
+                                    'title' => 'ถึงคิวของคุณแล้ว!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -3114,6 +3216,25 @@ class CallingController extends \yii\web\Controller
             $modelQ->q_status_id = 3;
             $model->call_status = TbCaller::STATUS_HOLD;
             if ($model->save() && $modelQ->save() && $modelQtran->save()) {
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'hold-queue'
+                                ],
+                                'notification' => [
+                                    'title' => 'คิวของคุณเรียกผ่านไปแล้ว!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -3157,6 +3278,25 @@ class CallingController extends \yii\web\Controller
             $model->call_timestp = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_CALLING;
             if ($model->save() && $modelQ->save() && $modelQtran->save()) {
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'call-queue'
+                                ],
+                                'notification' => [
+                                    'title' => 'ถึงคิวของคุณแล้ว!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -4254,6 +4394,27 @@ class CallingController extends \yii\web\Controller
 
             if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save()) {
                 $transaction->commit();
+
+                $modelQueue->sendMessage($modelQueue['serviceid']);
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'calling-queue'
+                                ],
+                                'notification' => [
+                                    'title' => 'ถึงคิวของคุณแล้ว!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -4343,6 +4504,27 @@ class CallingController extends \yii\web\Controller
 
             if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save()) {
                 $transaction->commit();
+
+                $modelQueue->sendMessage($modelQueue['serviceid']);
+                if (!empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'hold-queue'
+                                ],
+                                'notification' => [
+                                    'title' => 'คิวของคุณเรียกผ่านไปแล้ว!',
+                                    'body' => $modelQueue['q_num']
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -4431,6 +4613,7 @@ class CallingController extends \yii\web\Controller
 
             if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save()) {
                 $transaction->commit();
+                $modelQueue->sendMessage($modelQueue['serviceid']);
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -4529,6 +4712,7 @@ class CallingController extends \yii\web\Controller
 
             if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save() && $modelQueuetran->save()) {
                 $transaction->commit();
+                $modelQueue->sendMessage($modelQueue['serviceid']);
                 return [
                     'status' => '200',
                     'message' => 'success',

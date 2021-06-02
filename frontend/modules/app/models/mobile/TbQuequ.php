@@ -5,6 +5,8 @@ namespace frontend\modules\app\models\mobile;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
+use yii\httpclient\Client;
 
 /**
  * This is the model class for table "tb_quequ".
@@ -61,15 +63,15 @@ class TbQuequ extends \yii\db\ActiveRecord
     {
         return [
             [['q_timestp', 'created_at', 'updated_at'], 'safe'],
-            [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid','created_from','quickly'], 'integer'],
+            [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid', 'created_from', 'quickly'], 'integer'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
             [['q_qn', 'rx_q'], 'string', 'max' => 10],
             [['doctor_id'], 'string', 'max' => 11],
             [['cid'], 'string', 'max' => 13],
             [['pt_name'], 'string', 'max' => 200],
             [['doctor_name'], 'string', 'max' => 250],
-            [['token','u_id'], 'string'],
-            [['pt_pic', 'pt_sound','maininscl_name'], 'string', 'max' => 255],
+            [['token', 'u_id'], 'string'],
+            [['pt_pic', 'pt_sound', 'maininscl_name'], 'string', 'max' => 255],
         ];
     }
 
@@ -159,5 +161,49 @@ class TbQuequ extends \yii\db\ActiveRecord
             'digit'     => $params['service_numdigit'],
         ]);
         return $component->generate();
+    }
+
+    public function sendMessage($serviceid)
+    {
+        $config = TbCallingConfig::findOne(1);
+        $limit = ($config ? $config['notice_queue'] + 1 : 4);
+
+        $last = (new \yii\db\Query())
+            ->select(['*'])
+            ->from('tb_quequ')
+            ->where(['tb_quequ.serviceid' => $serviceid, 'tb_quequ.q_status_id' => 2])
+            ->orderBy('tb_quequ.q_ids DESC')
+            ->one();
+        if ($last) {
+            $rows = (new \yii\db\Query())
+                ->select(['*'])
+                ->from('tb_quequ')
+                ->where(['tb_quequ.serviceid' => $serviceid, 'tb_quequ.q_status_id' => 1])
+                ->andWhere('tb_quequ.q_ids > :q_ids', [':q_ids' => $last['q_ids']])
+                ->limit($limit)
+                ->all();
+            if (count($rows) == $limit) {
+                $modelQueue = ArrayHelper::getValue($rows, $limit - 1);
+                if ($modelQueue && !empty($modelQueue['token'])) {
+                    $client = new Client();
+                    $client->createRequest()
+                        ->setMethod('POST')
+                        ->setUrl(Yii::$app->params['messageURL'])
+                        ->setData([
+                            'message' => [
+                                'data' => [
+                                    'type' => 'waiting'
+                                ],
+                                'notification' => [
+                                    'title' => 'อีก ' . ($limit - 1) . ' คิว. ถึงคุณ',
+                                    'body' => 'โปรดรอที่จุดบริการ!'
+                                ],
+                                'token' => $modelQueue['token']
+                            ],
+                        ])
+                        ->send();
+                }
+            }
+        }
     }
 }
