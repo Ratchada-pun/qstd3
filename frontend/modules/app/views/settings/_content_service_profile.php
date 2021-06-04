@@ -14,11 +14,11 @@ use yii\helpers\Url;
             [
                 'columns' => [
                     ['content' => '#','options' => []],
-                    ['content' => 'ไอดี','options' => []],
+                    ['content' => 'ID','options' => []],
                     ['content' => 'ชื่อบริการ','options' => []],
                     ['content' => 'Counter','options' => []],
                     ['content' => 'Service','options' => []],
-                    ['content' => 'Service status','options' => []],
+                   // ['content' => 'Service status','options' => []],
                     ['content' => 'สถานะ','options' => []],
                     ['content' => 'ดำเนินการ','options' => []],
                 ]
@@ -57,11 +57,11 @@ use yii\helpers\Url;
         '),
         'columns' => [
             ["data" => null,"defaultContent" => "", "className" => "dt-center ","title" => "#", "orderable" => false],
-            ["data" => "service_profile_id","className" => "dt-body-left ","title" => "ไอดี"],
+            ["data" => "service_profile_id","className" => "dt-body-left ","title" => "ID"],
             ["data" => "service_name","className" => "dt-body-left ","title" => "ชื่อบริการ"],
             ["data" => "counterservice_type","className" => "dt-body-left dt-nowrap","title" => "Counter"],
             ["data" => "servicelist","className" => "dt-body-left ","title" => "Service"],
-            ["data" => "service_status_id","className" => "dt-body-left ","title" => "สถานะคิว"],
+           // ["data" => "service_status_id","className" => "dt-body-left ","title" => "สถานะคิว"],
             ["data" => "service_profile_status","className" => "dt-center ","title" => "สถานะ"],
             ["data" => "actions","className" => "dt-center dt-nowrap","orderable" => false,"title" => "ดำเนินการ"]
         ],
