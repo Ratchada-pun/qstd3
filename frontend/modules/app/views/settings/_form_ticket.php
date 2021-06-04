@@ -364,6 +364,8 @@ editor.on('change',function(){
     .replace('{q_num}','A001')
     .replace('{pt_visit_type}','ผู้ป่วยนัดหมาย')
     .replace('{sec_name}','แผนกห้องยา')
+    .replace('{rx_q}','เลขที่ใบสั่งยา')
+    .replace('{pharmacy_drug_name}','ชื่อร้านขายยา')
     .replace('{time}',moment().format("D MMM ") + (y.toString()).substr(2))
     .replace('{user_print}','Admin Hospital');
     data.replace('{hos_name_th}', $('#tbticket-hos_name_th').val())

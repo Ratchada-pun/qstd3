@@ -261,6 +261,8 @@ class TbTicket extends \yii\db\ActiveRecord
             '{q_num}' => 'A001',
             '{pt_visit_type}' => 'ผู้ป่วยนัดหมาย',
             '{sec_name}' => 'แผนกห้องยา',
+            '{rx_q}' => 'เลขที่ใบสั่งยา',
+            '{pharmacy_drug_name}' => 'ชื่อร้านขายยา',
             '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i') . ' น.',
             '{user_print}' => 'Admin Hospital',
             '/img/logo/logo.jpg' => $this->logo_path ? $this->logo_base_url . '/' . $this->logo_path : '/img/logo/logoBBH.png'
