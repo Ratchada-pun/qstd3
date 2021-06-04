@@ -321,11 +321,13 @@ class SettingsController extends \yii\web\Controller
                     'tb_service.service_numdigit',
                     'tb_service.service_status',
                     'tb_service.show_on_kiosk',
-                    'tb_service.show_on_mobile'
-
+                    'tb_service.show_on_mobile',
+                    'tb_service.service_type_id',
+                    'tb_service_type.service_type_name'
                 ])
                 ->from('tb_servicegroup')
                 ->leftJoin('tb_service', 'tb_service.service_groupid = tb_servicegroup.servicegroupid')
+                ->leftJoin('tb_service_type', 'tb_service.service_type_id = tb_service_type.service_type_id')
                 ->orderBy('tb_servicegroup.servicegroupid ASC');
 
             $dataProvider = new ActiveDataProvider([
@@ -345,6 +347,9 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'servicegroup_name',
+                    ],
+                    [
+                        'attribute' => 'service_type_name',
                     ],
                     [
                         'attribute' => 'servicegroup_order',
