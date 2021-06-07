@@ -452,7 +452,7 @@ $this->registerJs('var select2Data = '.Json::encode(ArrayHelper::map(TbCounterse
     </div>
 </div>
     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12" style="">
+        <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="footer footer-tabs" style="position: fixed;padding: 20px 18px;z-index: 3;">
                 <div class="hpanel">
                     <?php

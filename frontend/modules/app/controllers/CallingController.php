@@ -724,6 +724,7 @@ class CallingController extends \yii\web\Controller
     public function actionCall($id)
     {
         $request = Yii::$app->request;
+        
         if ($request->isAjax) {
             \Yii::$app->response->format = Response::FORMAT_JSON;
             $db = Yii::$app->db;
@@ -735,6 +736,8 @@ class CallingController extends \yii\web\Controller
                 $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
                 $counter = $this->findModelCounterservice($dataForm['counter_service']);
                 $modelQ = $this->findModelQuequ($id);
+                $modelQueue = TbQuequ::findOne($id);
+                
 
                 $model = new TbCaller();
                 $model->q_ids = $id;
@@ -745,13 +748,14 @@ class CallingController extends \yii\web\Controller
 
                 $modelTrans = $this->findModelQTrans($data['ids']);
                 $modelTrans->service_status_id = 2;
-                $modelQ->q_status_id = 2;
+                $modelQueue->q_status_id = 2;
 
-                if ($model->save() && $modelTrans->save() && $modelQ->save()) {
+
+                if ($model->save() && $modelTrans->save() && $modelQueue->save()) {
                     $data['counter_service_id'] = $counter['counterserviceid'];
                     $transaction->commit();
 
-                    $modelQ->sendMessage($modelQ['serviceid']);
+                    $modelQueue->sendMessage($modelQueue['serviceid']);
                     if (!empty($modelQueue['token'])) {
                         $client = new Client();
                         $client->createRequest()
@@ -776,10 +780,10 @@ class CallingController extends \yii\web\Controller
                     return [
                         'status' => '200',
                         'message' => 'success',
-                        'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                        'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id']),
                         'data' => $data,
                         'modelCaller' => $model,
-                        'modelQueue' => $modelQ,
+                        'modelQueue' => $modelQueue,
                         'modelProfile' => $modelProfile,
                         'counter' => $counter,
                         'eventOn' => 'tb-waiting',
@@ -816,7 +820,9 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
-            $modelQ = $this->findModelQuequ($data['q_ids']);
+           // $modelQ = $this->findModelQuequ($data['q_ids']);
+            $modelQueue = TbQuequ::findOne($data['q_ids']);
+
 
             $model = $this->findModelCaller($id);
             $model->call_timestp = new Expression('NOW()');
@@ -824,9 +830,9 @@ class CallingController extends \yii\web\Controller
 
             $modelTrans = $this->findModelQTrans($data['ids']);
             $modelTrans->service_status_id = 2;
-            $modelQ->q_status_id = 2;
-            if ($model->save() && $modelTrans->save() && $modelQ->save()) {
-                $modelQ->sendMessage($modelQ['serviceid']);
+            $modelQueue->q_status_id = 2;
+            if ($model->save() && $modelTrans->save() && $modelQueue->save()) {
+                $modelQueue->sendMessage($modelQueue['serviceid']);
                 if (!empty($modelQueue['token'])) {
                     $client = new Client();
                     $client->createRequest()
@@ -851,10 +857,10 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id']),
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-calling',
@@ -883,16 +889,17 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
-            $modelQ = $this->findModelQuequ($data['q_ids']);
+           // $modelQ = $this->findModelQuequ($data['q_ids']);
+            $modelQueue = TbQuequ::findOne($data['q_ids']);
 
             $model = $this->findModelCaller($id);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $modelQtran->service_status_id = 3;
             $model->call_status = TbCaller::STATUS_HOLD;
 
-            $modelQ->q_status_id = 3;
-            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
-                $modelQ->sendMessage($modelQ['serviceid']);
+            $modelQueue->q_status_id = 3;
+            if ($model->save() && $modelQtran->save() && $modelQueue->save()) {
+                $modelQueue->sendMessage($modelQueue['serviceid']);
                 if (!empty($modelQueue['token'])) {
                     $client = new Client();
                     $client->createRequest()
@@ -919,7 +926,7 @@ class CallingController extends \yii\web\Controller
                     'message' => 'success',
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-calling',
@@ -951,21 +958,24 @@ class CallingController extends \yii\web\Controller
 
             $model = $this->findModelCaller($data['caller_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
-            $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+           // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+            $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
+
+
             $modelQtran->service_status_id = 4;
             $modelQtran->counter_service_id = $request->post('value');
             $model->call_status = TbCaller::STATUS_FINISHED;
 
-            $modelQ->q_status_id = 4;
+            $modelQueue->q_status_id = 4;
 
-            if ($model->save() && $modelQtran->save() && $modelQ->save()) {
-                $modelQ->sendMessage($modelQ['serviceid']);
+            if ($model->save() && $modelQtran->save() && $modelQueue->save()) {
+                $modelQueue->sendMessage($modelQueue['serviceid']);
                 return [
                     'status' => '200',
                     'message' => 'success',
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-calling',
@@ -997,29 +1007,31 @@ class CallingController extends \yii\web\Controller
 
             $model = $this->findModelCaller($data['caller_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
-            $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+           // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+            $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
+
             $modelQtran->service_status_id = 4;
             $model->call_status = TbCaller::STATUS_FINISHED;
 
-            $modelQ->q_status_id = 5;
+            $modelQueue->q_status_id = 5;
 
             $modelQueuetran = new TbQtrans();
             $modelQueuetran->setAttributes([
                 'q_ids' => $data['q_ids'],
-                'servicegroupid' => $modelQ['servicegroupid'],
+                'servicegroupid' => $modelQueue['servicegroupid'],
                 'doctor_id' => $modelQtran['doctor_id'],
                 'checkin_date' => $modelQtran['checkin_date'],
                 'checkout_date' => $modelQtran['checkout_date'],
                 'service_status_id' => 5,
             ]);
 
-            if ($model->save() && $modelQtran->save() && $modelQ->save() && $modelQueuetran->save()) {
+            if ($model->save() && $modelQtran->save() && $modelQueue->save() && $modelQueuetran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-calling',
@@ -1918,6 +1930,7 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.call_timestp',
                     'tb_quequ.q_num',
                     'tb_quequ.q_hn',
+                    'tb_quequ.q_qn',
                     'tb_quequ.q_vn as VN',
                     'tb_quequ.pt_name',
                     'tb_service_status.service_status_name',
@@ -1967,6 +1980,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'q_hn',
+                    ],
+                    [
+                        'attribute' => 'q_qn',
                     ],
                     [
                         'attribute' => 'VN',
@@ -3005,7 +3021,8 @@ class CallingController extends \yii\web\Controller
                 $dataProfile = $request->post('modelProfile', []);
                 $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
                 $counter = $this->findModelCounterservice($request->post('value'));
-                $modelQ = $this->findModelQuequ($data['q_ids']);
+               // $modelQ = $this->findModelQuequ($data['q_ids']);
+                $modelQ = TbQuequ::findOne($data['q_ids']);
 
                 $model = new TbCaller();
                 $modelQ->q_status_id = 2;
@@ -3151,7 +3168,9 @@ class CallingController extends \yii\web\Controller
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
 
             $model = $this->findModelCaller($id);
-            $modelQ = $this->findModelQuequ($model['q_ids']);
+           // $modelQ = $this->findModelQuequ($model['q_ids']);
+            $modelQ = TbQuequ::findOne($data['q_ids']);
+
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $counter = $this->findModelCounterservice($model['counter_service_id']);
 
@@ -3219,13 +3238,15 @@ class CallingController extends \yii\web\Controller
 
             $model = $this->findModelCaller($id);
             $modelQ = $this->findModelQuequ($model['q_ids']);
+            $modelQueue = TbQuequ::findOne($model['q_ids']);
+            
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $counter = $this->findModelCounterservice($model['counter_service_id']);
 
             $modelQtran->service_status_id = 3;
-            $modelQ->q_status_id = 3;
+            $modelQueue->q_status_id = 3;
             $model->call_status = TbCaller::STATUS_HOLD;
-            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQueue->save() && $modelQtran->save()) {
                 if (!empty($modelQueue['token'])) {
                     $client = new Client();
                     $client->createRequest()
@@ -3252,7 +3273,7 @@ class CallingController extends \yii\web\Controller
                     'message' => 'success',
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-calling',
@@ -3283,13 +3304,15 @@ class CallingController extends \yii\web\Controller
 
             $model = $this->findModelCaller($id);
             $modelQ = $this->findModelQuequ($model['q_ids']);
+            $modelQueue = TbQuequ::findOne($model['q_ids']);
+
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $counter = $this->findModelCounterservice($model['counter_service_id']);
             $modelQtran->service_status_id = 2;
-            $modelQ->q_status_id = 2;
+            $modelQueue->q_status_id = 2;
             $model->call_timestp = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_CALLING;
-            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQueue->save() && $modelQtran->save()) {
                 if (!empty($modelQueue['token'])) {
                     $client = new Client();
                     $client->createRequest()
@@ -3314,10 +3337,10 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id']),
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-hold',
@@ -3347,20 +3370,23 @@ class CallingController extends \yii\web\Controller
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
 
             $model = $this->findModelCaller($id);
-            $modelQ = $this->findModelQuequ($model['q_ids']);
+          //  $modelQ = $this->findModelQuequ($model['q_ids']);
+            $modelQueue = TbQuequ::findOne($model['q_ids']);
+
+
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $counter = $this->findModelCounterservice($model['counter_service_id']);
             $modelQtran->service_status_id = 4;
-            $modelQ->q_status_id = 4;
+            $modelQueue->q_status_id = 4;
             $modelQtran->checkout_date = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_END;
-            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQueue->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-hold',
@@ -3390,20 +3416,22 @@ class CallingController extends \yii\web\Controller
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
 
             $model = $this->findModelCaller($id);
-            $modelQ = $this->findModelQuequ($model['q_ids']);
+           // $modelQ = $this->findModelQuequ($model['q_ids']);
+            $modelQueue = TbQuequ::findOne($model['q_ids']);
+
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $counter = $this->findModelCounterservice($model['counter_service_id']);
             $modelQtran->service_status_id = 4;
-            $modelQ->q_status_id = 4;
+            $modelQueue->q_status_id = 4;
             $modelQtran->checkout_date = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_END;
-            if ($model->save() && $modelQ->save() && $modelQtran->save()) {
+            if ($model->save() && $modelQueue->save() && $modelQtran->save()) {
                 return [
                     'status' => '200',
                     'message' => 'success',
                     'data' => $data,
                     'modelCaller' => $model,
-                    'modelQueue' => $modelQ,
+                    'modelQueue' => $modelQueue,
                     'modelProfile' => $modelProfile,
                     'counter' => $counter,
                     'eventOn' => 'tb-hold',
