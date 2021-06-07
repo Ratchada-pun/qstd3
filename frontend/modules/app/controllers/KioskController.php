@@ -1187,9 +1187,7 @@ class KioskController extends \yii\web\Controller
   }
 
   public function actionQueueList($hn) //สถานะคิว
-
   {
-
     \Yii::$app->response->format = Response::FORMAT_JSON;
 
     if (!$hn) {
@@ -1202,6 +1200,7 @@ class KioskController extends \yii\web\Controller
         'q.q_hn AS q_hn',
         'q.q_vn AS q_vn',
         'q.q_qn AS q_qn',
+        'q.pt_pic AS pt_pic',
         'q.q_status_id AS q_status_id',
         'DATE_FORMAT(q.q_timestp,\'%Y-%m-%d\') as queue_date',
         'TIME_FORMAT(q.q_timestp,\'%H:%i\') as queue_time',
