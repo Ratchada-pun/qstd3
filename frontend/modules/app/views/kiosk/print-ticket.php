@@ -74,7 +74,7 @@ $(window).on('load', function() {
         showHRI: true
     });
     //QRCode
-    jQuery('#qrcode').qrcode({width: 100,height: 100,text: "{$baseUrl}/mobile-view?id={$model->q_qn}" });
+    jQuery('#qrcode').qrcode({width: 100,height: 100,text: "{$model->q_qn}" });
     //Print
     window.print();
     window.onafterprint = function(){
