@@ -468,7 +468,7 @@ class KioskController extends \yii\web\Controller
       '{rx_q}' => $model->rx_q,
       '{pharmacy_drug_name}' => ArrayHelper::getValue($modelDrugDispensing, 'pharmacy_drug_name', ''), //ชื่อร้านขายยา
       '{pt_visit_type}' => '',
-      '{sec_name}' => '',
+      '{service_name}' => $service['service_name'],
       '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i'),
       '{user_print}' => Yii::$app->user->isGuest ? 'Kiosk' : Yii::$app->user->identity->profile->name,
       '{qwaiting}' => $count,
