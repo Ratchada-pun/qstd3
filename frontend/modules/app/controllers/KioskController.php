@@ -452,7 +452,7 @@ class KioskController extends \yii\web\Controller
       WHERE
         q_status_id = 1
         AND serviceid = :serviceid
-        AND q_ids < tb_quequ.q_ids
+        AND q_ids < :q_ids
         AND DATE( tb_quequ.q_timestp ) = CURRENT_DATE';
     $params = [':serviceid' => $model['serviceid'], ':q_ids' => $id];
     $count = Yii::$app->db->createCommand($sql)
