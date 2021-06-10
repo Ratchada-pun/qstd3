@@ -821,9 +821,22 @@ class KioskController extends \yii\web\Controller
       if (!empty($picture)) {
         $pt_pic = $this->uploadPicture($picture, $hn);
         $modelQueue->pt_pic = $pt_pic;
+      } else {
+        $queuePic = TbQuequ::find()
+          ->where([
+            'q_hn' => $hn,
+          ])
+          ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+          ->andWhere('pt_pic <> :pt_pic', [':pt_pic' => null])
+          ->orderBy('q_ids DESC')
+          ->one();
+        if ($queuePic) {
+          $modelQueue->pt_pic = $queuePic['pt_pic'];
+        }
       }
 
       if ($modelQueue->save()) {
+
         $modelQstatus = TbServiceStatus::findOne($modelQueue['q_status_id']);
         $modelQtrans = TbQtrans::findOne(['q_ids' => $modelQueue->q_ids]);
         $queue_left = (new \yii\db\Query()) //คิวรอ
