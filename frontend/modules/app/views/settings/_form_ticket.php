@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use kartik\form\ActiveForm;
 use trntv\filekit\widget\Upload;
@@ -8,7 +9,8 @@ use kartik\checkbox\CheckboxX;
 use yii\icons\Icon;
 use yii\web\JsExpression;
 
-$this->registerCss(<<<CSS
+$this->registerCss(
+    <<<CSS
 .modal-header {
     padding: 10px;
 }
@@ -245,25 +247,25 @@ $this->registerCssFile("@web/css/80mm.css", [
 ]);
 ?>
 <?php $form = ActiveForm::begin([
-    'id' => 'form-ticket', 'type' => ActiveForm::TYPE_HORIZONTAL, 
+    'id' => 'form-ticket', 'type' => ActiveForm::TYPE_HORIZONTAL,
     'formConfig' => ['showLabels' => false],
-]);?>
-    <div class="form-group">
-        <?= Html::activeLabel($model, 'logo', ['label' => 'โลโก้บัตรคิว','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <?= $form->field($model, 'logo')->widget(Upload::classname(), [
-                'url'=>['file-upload'],
-            ])->hint('<span class="text-warning">ภาพที่จะนำไปแสดงบนบัตรคิว</span>') ?>
-        </div>
+]); ?>
+<div class="form-group">
+    <?= Html::activeLabel($model, 'logo', ['label' => 'โลโก้บัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'logo')->widget(Upload::classname(), [
+            'url' => ['file-upload'],
+        ])->hint('<span class="text-warning">ภาพที่จะนำไปแสดงบนบัตรคิว</span>') ?>
     </div>
+</div>
 
-    <div class="form-group">
-        <?= Html::activeLabel($model, 'hos_name_th', ['label' => 'ชื่อบัตรคิว','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <?= $form->field($model, 'hos_name_th',['showLabels'=>false])->textInput([
-                'placeholder' => 'ชื่อบัตรคิว'
-            ]); ?>
-        </div>
+<div class="form-group">
+    <?= Html::activeLabel($model, 'hos_name_th', ['label' => 'ชื่อบัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'hos_name_th', ['showLabels' => false])->textInput([
+            'placeholder' => 'ชื่อบัตรคิว'
+        ]); ?>
+    </div>
     <?php /*
         <?= Html::activeLabel($model, 'hos_name_en', ['label' => 'ชื่อ รพ. (อังกฤษ)','class'=>'col-sm-2 control-label']) ?>
         <div class="col-sm-4">
@@ -271,64 +273,77 @@ $this->registerCssFile("@web/css/80mm.css", [
                 'placeholder' => 'ชื่อ รพ. (อังกฤษ)'
             ]); ?>
         </div>
-    */?>
+    */ ?>
+</div>
+
+<div class="form-group">
+    <?= Html::activeLabel($model, 'barcode_type', ['label' => 'รหัสบาร์โค้ด', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'barcode_type')->widget(Select2::classname(), [
+            'data' => [
+                'codabar' => 'codabar',
+                'code11' => 'code11',
+                'code39' => 'code39',
+                'code93' => 'code93',
+                'code128' => 'code128',
+                'ean8' => 'ean8',
+                'ean13' => 'ean13',
+                'std25' => 'std25',
+                'int25' => 'int25',
+                'msi' => 'msi',
+                'datamatrix' => 'datamatrix'
+            ],
+            'options' => ['placeholder' => 'เลือกรหัสโค้ด...', 'value' => $model->isNewRecord ? 'code128' : $model['barcode_type']],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+            'theme' => Select2::THEME_BOOTSTRAP,
+        ])->hint('<span class="text-danger">แนะนำให้ใช้โค้ด code128 </span>') ?>
     </div>
 
-    <div class="form-group">
-        <?= Html::activeLabel($model, 'barcode_type', ['label' => 'รหัสบาร์โค้ด','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <?= $form->field($model, 'barcode_type')->widget(Select2::classname(), [
-                'data' => [
-                    'codabar' => 'codabar',
-                    'code11' => 'code11',
-                    'code39' => 'code39',
-                    'code93' => 'code93',
-                    'code128' => 'code128',
-                    'ean8' => 'ean8',
-                    'ean13' => 'ean13',
-                    'std25' => 'std25',
-                    'int25' => 'int25',
-                    'msi' => 'msi',
-                    'datamatrix' => 'datamatrix'
-                ],
-                'options' => ['placeholder' => 'เลือกรหัสโค้ด...','value' => $model->isNewRecord ? 'code128' : $model['barcode_type']],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-                'theme' => Select2::THEME_BOOTSTRAP,
-            ])->hint('<span class="text-danger">แนะนำให้ใช้โค้ด code128 </span>') ?>
-        </div>
+    <?= Html::activeLabel($model, 'status', ['label' => 'สถานะการใช้งาน', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'status')->widget(CheckboxX::classname(), [
+            'pluginOptions' => ['threeState' => false]
+        ]) ?>
+    </div>
+</div>
 
-        <?= Html::activeLabel($model, 'status', ['label' => 'สถานะการใช้งาน','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <?= $form->field($model, 'status')->widget(CheckboxX::classname(), [
-                'pluginOptions'=>['threeState'=>false]
-            ]) ?>
+<div class="form-group">
+    <?= Html::activeLabel($model, 'template', ['label' => 'บัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'template')->textarea([
+            'value' => $model->isNewRecord || empty($model['template']) ? $model->defaultTemplate : $model['template'],
+        ])->hint('<span class="text-danger">หมายเหตุ. ห้าม!!! เปลี่ยนข้อความที่มีเครื่องหมาย {} </span>') ?>
+    </div>
+    <?= Html::activeLabel($model, 'template', ['label' => 'ตัวอย่างบัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <div id="editor-preview">
+            <?= $model->isNewRecord || empty($model['template']) ? $model->exampleTemplate : $model->ticketPreview; ?>
         </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <?= Html::activeLabel($model, 'template', ['label' => 'บัตรคิว','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <?= $form->field($model, 'template')->textarea([
-                'value' => $model->isNewRecord || empty($model['template']) ? $model->defaultTemplate : $model['template'],
-            ])->hint('<span class="text-danger">หมายเหตุ. ห้าม!!! เปลี่ยนข้อความที่มีเครื่องหมาย {} </span>') ?>
-        </div>
-        <?= Html::activeLabel($model, 'template', ['label' => 'ตัวอย่างบัตรคิว','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <div id="editor-preview">
-                <?= $model->isNewRecord || empty($model['template']) ? $model->exampleTemplate : $model->ticketPreview; ?>
-            </div>
-        </div>
-    </div>
-    <?= Html::activeHiddenInput($model,'default_template',['value' => $model->defaultTemplate]) ?>
+<div class="form-group">
+    <div class="col-md-12">
+        <pre>
+{time} : เวลาพิมพ์บัตรคิว
+{qwaiting} : จำนวนคิวที่รอฃ
+{hos_name_th} : ชื่อโรงพยาบาล
+{pharmacy_drug_name} : ชื่อร้านขายยา
+<?= implode("\n", $description) ?>
+    </pre>
 
-    <div class="form-group">
-        <div class="col-sm-12" style="text-align: right;">
-            <?= Html::button(Icon::show('close').'CLOSE',['class' => 'btn btn-default','data-dismiss' => 'modal']); ?>
-            <?= Html::submitButton(Icon::show('save').'SAVE',['class' => 'btn btn-primary']); ?>
-        </div>
     </div>
+</div>
+<?= Html::activeHiddenInput($model, 'default_template', ['value' => $model->defaultTemplate]) ?>
+
+<div class="form-group">
+    <div class="col-sm-12" style="text-align: right;">
+        <?= Html::button(Icon::show('close') . 'CLOSE', ['class' => 'btn btn-default', 'data-dismiss' => 'modal']); ?>
+        <?= Html::submitButton(Icon::show('save') . 'SAVE', ['class' => 'btn btn-primary']); ?>
+    </div>
+</div>
 <?php ActiveForm::end(); ?>
 
 <?php
@@ -345,7 +360,8 @@ $this->registerJsFile(
     ['depends' => [\yii\web\JqueryAsset::className()]]
 );
 
-$this->registerJs(<<<JS
+$this->registerJs(
+    <<<JS
 var d = new Date();
 var y = d.getFullYear() + 543;
 moment.locale('th');

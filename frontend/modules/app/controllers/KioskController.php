@@ -446,19 +446,28 @@ class KioskController extends \yii\web\Controller
     $modelDrugDispensing = TbDrugDispensing::findOne(['HN' => $model['q_hn']]);
 
     $sql = 'SELECT
-                Count(tb_quequ.q_ids) as count
-                FROM
-                tb_quequ
-                INNER JOIN tb_qtrans ON tb_qtrans.q_ids = tb_quequ.q_ids
-                WHERE
-                tb_quequ.servicegroupid = :servicegroupid AND
-                tb_quequ.q_ids < :q_ids AND
-                tb_qtrans.service_status_id = 1';
-    $params = [':servicegroupid' => $model['servicegroupid'], ':q_ids' => $id];
+      count( `tb_quequ`.`q_ids` )
+      FROM
+        `tb_quequ`
+      WHERE
+        q_status_id = 1
+        AND serviceid = :serviceid
+        AND q_ids < q.q_ids
+        AND DATE( tb_quequ.q_timestp ) = CURRENT_DATE
+      ) AS queue_left';
+    $params = [':serviceid' => $model['serviceid'], ':q_ids' => $id];
     $count = Yii::$app->db->createCommand($sql)
       ->bindValues($params)
       ->queryScalar();
-    $template = strtr($ticket->template, [
+
+    $attr = [];
+    $description = [];
+    $keys = array_keys($model->attributeLabels());
+    foreach ($keys as $value) {
+      $attr['{' . $value . '}'] = $model->{$value};
+    }
+
+    $template = strtr($ticket->template, ArrayHelper::merge([
       '{hos_name_th}' => $ticket->hos_name_th,
       '{q_hn}' => $model->q_hn,
       '{pt_name}' => $model->pt_name,
@@ -472,8 +481,8 @@ class KioskController extends \yii\web\Controller
       '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i'),
       '{user_print}' => Yii::$app->user->isGuest ? 'Kiosk' : Yii::$app->user->identity->profile->name,
       '{qwaiting}' => $count,
-      '/img/logo/logoBBH.png' => $ticket->logo_path ? $ticket->logo_base_url . '/' . $ticket->logo_path : '/img/logo/logoBBH.png',
-    ]);
+      '/img/logo/logo.jpg' => $ticket->logo_path ? $ticket->logo_base_url . '/' . $ticket->logo_path : '/img/logo/logo.jpg',
+    ], $attr));
     return $this->renderAjax('print-ticket', [
       'model' => $model,
       'ticket' => $ticket,
@@ -725,6 +734,9 @@ class KioskController extends \yii\web\Controller
     $u_id = ArrayHelper::getValue($params, 'u_id', null); //รหัสผู้ใช้งาน Mobile
     $q_status_id = ArrayHelper::getValue($params, 'q_status_id', 1); //สถานะ
     $token = ArrayHelper::getValue($params, 'token');  //รหัสแจ้งเตือน
+    $age = ArrayHelper::getValue($patient_info, 'age', null); //อายุ
+    $age = str_replace(' ', '', $age);
+    $age = str_replace('ปี', '', $age);
 
     // data models
     $modelService = TbService::findOne($serviceid); // กลุ่มบริการ
@@ -804,6 +816,7 @@ class KioskController extends \yii\web\Controller
         'quickly' => 0, //ความด่วนของคิว default 0
         'u_id' => $u_id, //รหัสผู้ใช้งาน Mobile
         'token' => $token, //รหัสแจ้งเตือน
+        'age' => $age,
         //'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6
       ]);
       if (!empty($picture)) {
@@ -1214,7 +1227,7 @@ class KioskController extends \yii\web\Controller
 						FROM
 							`tb_quequ`
 						WHERE
-							q_status_id <> 4
+							q_status_id = 1
 							AND serviceid = q.serviceid
 							AND q_ids < q.q_ids
 							AND DATE( tb_quequ.q_timestp ) = CURRENT_DATE

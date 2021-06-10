@@ -47,6 +47,10 @@ echo Tabs::widget([
             'content' => $this->render('_content_cid_station'),
         ],
         [
+            'label' => 'จำนวนคิวแจ้งเตือน',
+            'content' => $this->render('_content_calling_config'),
+        ],
+        [
             'label' => 'Lab',
             'content' => $this->render('_content_lab'),
         ],

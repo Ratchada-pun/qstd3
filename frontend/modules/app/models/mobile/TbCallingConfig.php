@@ -26,8 +26,9 @@ class TbCallingConfig extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['calling_id'], 'required'],
+            [['notice_queue'], 'required'],
             [['calling_id', 'notice_queue'], 'integer'],
+            [['notice_queue_status'], 'string', 'max' => 2],
             [['calling_id'], 'unique'],
         ];
     }
@@ -40,6 +41,7 @@ class TbCallingConfig extends \yii\db\ActiveRecord
         return [
             'calling_id' => 'Calling ID',
             'notice_queue' => 'จำนวนคิวที่แจ้งเตือน',
+            'notice_queue_status' => 'สถานะ',
         ];
     }
 }

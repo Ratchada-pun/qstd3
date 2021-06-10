@@ -37,7 +37,6 @@ use frontend\modules\app\models\TbCounterservice;
 use frontend\modules\app\models\TbTicket;
 use frontend\modules\app\models\TbServiceProfile;
 use frontend\modules\app\models\TbSoundStation;
-use frontend\modules\app\models\TbQuequ;
 use frontend\modules\app\traits\ModelTrait;
 use frontend\modules\app\models\TbQuequData;
 use frontend\modules\app\models\TbCaller;
@@ -46,10 +45,13 @@ use frontend\modules\app\models\TbQtransData;
 use frontend\modules\app\models\TbQtrans;
 use frontend\modules\app\models\TbCidStation;
 use frontend\modules\app\models\LabItems;
+use frontend\modules\app\models\mobile\TbCallingConfig;
 use frontend\modules\app\models\TbKiosk;
 use frontend\modules\app\models\TbServiceTslot;
 use frontend\modules\app\models\TbTokenNhso;
+use kartik\switchinput\SwitchInput;
 use yii\web\HttpException;
+use frontend\modules\app\models\mobile\TbQuequ;
 
 class SettingsController extends \yii\web\Controller
 {
@@ -81,7 +83,9 @@ class SettingsController extends \yii\web\Controller
                     'delete-service-profile' => ['POST'],
                     'delete-sound-station' => ['POST'],
                     'delete-cid-station' => ['POST'],
-                    'delete-kiosk' => ['POST']
+                    'delete-kiosk' => ['POST'],
+                    'delete-calling-config' => ['POST']
+
                 ],
             ],
         ];
@@ -1785,14 +1789,23 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $model = new TbTicket();
+        $modelQueue = new TbQuequ();
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
+            $description = [];
+            $qattr = $modelQueue->attributeLabels();
+            $keys = array_keys($qattr);
+            foreach ($keys as $value) {
+                $description[] = '{' . $value . '} : '. ArrayHelper::getValue($qattr, $value);
+            }
+
             if ($request->isGet) {
                 return [
                     'title' => "จัดการข้อมูลบัตรคิว",
                     'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
+                        'description' => $description,
                     ]),
                     'footer' => '',
 
@@ -1810,6 +1823,7 @@ class SettingsController extends \yii\web\Controller
                     'title' => "จัดการข้อมูลบัตรคิว",
                     'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
+                        'description' => $description,
                     ]),
                     'footer' => '',
                     'status' => 'validate',
@@ -1825,14 +1839,22 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $model = TbTicket::findOne($id);
+        $modelQueue = new TbQuequ();
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
+            $description = [];
+            $qattr = $modelQueue->attributeLabels();
+            $keys = array_keys($qattr);
+            foreach ($keys as $value) {
+                $description[] = '{' . $value . '} : '. ArrayHelper::getValue($qattr, $value);
+            }
             if ($request->isGet) {
                 return [
                     'title' => "จัดการข้อมูลบัตรคิว",
                     'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
+                        'description' => $description,
                     ]),
                     'footer' => '',
 
@@ -1850,6 +1872,7 @@ class SettingsController extends \yii\web\Controller
                     'title' => "จัดการข้อมูลบัตรคิว",
                     'content' => $this->renderAjax('_form_ticket', [
                         'model' => $model,
+                        'description' => $description,
                     ]),
                     'footer' => '',
                     'status' => 'error',
@@ -2629,5 +2652,189 @@ class SettingsController extends \yii\web\Controller
                 'model' => $model,
             ]);
         }
+    }
+
+
+    public function actionDataCallingConfig()
+    {
+        $request = Yii::$app->request;
+
+        if ($request->isAjax) {
+            $query = (new \yii\db\Query())
+                ->select(['tb_calling_config.*'])
+                ->from('tb_calling_config');
+
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => false,
+                ],
+                'key' => 'calling_id'
+            ]);
+            $columns = Yii::createObject([
+                'class' => ColumnData::className(),
+                'dataProvider' => $dataProvider,
+                'formatter' => Yii::$app->getFormatter(),
+                'columns' => [
+                    [
+                        'attribute' => 'calling_id',
+                    ],
+                    [
+                        'attribute' => 'notice_queue',
+                    ],
+                    [
+                        'attribute' => 'notice_queue_status',
+                        'value' => function ($model, $key, $index) {
+                            return $this->getBadgeStatus($model['notice_queue_status']);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'notice_queue_status1',
+                        'value' => function ($model, $key, $index) {
+                            $checked = $model['notice_queue_status'] == 1 ? 'checked' : '';
+                            return '<label class="switch ">' .
+                                '<span>เปิด</span>' .
+                                '<input type="checkbox" class="success" data-key="' . $model['calling_id'] . '" value="' . $model['notice_queue_status'] . '" ' . $checked . '>' .
+                                '<span class="slider round"></span>' .
+                                '</label>';
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'class' => ActionTable::className(),
+                        'template' => ' {update} {delete} ',
+                        'updateOptions' => [
+                            'role' => 'modal-remote'
+                        ],
+                        'deleteOptions' => [
+                            'class' => 'text-danger'
+                        ],
+                        'urlCreator' => function ($action, $model, $key, $index) {
+
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-calling-config', 'id' => $key]);
+                            }
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-calling-config', 'id' => $key]);
+                            }
+                        }
+
+                    ]
+                ]
+            ]);
+
+            return Json::encode(['data' => $columns->renderDataColumns()]);
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
+        }
+    }
+
+
+    public function actionCreateCallingConfig()
+    {
+        $request = Yii::$app->request;
+        $model = new TbCallingConfig();
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($request->isGet) {
+                return [
+                    'title' => "เพิ่มจำนวนคิวที่แจ้งเตือน",
+                    'content' => $this->renderAjax('_form_calling_config', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+
+                ];
+            } else if ($model->load($request->post()) && $model->save()) {
+                return [
+                    'title' => "เพิ่มจำนวนคิวที่แจ้งเตือน",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
+                    'status' => '200',
+                ];
+            } else {
+                return [
+                    'title' => "เพิ่มจำนวนคิวที่แจ้งเตือน",
+                    'content' => $this->renderAjax('_form_calling_config', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+                    'status' => 'validate',
+                    'validate' => ActiveForm::validate($model),
+                ];
+            }
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
+        }
+    }
+
+    public function actionUpdateCallingConfig($id)
+    {
+        $request = Yii::$app->request;
+        $model = TbCallingConfig::findOne($id);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($request->isGet) {
+                return [
+                    'title' => "แก้ไขจำนวนคิว",
+                    'content' => $this->renderAjax('_form_calling_config', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+
+                ];
+            } else if ($model->load($request->post()) && $model->save()) {
+                return [
+                    'title' => "แก้ไขจำนวนคิว",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
+                    'status' => '200',
+                ];
+            } else {
+                return [
+                    'title' => "แก้ไขจำนวนคิว",
+                    'content' => $this->renderAjax('_form_calling_config', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+                    'status' => 'validate',
+                    'validate' => ActiveForm::validate($model),
+                ];
+            }
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
+        }
+    }
+
+    public function actionDeleteCallingConfig($id)
+    {
+        $request = Yii::$app->request;
+        TbCallingConfig::findOne($id)->delete();
+        if ($request->isAjax) {
+            /*
+            *   Process for ajax request
+            */
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ['forceClose' => true];
+        } else {
+            /*
+            *   Process for non-ajax request
+            */
+            return $this->redirect(['index']);
+        }
+    }
+
+    public function actionSaveStatusNoticeQueue()
+    {
+        $request = Yii::$app->request;
+        $model = TbCallingConfig::findOne($request->post('id'));
+        $model->notice_queue_status = $request->post('value');
+        $model->save();
+
+        TbCallingConfig::updateAll(['notice_queue_status' => 0], ['<>', 'calling_id', $request->post('id')]);  //update ข้อมูใน table ทั้งหมด
+        return Json::encode($model);
     }
 }
