@@ -65,16 +65,19 @@ $this->registerJsFile(
     ['depends' => [\yii\web\JqueryAsset::className()]]
 );
 
+$qr = \Yii::$app->keyStorage->get('qr-print', 'q_qn');
+$barcode = \Yii::$app->keyStorage->get('barcode-print', 'q_qn');
+
 $this->registerJs(<<<JS
 });
 $(window).on('load', function() {
     //Barcode
-    $("#bcTarget").barcode("{$model->q_qn}", "$ticket->barcode_type",{
+    $("#bcTarget").barcode("{$barcode}", "$ticket->barcode_type",{
         fontSize: 10,
         showHRI: true
     });
     //QRCode
-    jQuery('#qrcode').qrcode({width: 100,height: 100,text: "{$model->q_qn}" });
+    jQuery('#qrcode').qrcode({width: 100,height: 100,text: "{$qr}" });
     //Print
     window.print();
     window.onafterprint = function(){
