@@ -275,7 +275,7 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                                             </div>
                                         </div>
                                     </div>
-
+                                <?php /*
                                     <div class="hpanel hpanel-ticket">
                                         <div class="panel-heading hbuilt">
                                             <div class="panel-tools">
@@ -291,6 +291,7 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
                                             <?php endif; ?>
                                         </div>
                                     </div>
+                                    */?>
                                 </div>
                             </div>
                         </div><!-- End panel body -->
