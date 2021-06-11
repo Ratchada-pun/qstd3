@@ -426,7 +426,7 @@ class CallingController extends \yii\web\Controller
             $formData = $request->post('modelForm', []);
             $profileData = $request->post('modelProfile', []);
             $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
-            $labItems = $this->findLabs();
+            // $labItems = $this->findLabs();
 
             $query = (new \yii\db\Query())
                 ->select([
@@ -560,8 +560,8 @@ class CallingController extends \yii\web\Controller
                             'end' => function ($url, $model, $key) {
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
-                            'waiting' => function ($url, $model, $key) {
-                                if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] == 1) {
+                            'waiting' => function ($url, $model, $key ) use ($profileData) {
+                                if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] == 1 && $profileData['service_profile_id'] != 21) {
                                     return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
                                 } else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
                                     return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
