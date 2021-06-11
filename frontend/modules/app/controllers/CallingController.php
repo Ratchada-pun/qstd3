@@ -196,7 +196,10 @@ class CallingController extends \yii\web\Controller
             ->select(['tb_servicegroup.*', 'tb_service.*'])
             ->from('tb_servicegroup')
             ->innerJoin('tb_service', 'tb_service.service_groupid = tb_servicegroup.servicegroupid')
-            ->where(['tb_servicegroup.servicegroupid' => 2, 'tb_service.service_status' => 1])
+            ->where([
+               // 'tb_servicegroup.servicegroupid' => 2, 
+                'tb_service.service_status' => 1
+                ])
             ->groupBy('tb_service.main_dep')
             ->orderBy(['tb_servicegroup.servicegroup_order' => SORT_ASC])
             ->all();
