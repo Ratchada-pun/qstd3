@@ -736,6 +736,8 @@ class KioskController extends \yii\web\Controller
     $age = ArrayHelper::getValue($patient_info, 'age', null); //อายุ
     $age = str_replace(' ', '', $age);
     $age = str_replace('ปี', '', $age);
+    $countdrug = ArrayHelper::getValue($params, 'countdrug', 0); //
+    $qfinace = ArrayHelper::getValue($params, 'qfinace', 0); //
 
     // data models
     $modelService = TbService::findOne($serviceid); // กลุ่มบริการ
@@ -816,6 +818,8 @@ class KioskController extends \yii\web\Controller
         'u_id' => $u_id, //รหัสผู้ใช้งาน Mobile
         'token' => $token, //รหัสแจ้งเตือน
         'age' => $age,
+        'qfinace' => $qfinace,
+        'countdrug' => $countdrug,
         //'q_status_id' => $u_id ? 6 : 1,  //สถานะคิว default 1 แต่ถ้ามี u_id คิวมาจาก mobile status = 6
       ]);
       if (!empty($picture)) {

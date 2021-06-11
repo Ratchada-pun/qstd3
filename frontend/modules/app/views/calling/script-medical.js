@@ -396,7 +396,7 @@ Queue = {
       var data = dt_tbcalling.row(tr).data();
       if (self.checkCounter()) {
         swal({
-          title: "ยืนยันส่งห้องแพทย์ คิว " + data.qnumber + " ?",
+          title: "ยืนยันส่งคิว " + data.qnumber + " ?",
           text: data.pt_name,
           html:
             '<small class="text-danger" style="font-size: 13px;">กด Enter เพื่อยืนยัน / กด Esc เพื่อยกเลิก</small>' +

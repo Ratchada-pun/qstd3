@@ -199,7 +199,7 @@ class CallingController extends \yii\web\Controller
             ->where([
                 //'tb_servicegroup.servicegroupid' => 2, 
                 'tb_service.service_status' => 1
-                ])
+            ])
             ->groupBy('tb_service.main_dep')
             ->orderBy(['tb_servicegroup.servicegroup_order' => SORT_ASC])
             ->all();
@@ -311,8 +311,7 @@ class CallingController extends \yii\web\Controller
                 ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
                 ->where([
                     'tb_quequ.serviceid' => $services,
-                    'tb_quequ.q_status_id' => [1,11,12,13],
-                    'tb_qtrans.service_status_id' => [1,11,12,13]
+                    'tb_qtrans.service_status_id' => [1, 11, 12, 13]
                 ])
                 ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'checkin_date' => SORT_ASC]);
@@ -442,6 +441,8 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.q_hn',
                     'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
+                    'tb_quequ.countdrug',
+                    'tb_quequ.qfinace',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service.service_name',
@@ -461,7 +462,7 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.serviceid' => $services,
                     'tb_caller.counter_service_id' => $formData['counter_service'],
                     'tb_caller.call_status' => ['calling', 'callend'],
-                    'tb_quequ.q_status_id' => [2,11,12]
+                    'tb_quequ.q_status_id' => [2, 11, 12, 13]
                 ])
                 ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
@@ -502,6 +503,12 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'pt_name',
+                    ],
+                    [
+                        'attribute' => 'countdrug',
+                    ],
+                    [
+                        'attribute' => 'qfinace',
                     ],
                     [
                         'attribute' => 'counter_service_id',
@@ -554,7 +561,11 @@ class CallingController extends \yii\web\Controller
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
                             'waiting' => function ($url, $model, $key) {
-                                return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
+                                if ($model['serviceid'] == 12 && $model['countdrug'] == 1) {
+                                    return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
+                                } else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
+                                    return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
+                                }
                             },
                         ],
                         'urlCreator' => function ($action,  $model,  $key, $index) {
@@ -568,7 +579,12 @@ class CallingController extends \yii\web\Controller
                                 return Url::to(['/app/calling/end', 'id' => $key]);
                             }
                             if ($action == 'waiting') {
-                                return Url::to(['/app/calling/waiting-doctor', 'id' => $key]);
+                                if ($model['serviceid'] == 12 && $model['countdrug'] == 1) {
+                                    return Url::to(['/app/calling/waiting-pharmacy', 'id' => $key]);
+                                } else {
+                                    return Url::to(['/app/calling/waiting-doctor', 'id' => $key]);
+                                }
+                                
                             }
                         }
                     ]
@@ -606,6 +622,8 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.q_hn',
                     'tb_quequ.q_qn',
                     'tb_quequ.pt_name',
+                    'tb_quequ.countdrug',
+                    'tb_quequ.qfinace',
                     'tb_service_status.service_status_name',
                     'tb_counterservice.counterservice_name',
                     'tb_service.service_name',
@@ -625,7 +643,7 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.serviceid' => $services,
                     'tb_caller.counter_service_id' => $formData['counter_service'],
                     'tb_caller.call_status' => 'hold',
-                    'tb_quequ.q_status_id' => [3]
+                    'tb_quequ.q_status_id' => [3, 11, 12, 13]
                 ])
                 ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
@@ -666,6 +684,12 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'pt_name',
+                    ],
+                    [
+                        'attribute' => 'countdrug',
+                    ],
+                    [
+                        'attribute' => 'qfinace',
                     ],
                     [
                         'attribute' => 'counter_service_id',
@@ -728,7 +752,7 @@ class CallingController extends \yii\web\Controller
     public function actionCall($id)
     {
         $request = Yii::$app->request;
-        
+
         if ($request->isAjax) {
             \Yii::$app->response->format = Response::FORMAT_JSON;
             $db = Yii::$app->db;
@@ -741,7 +765,7 @@ class CallingController extends \yii\web\Controller
                 $counter = $this->findModelCounterservice($dataForm['counter_service']);
                 $modelQ = $this->findModelQuequ($id);
                 $modelQueue = TbQuequ::findOne($id);
-                
+
 
                 $model = new TbCaller();
                 $model->q_ids = $id;
@@ -824,7 +848,7 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
-           // $modelQ = $this->findModelQuequ($data['q_ids']);
+            // $modelQ = $this->findModelQuequ($data['q_ids']);
             $modelQueue = TbQuequ::findOne($data['q_ids']);
 
 
@@ -893,7 +917,7 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
-           // $modelQ = $this->findModelQuequ($data['q_ids']);
+            // $modelQ = $this->findModelQuequ($data['q_ids']);
             $modelQueue = TbQuequ::findOne($data['q_ids']);
 
             $model = $this->findModelCaller($id);
@@ -962,7 +986,7 @@ class CallingController extends \yii\web\Controller
 
             $model = $this->findModelCaller($data['caller_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
-           // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+            // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
             $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
 
 
@@ -1011,7 +1035,7 @@ class CallingController extends \yii\web\Controller
 
             $model = $this->findModelCaller($data['caller_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
-           // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+            // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
             $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
 
             $modelQtran->service_status_id = 4;
@@ -3025,7 +3049,7 @@ class CallingController extends \yii\web\Controller
                 $dataProfile = $request->post('modelProfile', []);
                 $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
                 $counter = $this->findModelCounterservice($request->post('value'));
-               // $modelQ = $this->findModelQuequ($data['q_ids']);
+                // $modelQ = $this->findModelQuequ($data['q_ids']);
                 $modelQ = TbQuequ::findOne($data['q_ids']);
 
                 $model = new TbCaller();
@@ -3172,7 +3196,7 @@ class CallingController extends \yii\web\Controller
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
 
             $model = $this->findModelCaller($id);
-           // $modelQ = $this->findModelQuequ($model['q_ids']);
+            // $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQ = TbQuequ::findOne($data['q_ids']);
 
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
@@ -3243,7 +3267,7 @@ class CallingController extends \yii\web\Controller
             $model = $this->findModelCaller($id);
             $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQueue = TbQuequ::findOne($model['q_ids']);
-            
+
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $counter = $this->findModelCounterservice($model['counter_service_id']);
 
@@ -3374,7 +3398,7 @@ class CallingController extends \yii\web\Controller
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
 
             $model = $this->findModelCaller($id);
-          //  $modelQ = $this->findModelQuequ($model['q_ids']);
+            //  $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQueue = TbQuequ::findOne($model['q_ids']);
 
 
@@ -3420,7 +3444,7 @@ class CallingController extends \yii\web\Controller
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
 
             $model = $this->findModelCaller($id);
-           // $modelQ = $this->findModelQuequ($model['q_ids']);
+            // $modelQ = $this->findModelQuequ($model['q_ids']);
             $modelQueue = TbQuequ::findOne($model['q_ids']);
 
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
@@ -4792,6 +4816,62 @@ class CallingController extends \yii\web\Controller
         } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
+        }
+    }
+
+    public function actionWaitingPharmacy()
+    {
+        $request = Yii::$app->request;
+        if ($request->isAjax) {
+            \Yii::$app->response->format = Response::FORMAT_JSON;
+
+            $data = $request->post('data', []);
+            $dataForm = $request->post('modelForm', []);
+            $dataProfile = $request->post('modelProfile', []);
+            $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
+            $counter = $this->findModelCounterservice($dataForm['counter_service']);
+
+            $model = $this->findModelCaller($data['caller_ids']);
+            $modelQtran = $this->findModelQTrans($model['qtran_ids']);
+            // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
+            $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
+
+            $modelQtran->service_status_id = 4;
+            $model->call_status = TbCaller::STATUS_FINISHED;
+
+            $modelQueue->q_status_id = 12;
+
+            $modelQueuetran = new TbQtrans();
+            $modelQueuetran->setAttributes([
+                'q_ids' => $data['q_ids'],
+                'servicegroupid' => $modelQueue['servicegroupid'],
+                'doctor_id' => $modelQtran['doctor_id'],
+                'checkin_date' => $modelQtran['checkin_date'],
+                'checkout_date' => $modelQtran['checkout_date'],
+                'service_status_id' => 12,
+            ]);
+
+            if ($model->save() && $modelQtran->save() && $modelQueue->save() && $modelQueuetran->save()) {
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'data' => $data,
+                    'modelCaller' => $model,
+                    'modelQueue' => $modelQueue,
+                    'modelProfile' => $modelProfile,
+                    'counter' => $counter,
+                    'eventOn' => 'tb-calling',
+                    'state' => 'waiting-doctor'
+                ];
+            } else {
+                return [
+                    'status' => '500',
+                    'message' => 'error',
+                    'validate' => ActiveForm::validate($model)
+                ];
+            }
+        } else {
+            throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
         }
     }
 }
