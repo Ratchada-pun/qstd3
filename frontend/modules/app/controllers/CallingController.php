@@ -312,7 +312,7 @@ class CallingController extends \yii\web\Controller
                 ->where([
                     'tb_quequ.serviceid' => $services,
                     'tb_quequ.q_status_id' => [1,11,12,13],
-                    'tb_qtrans.service_status_id' => 1
+                    'tb_qtrans.service_status_id' => [1,11,12,13]
                 ])
                 ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'checkin_date' => SORT_ASC]);
