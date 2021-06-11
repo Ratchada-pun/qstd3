@@ -461,7 +461,7 @@ class CallingController extends \yii\web\Controller
                     'tb_quequ.serviceid' => $services,
                     'tb_caller.counter_service_id' => $formData['counter_service'],
                     'tb_caller.call_status' => ['calling', 'callend'],
-                    'tb_quequ.q_status_id' => [2]
+                    'tb_quequ.q_status_id' => [2,11,12]
                 ])
                 ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
                 ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
