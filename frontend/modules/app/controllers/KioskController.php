@@ -473,6 +473,7 @@ class KioskController extends \yii\web\Controller
       '{q_num}' => $model->q_num,
       '{q_vn}' => $model->q_vn,
       '{q_qn}' => $model->q_qn,
+      '{age}' => $model->age,
       '{rx_q}' => $model->rx_q,
       '{pharmacy_drug_name}' => ArrayHelper::getValue($modelDrugDispensing, 'pharmacy_drug_name', ''), //ชื่อร้านขายยา
       '{pt_visit_type}' => '',
