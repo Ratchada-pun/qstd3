@@ -35,6 +35,7 @@ use frontend\modules\app\models\QueuesInterface;
 use frontend\modules\app\models\QueuesInterfaceSearch;
 use kartik\form\ActiveForm;
 use yii\httpclient\Client;
+use frontend\modules\app\models\TbService;
 
 class CallingController extends \yii\web\Controller
 {
@@ -1021,7 +1022,7 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionWaitingDoctor()
+    public function actionWaitingDoctor($id)
     {
         $request = Yii::$app->request;
         if ($request->isAjax) {
@@ -1032,39 +1033,58 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
-
             $model = $this->findModelCaller($data['caller_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
             $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
+            $modelService = TbService::find()->where(['serviceid' => $modelQueue['serviceid']])->one();
+
+            $modelServiceEx = TbService::find()
+                ->where(['main_dep' => $modelService['main_dep'], 'service_type_id' => 2, 'service_groupid' => $modelService['service_groupid']])
+                ->one();
+            if (!$modelServiceEx) {
+                throw new HttpException(404, 'ไม่พบการตั้งค่าห้องตรวจ');
+            }
 
             $modelQtran->service_status_id = 4;
             $model->call_status = TbCaller::STATUS_FINISHED;
+            $modelQueue->q_status_id = 4;
 
-            $modelQueue->q_status_id = 5;
+            $newModelQueue = new TbQuequ();
+            $newModelQueue->attributes = $modelQueue->attributes;
+            $newModelQueue->serviceid = $modelServiceEx['serviceid'];
+            $newModelQueue->q_ids = null;
+            $newModelQueue->q_status_id = 5;
 
-            $modelQueuetran = new TbQtrans();
-            $modelQueuetran->setAttributes([
-                'q_ids' => $data['q_ids'],
-                'servicegroupid' => $modelQueue['servicegroupid'],
-                'doctor_id' => $modelQtran['doctor_id'],
-                'checkin_date' => $modelQtran['checkin_date'],
-                'checkout_date' => $modelQtran['checkout_date'],
-                'service_status_id' => 5,
-            ]);
-
-            if ($model->save() && $modelQtran->save() && $modelQueue->save() && $modelQueuetran->save()) {
-                return [
-                    'status' => '200',
-                    'message' => 'success',
-                    'data' => $data,
-                    'modelCaller' => $model,
-                    'modelQueue' => $modelQueue,
-                    'modelProfile' => $modelProfile,
-                    'counter' => $counter,
-                    'eventOn' => 'tb-calling',
-                    'state' => 'waiting-doctor'
-                ];
+            if ($model->save() && $modelQtran->save() && $modelQueue->save() && $newModelQueue->save()) {
+                $modelQueuetran = new TbQtrans();
+                $modelQueuetran->setAttributes([
+                    'q_ids' => $newModelQueue['q_ids'],
+                    'servicegroupid' => $newModelQueue['servicegroupid'],
+                    'doctor_id' => $modelQtran['doctor_id'],
+                    'checkin_date' => $modelQtran['checkin_date'],
+                    'checkout_date' => $modelQtran['checkout_date'],
+                    'service_status_id' => 5,
+                ]);
+                if($modelQueuetran->save()){
+                    return [
+                        'status' => '200',
+                        'message' => 'success',
+                        'data' => $data,
+                        'modelCaller' => $model,
+                        'modelQueue' => $modelQueue,
+                        'modelProfile' => $modelProfile,
+                        'counter' => $counter,
+                        'eventOn' => 'tb-calling',
+                        'state' => 'waiting-doctor'
+                    ];
+                }else {
+                    return [
+                        'status' => '500',
+                        'message' => 'error',
+                        'validate' => ActiveForm::validate($modelQueuetran)
+                    ];
+                }
             } else {
                 return [
                     'status' => '500',
