@@ -136,7 +136,7 @@ CSS
                                     'theme' => Select2::THEME_BOOTSTRAP,
                                 ]) ?>
                             </div>
-
+                        <?php /*
                             <?= Html::activeLabel($modelCounterservice, "[{$index}]serviceid", ['label' => 'กลุ่มบริการย่อย','class'=>'col-sm-1 control-label']) ?>
                             <div class="col-sm-4">
                                 <?= $form->field($modelCounterservice, "[{$index}]serviceid",['showLabels'=>false])->widget(DepDrop::classname(), [
@@ -160,7 +160,9 @@ CSS
                                         ],
                                     ],
                                 ]); ?>
+                               
                             </div>
+                             */?>
                         </div><!-- End FormGroup /-->
 
                         <div class="form-group">
