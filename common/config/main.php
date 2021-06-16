@@ -11,7 +11,8 @@ return [
         '@homer/mpdf' => '@homer/extensions/yii2-mpdf',
         '@Mpdf' => '@common/lib/mpdf/src',
         '@homer/menu' => '@common/modules/yii2-menu',
-        '@kartik/daterange' => '@homer/widgets/yii2-date-range'
+        '@kartik/daterange' => '@homer/widgets/yii2-date-range',
+        '@kartik/sortinput' => '@homer/widgets/yii2-sortable-input/src'
     ],
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     # ตั้งค่าการใช้งานภาษาไทย (Language)

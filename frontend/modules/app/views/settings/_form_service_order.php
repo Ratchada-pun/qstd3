@@ -2,7 +2,7 @@
 use yii\helpers\Html;
 use kartik\form\ActiveForm;
 use yii\icons\Icon;
-use homer\widgets\sortinput\SortableInput;
+use kartik\sortinput\SortableInput;
 ?>
 <?php $form = ActiveForm::begin([
     'id' => 'form-service-order', 'type' => ActiveForm::TYPE_HORIZONTAL, 
