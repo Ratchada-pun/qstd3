@@ -1151,6 +1151,7 @@ class KioskController extends \yii\web\Controller
 
     $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
     $hn = ArrayHelper::getValue($params, 'hn', null); //หมายเลข hn
+    $q_ids = ArrayHelper::getValue($params, 'q_ids', null); //ไอดีคิว
 
     if (!$hn) {
       throw new HttpException(400, 'invalid hn');
@@ -1162,7 +1163,7 @@ class KioskController extends \yii\web\Controller
 
     try {
       $modelQueue = TbQuequ::find()
-        ->where(['q_hn' => $hn, 'q_status_id' => [6]]) //สถานะคิวจาก mobile
+        ->where(['q_hn' => $hn, 'q_status_id' => [6], 'q_ids' => $q_ids]) //สถานะคิวจาก mobile
         ->andWhere('DATE(q_timestp) = CURRENT_DATE')
         ->one();
       if (!$modelQueue) {
