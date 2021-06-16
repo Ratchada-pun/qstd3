@@ -8,6 +8,7 @@ use yii\db\ActiveRecord;
 use yii\helpers\Html;
 use yii\icons\Icon;
 use kartik\helpers\Html as kartik;
+
 /**
  * This is the model class for table "tb_sound_station".
  *
@@ -47,9 +48,9 @@ class TbSoundStation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['sound_station_name', 'counterserviceid','sound_station_status'], 'required'],
+            [['sound_station_name', 'counterserviceid', 'sound_station_status'], 'required'],
             [['sound_station_name'], 'string', 'max' => 255],
-            [['counterserviceid'],'safe'],
+            [['counterserviceid'], 'safe'],
         ];
     }
 
@@ -75,25 +76,39 @@ class TbSoundStation extends \yii\db\ActiveRecord
         return new TbSoundStationQuery(get_called_class());
     }
 
-    public function getCounterList(){
+    public function getCounterList()
+    {
         $li = [];
-        if(!empty($this->counterserviceid)){
-            $counters = explode(",",$this->counterserviceid);
-            $model = TbCounterservice::find()->where(['counterserviceid' => $counters])->all();
+        if (!empty($this->counterserviceid)) {
+            $counters = explode(",", $this->counterserviceid);
+            $model = (new \yii\db\Query())
+                ->select(['tb_counterservice.counterserviceid', 'concat(tb_counterservice_type.counterservice_type, \' : \', tb_counterservice.counterservice_name) as counterservice_name'])
+                ->from('tb_counterservice')
+                ->innerJoin('tb_counterservice_type', 'tb_counterservice_type.counterservice_typeid = tb_counterservice.counterservice_type')
+                ->where(['tb_counterservice.counterserviceid' => $counters])
+                ->all();
+            //$model = TbCounterservice::find()->where(['counterserviceid' => $counters])->all();
             foreach ($model as $key => $value) {
-                $li[] = Html::tag('li',$value['counterservice_name']);
+                $li[] = Html::tag('li', $value['counterservice_name']);
             }
         }
-        return count($li) > 0 ? Html::tag('ol',implode("\n", $li)) : '';
+        return count($li) > 0 ? Html::tag('ol', implode("\n", $li)) : '';
     }
 
-    public function getCounterPlayList(){
+    public function getCounterPlayList()
+    {
         $badge = [];
-        if(!empty($this->counterserviceid)){
-            $counters = explode(",",$this->counterserviceid);
-            $model = TbCounterservice::find()->where(['counterserviceid' => $counters])->all();
+        if (!empty($this->counterserviceid)) {
+            $counters = explode(",", $this->counterserviceid);
+            $model = (new \yii\db\Query())
+                ->select(['tb_counterservice.counterserviceid', 'concat(tb_counterservice_type.counterservice_type, \' : \', tb_counterservice.counterservice_name) as counterservice_name'])
+                ->from('tb_counterservice')
+                ->innerJoin('tb_counterservice_type', 'tb_counterservice_type.counterservice_typeid = tb_counterservice.counterservice_type')
+                ->where(['tb_counterservice.counterserviceid' => $counters])
+                ->all();
+            // $model = TbCounterservice::find()->where(['counterserviceid' => $counters])->all();
             foreach ($model as $key => $value) {
-                $badge[] = Kartik::badge(Icon::show('check').$value['counterservice_name'],['class' => 'badge badge-success']);
+                $badge[] = Kartik::badge(Icon::show('check') . $value['counterservice_name'], ['class' => 'badge badge-success']);
             }
         }
         return implode("\n", $badge);

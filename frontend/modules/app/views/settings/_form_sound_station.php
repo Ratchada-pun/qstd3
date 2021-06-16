@@ -1,10 +1,10 @@
 <?php
-use yii\helpers\Html;
+
 use kartik\form\ActiveForm;
-use yii\icons\Icon;
-use frontend\modules\app\models\TbCounterservice;
-use yii\helpers\ArrayHelper;
 use kartik\widgets\Select2;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\icons\Icon;
 
 $this->registerCss('
 .modal-dialog{
@@ -17,58 +17,64 @@ $this->registerCss('
 ?>
 
 <?php $form = ActiveForm::begin([
-    'id' => 'form-sound-station', 'type' => ActiveForm::TYPE_HORIZONTAL, 
+    'id' => 'form-sound-station', 'type' => ActiveForm::TYPE_HORIZONTAL,
     'formConfig' => ['showLabels' => false],
-]);?>
-	<div class="form-group">
-	    <?= Html::activeLabel($model, 'sound_station_name', ['label' =>'ชื่อ','class'=>'col-sm-2 control-label']) ?>
-	    <div class="col-sm-4">
-	        <?= $form->field($model, 'sound_station_name',['showLabels'=>false])->textInput([]); ?>
-	    </div>
-	</div>
-
-	<div class="form-group">
-	    <?= Html::activeLabel($model, 'counterserviceid', ['label' => 'กลุ่มบริการย่อย','class'=>'col-sm-2 control-label']) ?>
-	    <div class="col-sm-10">
-            <?= $form->field($model, 'counterserviceid',['showLabels'=>false])->checkBoxList(ArrayHelper::map(TbCounterservice::find()->where(['counterservice_status' => 1])->asArray()->all(),'counterserviceid','counterservice_name'),[
-            	'inline'=>false,
-            	'item' => function($index, $label, $name, $checked, $value) {
-
-					$return = '<div class="checkbox"><label style="font-size: 1em">';
-					$return .= Html::checkbox( $name, $checked,['value' => $value]);
-					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
-					$return .= '</label></div>';
-
-					return $return;
-				}
-            ]); ?>
-        </div>
-	</div>
-
-    <div class="form-group">
-        <?= Html::activeLabel($model, 'sound_station_status', ['label' => 'สถานะ','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <?= $form->field($model, 'sound_station_status',['showLabels'=>false])->widget(Select2::classname(), [
-                'data' => [0 => 'Disabled', 1 => 'Enabled'],
-                'options' => ['placeholder' => 'สถานะ...'],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-                'theme' => Select2::THEME_BOOTSTRAP,
-            ]) ?>
-        </div>
+]); ?>
+<div class="form-group">
+    <?= Html::activeLabel($model, 'sound_station_name', ['label' => 'ชื่อ', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'sound_station_name', ['showLabels' => false])->textInput([]); ?>
     </div>
+</div>
 
-	<div class="form-group">
-        <div class="col-sm-12" style="text-align: right;">
-            <?= Html::button(Icon::show('close').'CLOSE',['class' => 'btn btn-default','data-dismiss' => 'modal']); ?>
-            <?= Html::submitButton(Icon::show('save').'SAVE',['class' => 'btn btn-primary']); ?>
-        </div>
+<div class="form-group">
+    <?= Html::activeLabel($model, 'counterserviceid', ['label' => 'ช่องบริการ', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-10">
+        <?= $form->field($model, 'counterserviceid', ['showLabels' => false])->checkBoxList(ArrayHelper::map((new \yii\db\Query())
+            ->select(['tb_counterservice.counterserviceid', 'concat(tb_counterservice_type.counterservice_type, \' : \', tb_counterservice.counterservice_name) as counterservice_name'])
+            ->from('tb_counterservice')
+            ->innerJoin('tb_counterservice_type', 'tb_counterservice_type.counterservice_typeid = tb_counterservice.counterservice_type')
+            ->where(['tb_counterservice.counterservice_status' => 1])
+            ->all(), 'counterserviceid', 'counterservice_name'), [
+            'inline' => false,
+            'item' => function ($index, $label, $name, $checked, $value) {
+
+                $return = '<div class="checkbox"><label style="font-size: 1em">';
+                $return .= Html::checkbox($name, $checked, ['value' => $value]);
+                $return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+                $return .= '</label></div>';
+
+                return $return;
+            },
+        ]); ?>
     </div>
+</div>
+
+<div class="form-group">
+    <?= Html::activeLabel($model, 'sound_station_status', ['label' => 'สถานะ', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'sound_station_status', ['showLabels' => false])->widget(Select2::classname(), [
+            'data' => [0 => 'Disabled', 1 => 'Enabled'],
+            'options' => ['placeholder' => 'สถานะ...'],
+            'pluginOptions' => [
+                'allowClear' => true,
+            ],
+            'theme' => Select2::THEME_BOOTSTRAP,
+        ]) ?>
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-12" style="text-align: right;">
+        <?= Html::button(Icon::show('close') . 'CLOSE', ['class' => 'btn btn-default', 'data-dismiss' => 'modal']); ?>
+        <?= Html::submitButton(Icon::show('save') . 'SAVE', ['class' => 'btn btn-primary']); ?>
+    </div>
+</div>
 <?php ActiveForm::end(); ?>
 
 <?php
-$this->registerJs(<<<JS
+$this->registerJs(
+    <<<JS
 var table = $('#tb-sound-station').DataTable();
 var \$form = $('#form-sound-station');
 \$form.on('beforeSubmit', function() {
@@ -91,7 +97,7 @@ var \$form = $('#form-sound-station');
                     showConfirmButton: false,
                     timer: 1500
                 });
-                setTimeout(function(){ 
+                setTimeout(function(){
                     \$btn.button('reset');
                 }, 1000);//clear button loading
             }else if(data.validate != null){
