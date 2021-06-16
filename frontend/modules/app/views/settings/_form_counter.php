@@ -136,6 +136,24 @@ CSS
                                     'theme' => Select2::THEME_BOOTSTRAP,
                                 ]) ?>
                             </div>
+
+                            <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_service_id", ['label' => 'เสียงบริการ','class'=>'col-sm-1 control-label']) ?>
+                            <div class="col-sm-4">
+                                <?= $form->field($modelCounterservice, "[{$index}]sound_service_id",['showLabels'=>false])->widget(Select2::classname(), [
+                                    'data' => ArrayHelper::map(
+                                        (new \yii\db\Query())
+                                        ->select(['CONCAT(tb_sound.sound_name,\' \',\'(\',tb_sound.sound_th,\')\') AS sound_name', 'tb_sound.sound_id'])
+                                        ->from('tb_sound')
+                                        ->where('sound_name LIKE :query')
+                                        ->addParams([':query'=>'%Service%'])
+                                        ->all(),'sound_id','sound_name'),
+                                    'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
+                                    'pluginOptions' => [
+                                        'allowClear' => true
+                                    ],
+                                    'theme' => Select2::THEME_BOOTSTRAP,
+                                ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
+                            </div>
                         <?php /*
                             <?= Html::activeLabel($modelCounterservice, "[{$index}]serviceid", ['label' => 'กลุ่มบริการย่อย','class'=>'col-sm-1 control-label']) ?>
                             <div class="col-sm-4">
@@ -166,30 +184,16 @@ CSS
                         </div><!-- End FormGroup /-->
 
                         <div class="form-group">
+                          <?php /*
                             <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_stationid", ['label' => 'เครื่องเล่นเสียงที่','class'=>'col-sm-2 control-label']) ?>
                             <div class="col-sm-4">
                                 <?= $form->field($modelCounterservice, "[{$index}]sound_stationid",['showLabels'=>false])->textInput([
                                     'placeholder' => 'เครื่องเล่นเสียงที่'
                                 ]); ?>
                             </div>
+                            */?>
 
-                            <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_service_id", ['label' => 'เสียงบริการ','class'=>'col-sm-1 control-label']) ?>
-                            <div class="col-sm-4">
-                                <?= $form->field($modelCounterservice, "[{$index}]sound_service_id",['showLabels'=>false])->widget(Select2::classname(), [
-                                    'data' => ArrayHelper::map(
-                                        (new \yii\db\Query())
-                                        ->select(['CONCAT(tb_sound.sound_name,\' \',\'(\',tb_sound.sound_th,\')\') AS sound_name', 'tb_sound.sound_id'])
-                                        ->from('tb_sound')
-                                        ->where('sound_name LIKE :query')
-                                        ->addParams([':query'=>'%Service%'])
-                                        ->all(),'sound_id','sound_name'),
-                                    'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
-                                    'pluginOptions' => [
-                                        'allowClear' => true
-                                    ],
-                                    'theme' => Select2::THEME_BOOTSTRAP,
-                                ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
-                            </div>
+                           
                         </div><!-- End FormGroup /-->
 
                         <div class="form-group">
