@@ -710,7 +710,7 @@ $(function() {
       //ออกบัตรคิว
       var services = modelProfile.service_id.split(",");
       dt_tbqdata.ajax.reload();
-      if (jQuery.inArray(res.modelQ.serviceid, services) != -1) {
+      if (jQuery.inArray(res.modelQueue.serviceid.toString(), services) != -1) {
         //ถ้าคิวมีใน service profile
         if (localStorage.getItem("playsound-pagecalling") == "on") {
           var player = $("#jplayer_notify").jPlayer({
@@ -731,7 +731,7 @@ $(function() {
         }
 
         Queue.reloadTbWaiting(); //โหลดข้อมูลรอเรียก
-        toastr.warning(res.modelQ.q_num, "คิวใหม่!", {
+        toastr.warning(res.modelQueue.q_num, "คิวใหม่!", {
           timeOut: 7000,
           positionClass: "toast-top-right",
           progressBar: true,

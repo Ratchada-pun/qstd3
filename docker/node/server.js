@@ -12,6 +12,7 @@ var io = require("socket.io")(server, {
 var port = process.env.PORT || 3000;
 var bodyParser = require("body-parser");
 const ioclient = require("socket.io-client");
+//const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
 const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
 const admin = require("firebase-admin");
 
@@ -54,11 +55,13 @@ app.use(function(req, res, next) {
 var indexRouter = require("./routes/index");
 var callingRouter = require("./routes/calling");
 var dispensingRouter = require("./routes/dispensing");
+var kioskRouter = require("./routes/kiosk");
 var messageQueue = require("./jobs")(admin);
 
 app.use("/api", indexRouter);
 app.use("/api/calling", callingRouter);
 app.use("/api/dispensing", dispensingRouter);
+app.use("/api/kiosk", kioskRouter);
 
 app.post("/api/send-message", async function(req, res) {
   try {
