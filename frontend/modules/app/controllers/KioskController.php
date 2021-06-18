@@ -783,6 +783,7 @@ class KioskController extends \yii\web\Controller
         ])
         ->andWhere('DATE(q_timestp) = CURRENT_DATE')
         ->andWhere('q_status_id <> :q_status_id', [':q_status_id' => 4])
+        ->orderBy('q_ids DESC')
         ->one();
       if (!$modelQueue) {
         $modelQueue = new TbQuequ();
