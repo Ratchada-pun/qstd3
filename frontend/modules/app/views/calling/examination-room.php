@@ -1215,6 +1215,8 @@ $(function() {
             }
             Queue.reloadTbWaiting();//โหลดข้อมูลรอเรียก
             Queue.toastrWarning('ผู้ป่วยลงทะเบียนใหม่!',res.modelQueue.pt_name);
+        }else{
+            Queue.reloadTbWaiting();//โหลดข้อมูลรอเรียก
         }
     })
     .on('call', (res) => {//เรียกคิวรอ
