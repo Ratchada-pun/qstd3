@@ -751,6 +751,7 @@ $(function() {
           parseInt(data.q_ids) === parseInt(_.get(res, "modelQ.q_ids"))
         ) {
           Queue.reloadTbWaiting(); //โหลดข้อมูลคิวรอ
+          Queue.reloadTbCalling(); //โหลดข้อมูลกำลังเรียก
           dt_tbqdata.ajax.reload();
         }
       });
