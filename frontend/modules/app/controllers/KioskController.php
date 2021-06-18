@@ -779,11 +779,12 @@ class KioskController extends \yii\web\Controller
           'serviceid' => $serviceid,
           'servicegroupid' => $servicegroupid,
           'q_hn' => $hn,
-          'q_status_id' => [1, 2, 3, 5, 6],
+          'q_status_id' => 4
         ])
         ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+        // ->andWhere('q_status_id <> :q_status_id', [':q_status_id' => 4])
         ->one();
-      if (!$modelQueue) {
+      if ($modelQueue) {
         $modelQueue = new TbQuequ();
         $q_num = $modelQueue->generateQnumber([
           'serviceid' => $serviceid,
