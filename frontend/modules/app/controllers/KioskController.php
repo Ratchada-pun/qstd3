@@ -832,7 +832,7 @@ class KioskController extends \yii\web\Controller
             'q_hn' => $hn,
           ])
           ->andWhere('DATE(q_timestp) = CURRENT_DATE')
-          ->andWhere('pt_pic <> :pt_pic', [':pt_pic' => null])
+          ->andWhere('pt_pic <> :pt_pic', [':pt_pic' => ''])
           ->orderBy('q_ids DESC')
           ->one();
         if ($queuePic) {
