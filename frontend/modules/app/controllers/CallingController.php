@@ -62,7 +62,7 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['led-options', 'calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor'],
+                        'actions' => ['led-options', 'calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue'],
                         'roles' => ['?'],
                     ],
                 ],
@@ -74,7 +74,7 @@ class CallingController extends \yii\web\Controller
      */
     public function beforeAction($action)
     {
-        if (in_array($action->id, ['calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor'])) {
+        if (in_array($action->id, ['calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue'])) {
             $this->enableCsrfValidation = false;
         }
 
@@ -561,7 +561,7 @@ class CallingController extends \yii\web\Controller
                             'end' => function ($url, $model, $key) {
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
-                            'waiting' => function ($url, $model, $key ) use ($profileData) {
+                            'waiting' => function ($url, $model, $key) use ($profileData) {
                                 if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] == 1 && $profileData['service_profile_id'] != 21) {
                                     return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
                                 } else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
@@ -585,7 +585,6 @@ class CallingController extends \yii\web\Controller
                                 } else {
                                     return Url::to(['/app/calling/waiting-doctor', 'id' => $key]);
                                 }
-                                
                             }
                         }
                     ]
@@ -1066,7 +1065,7 @@ class CallingController extends \yii\web\Controller
                     'checkout_date' => $modelQtran['checkout_date'],
                     'service_status_id' => 5,
                 ]);
-                if($modelQueuetran->save()){
+                if ($modelQueuetran->save()) {
                     return [
                         'status' => '200',
                         'message' => 'success',
@@ -1078,7 +1077,7 @@ class CallingController extends \yii\web\Controller
                         'eventOn' => 'tb-calling',
                         'state' => 'waiting-doctor'
                     ];
-                }else {
+                } else {
                     return [
                         'status' => '500',
                         'message' => 'error',
@@ -4892,6 +4891,142 @@ class CallingController extends \yii\web\Controller
             }
         } else {
             throw new NotFoundHttpException('Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public function actionWaitingDoctorQueue()
+    {
+        $params = Yii::$app->getRequest()->get();
+
+        $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
+        $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
+        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', null); //ข้อมูลห้อง/โต๊ะ
+
+        if (!$q) {
+            throw new HttpException(400, 'invalid q.');
+        }
+        if (!$service_id) {
+            throw new HttpException(400, 'invalid service_id.');
+        }
+        if (!$counter_service_id) {
+            throw new HttpException(400, 'invalid counter_service_id.');
+        }
+
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+
+        try {
+            $modelQueue = TbQuequ::find()
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [2, 3, 5]])
+                ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+                ->orderBy('q_ids DESC')
+                ->one();
+            if (!$modelQueue) {
+                throw new HttpException(404, 'ไม่พบรายการคิว');
+            }
+            if ($modelQueue['q_status_id'] == 4) {
+                throw new HttpException(400, 'คิวนี้เสร็จสิ้นไปแล้ว');
+            }
+            $counter = $this->findModelCounterservice($counter_service_id);
+
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold', 'callend']]);
+            if (!$modelCaller) {
+                $modelCaller = new TbCaller();
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            } else {
+                $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            }
+            $modelCaller->q_ids = $modelQueue['q_ids'];
+            $modelCaller->counter_service_id = $counter_service_id;
+            $modelCaller->call_status = TbCaller::STATUS_FINISHED;
+
+            $modelQTrans->service_status_id = 4;
+            $modelQueue->q_status_id = 4;
+
+            $modelService = TbService::find()->where(['serviceid' => $modelQueue['serviceid']])->one();
+            if (!$modelService) {
+                throw new HttpException(404, 'ไม่พบรายชื่อแผนก');
+            }
+
+            $modelServiceEx = TbService::find()
+                ->where(['main_dep' => $modelService['main_dep'], 'service_type_id' => 2, 'service_groupid' => $modelService['service_groupid']])
+                ->one();
+            if (!$modelServiceEx) {
+                throw new HttpException(404, 'ไม่พบการตั้งค่าห้องตรวจ');
+            }
+
+            $newModelQueue = new TbQuequ();
+            $newModelQueue->attributes = $modelQueue->attributes;
+            $newModelQueue->serviceid = $modelServiceEx['serviceid'];
+            $newModelQueue->q_ids = null;
+            $newModelQueue->q_status_id = 5;
+
+            if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save() && $newModelQueue->save()) {
+                $modelQueuetran = new TbQtrans();
+                $modelQueuetran->setAttributes([
+                    'q_ids' => $newModelQueue['q_ids'],
+                    'servicegroupid' => $newModelQueue['servicegroupid'],
+                    'doctor_id' => $modelQTrans['doctor_id'],
+                    'checkin_date' => $modelQTrans['checkin_date'],
+                    'checkout_date' => $modelQTrans['checkout_date'],
+                    'service_status_id' => 5,
+                ]);
+                if ($modelQueuetran->save()) {
+                    $transaction->commit();
+                    return [
+                        'status' => '200',
+                        'message' => 'success',
+                        'modelCaller' => $modelCaller,
+                        'modelQTrans' => $modelQTrans,
+                        'modelQueue' => $modelQueue,
+                        'counter' => $counter,
+                        'data' => [
+                            'counter_service_id' => $counter['counterserviceid'],
+                            'qnumber' => $newModelQueue['q_num']
+                        ]
+                    ];
+                } else {
+                    $transaction->rollBack();
+                    if ($modelQueue->errors) {
+                        throw new HttpException(400, Json::encode($modelQueue->errors));
+                    }
+                    if ($modelQTrans->errors) {
+                        throw new HttpException(400, Json::encode($modelQTrans->errors));
+                    }
+                    if ($modelCaller->errors) {
+                        throw new HttpException(400, Json::encode($modelCaller->errors));
+                    }
+                    if ($modelQueuetran->errors) {
+                        throw new HttpException(400, Json::encode($modelQueuetran->errors));
+                    }
+                    if ($newModelQueue->errors) {
+                        throw new HttpException(400, Json::encode($newModelQueue->errors));
+                    }
+                }
+            } else {
+                $transaction->rollBack();
+                if ($modelQueue->errors) {
+                    throw new HttpException(400, Json::encode($modelQueue->errors));
+                }
+                if ($modelQTrans->errors) {
+                    throw new HttpException(400, Json::encode($modelQTrans->errors));
+                }
+                if ($modelCaller->errors) {
+                    throw new HttpException(400, Json::encode($modelCaller->errors));
+                }
+                if ($newModelQueue->errors) {
+                  throw new HttpException(400, Json::encode($newModelQueue->errors));
+              }
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
         }
     }
 }
