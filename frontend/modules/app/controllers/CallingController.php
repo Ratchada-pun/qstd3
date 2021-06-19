@@ -62,7 +62,7 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['led-options', 'calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue'],
+                        'actions' => ['led-options', 'calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue', 'waiting-pharmacy-queue'],
                         'roles' => ['?'],
                     ],
                 ],
@@ -74,7 +74,7 @@ class CallingController extends \yii\web\Controller
      */
     public function beforeAction($action)
     {
-        if (in_array($action->id, ['calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue'])) {
+        if (in_array($action->id, ['calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue', 'waiting-pharmacy-queue'])) {
             $this->enableCsrfValidation = false;
         }
 
@@ -5018,8 +5018,109 @@ class CallingController extends \yii\web\Controller
                     throw new HttpException(400, Json::encode($modelCaller->errors));
                 }
                 if ($newModelQueue->errors) {
-                  throw new HttpException(400, Json::encode($newModelQueue->errors));
-              }
+                    throw new HttpException(400, Json::encode($newModelQueue->errors));
+                }
+            }
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    public function actionWaitingPharmacyQueue()
+    {
+        $params = Yii::$app->getRequest()->get();
+
+        $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
+        $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
+        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', null); //ข้อมูลห้อง/โต๊ะ
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if (!$q) {
+            throw new HttpException(400, 'invalid q.');
+        }
+        if (!$service_id) {
+            throw new HttpException(400, 'invalid service_id.');
+        }
+        if (!$counter_service_id) {
+            throw new HttpException(400, 'invalid counter_service_id.');
+        }
+
+        $db = Yii::$app->db;
+        $transaction = $db->beginTransaction();
+
+        try {
+            $modelQueue = TbQuequ::find()
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [2, 3, 5]])
+                ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+                ->orderBy('q_ids DESC')
+                ->one();
+            if (!$modelQueue) {
+                throw new HttpException(404, 'ไม่พบรายการคิว');
+            }
+            if ($modelQueue['q_status_id'] == 4) {
+                throw new HttpException(400, 'คิวนี้เสร็จสิ้นไปแล้ว');
+            }
+            $counter = $this->findModelCounterservice($counter_service_id);
+
+            $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold', 'callend']]);
+            if (!$modelCaller) {
+                $modelCaller = new TbCaller();
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            } else {
+                $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
+                $modelCaller->qtran_ids = $modelQTrans['ids'];
+            }
+            $modelCaller->q_ids = $modelQueue['q_ids'];
+            $modelCaller->counter_service_id = $counter_service_id;
+            $modelCaller->call_status = TbCaller::STATUS_FINISHED;
+
+            $modelQTrans->service_status_id = 4;
+            $modelQueue->q_status_id = 12;
+
+            $modelQueuetran = new TbQtrans();
+            $modelQueuetran->setAttributes([
+                'q_ids' => $modelQueue['q_ids'],
+                'servicegroupid' => $modelQueue['servicegroupid'],
+                'doctor_id' => $modelQTrans['doctor_id'],
+                'checkin_date' => $modelQTrans['checkin_date'],
+                'checkout_date' => $modelQTrans['checkout_date'],
+                'service_status_id' => 12,
+            ]);
+
+            if ($modelCaller->save() && $modelQTrans->save() && $modelQueue->save() && $modelQueuetran->save()) {
+                $transaction->commit();
+                return [
+                    'status' => '200',
+                    'message' => 'success',
+                    'data' => [
+                        'counter_service_id' => $counter['counterserviceid'],
+                        'qnumber' => $modelQueue['q_num']
+                    ],
+                    'modelCaller' => $modelCaller,
+                    'modelQueue' => $modelQueue,
+                    'counter' => $counter,
+                    'eventOn' => 'tb-calling',
+                    'state' => 'waiting-pharmacy'
+                ];
+            } else {
+                $transaction->rollBack();
+                if ($modelQueue->errors) {
+                    throw new HttpException(400, Json::encode($modelQueue->errors));
+                }
+                if ($modelQTrans->errors) {
+                    throw new HttpException(400, Json::encode($modelQTrans->errors));
+                }
+                if ($modelCaller->errors) {
+                    throw new HttpException(400, Json::encode($modelCaller->errors));
+                }
+                if ($modelQueuetran->errors) {
+                    throw new HttpException(400, Json::encode($modelQueuetran->errors));
+                }
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
