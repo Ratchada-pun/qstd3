@@ -25,8 +25,16 @@ return [
                 [
                     'baseUrl'=>'@web',
                     'basePath'=>'@webroot',
-                    'path' => '/media',
-                    'access' => ['read' => 'Admin', 'write' => 'Admin']
+                    'path' => '/',
+                    'access' => ['read' => 'Admin', 'write' => 'Admin'],
+                    'options' => [
+                      'attributes' => [
+                          [
+                              'pattern' => '!^/assets!',
+                              'hidden' => true
+                          ]
+                      ],
+                    ]
                 ]
             ]
         ]
