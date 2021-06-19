@@ -64,4 +64,15 @@ router.get("/waiting-doctor", async function (req, res) {
 	}
 })
 
+router.get("/waiting-pharmacy", async function (req, res) {
+	try {
+		const params = `?${qs.stringify(req.query)}`
+		const response = await axios.get("/app/calling/waiting-pharmacy-queue" + params, config)
+		req.io.emit("finish", response.data)
+		res.send(response.data)
+	} catch (error) {
+		res.status(error.response.status || 500).send(error.response.data)
+	}
+})
+
 module.exports = router
