@@ -251,6 +251,7 @@ return [
             'app/calling/send-to-doctor',
             'app/calling/waiting-doctor-queue',
             'app/calling/waiting-pharmacy-queue',
+            'app/calling/next-queue',
             'app/drug-dispensing/create-drug-dispensing',
             'app/kiosk/scan-queue-mobile-qn',
             'app/kiosk/scan-queue-mobile-hn',

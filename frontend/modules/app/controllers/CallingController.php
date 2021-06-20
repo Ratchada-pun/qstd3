@@ -62,7 +62,7 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['led-options', 'calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue', 'waiting-pharmacy-queue'],
+                        'actions' => ['led-options', 'calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue', 'waiting-pharmacy-queue', 'next-queue'],
                         'roles' => ['?'],
                     ],
                 ],
@@ -74,7 +74,7 @@ class CallingController extends \yii\web\Controller
      */
     public function beforeAction($action)
     {
-        if (in_array($action->id, ['calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue', 'waiting-pharmacy-queue'])) {
+        if (in_array($action->id, ['calling-queue', 'hold-queue', 'end-queue', 'send-to-doctor', 'waiting-doctor-queue', 'waiting-pharmacy-queue', 'next-queue'])) {
             $this->enableCsrfValidation = false;
         }
 
@@ -4454,7 +4454,9 @@ class CallingController extends \yii\web\Controller
         try {
             $modelQueue = TbQuequ::find()
                 ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [1, 2, 3, 5]])
+                ->orWhere(['q_qn' => $q])
                 ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+                ->orderBy('q_ids DESC')
                 ->one();
             if (!$modelQueue) {
                 throw new HttpException(404, 'ไม่พบรายการคิว');
@@ -5129,5 +5131,19 @@ class CallingController extends \yii\web\Controller
             $transaction->rollBack();
             throw $e;
         }
+    }
+
+    public function actionNextQueue($service_id)
+    {
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $modelQueue = TbQuequ::find()
+            ->where(['serviceid' => $service_id, 'q_status_id' => [1]])
+            ->andWhere('DATE(created_at) = CURRENT_DATE')
+            ->orderBy('created_at ASC')
+            ->one();
+        if (!$modelQueue) {
+            throw new HttpException(404, 'ไม่พบรายการคิว');
+        }
+        return $modelQueue;
     }
 }
