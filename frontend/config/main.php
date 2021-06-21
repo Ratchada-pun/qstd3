@@ -25,8 +25,16 @@ return [
                 [
                     'baseUrl'=>'@web',
                     'basePath'=>'@webroot',
-                    'path' => '/media',
-                    'access' => ['read' => 'Admin', 'write' => 'Admin']
+                    'path' => '/',
+                    'access' => ['read' => 'Admin', 'write' => 'Admin'],
+                    'options' => [
+                      'attributes' => [
+                          [
+                              'pattern' => '!^/assets!',
+                              'hidden' => true
+                          ]
+                      ],
+                    ]
                 ]
             ]
         ]
@@ -232,15 +240,18 @@ return [
             'app/calling/play-sound',
             'app/calling/autoload-media',
             'app/calling/update-status',
-	        'site/index',
-	        'app/kiosk/led-options',
-	        'app/settings/save-nhso-token',
+	          'site/index',
+	          'app/kiosk/led-options',
+	          'app/settings/save-nhso-token',
             'app/kiosk/pt-right',
             'app/kiosk/create-queue',
             'app/calling/calling-queue',
             'app/calling/hold-queue',
             'app/calling/end-queue',
             'app/calling/send-to-doctor',
+            'app/calling/waiting-doctor-queue',
+            'app/calling/waiting-pharmacy-queue',
+            'app/calling/next-queue',
             'app/drug-dispensing/create-drug-dispensing',
             'app/kiosk/scan-queue-mobile-qn',
             'app/kiosk/scan-queue-mobile-hn',
