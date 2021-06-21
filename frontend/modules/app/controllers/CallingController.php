@@ -4453,7 +4453,7 @@ class CallingController extends \yii\web\Controller
 
         try {
             $modelQueue = TbQuequ::find()
-                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [1, 2, 3, 5]])
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [1, 2, 3, 5,11,12,13]])
                 ->orWhere(['q_qn' => $q])
                 ->andWhere('DATE(q_timestp) = CURRENT_DATE')
                 ->orderBy('q_ids DESC')
@@ -4469,7 +4469,7 @@ class CallingController extends \yii\web\Controller
             $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold', 'callend']]);
             if (!$modelCaller) {
                 $modelCaller = new TbCaller();
-                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5]]);
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5,11,12,13]]);
                 $modelCaller->qtran_ids = $modelQTrans['ids'];
             } else {
                 $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
@@ -4689,6 +4689,7 @@ class CallingController extends \yii\web\Controller
                 throw new HttpException(400, 'คิวนี้เสร็จสิ้นไปแล้ว');
             }
             $counter = $this->findModelCounterservice($counter_service_id);
+            $service = $this->findModelService($service_id);
 
             $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold', 'callend']]);
             if (!$modelCaller) {
@@ -4707,6 +4708,61 @@ class CallingController extends \yii\web\Controller
             $modelQueue->q_status_id = 4;
 
             if ($modelQueue->save() && $modelQTrans->save() && $modelCaller->save()) {
+
+                if ($service['service_type_id'] == 1) {
+
+                    $modelServiceEx = TbService::find()
+                        ->where(['main_dep' => $service['main_dep'], 'service_type_id' => 2, 'service_groupid' => $service['service_groupid']])
+                        ->one();
+                    if (!$modelServiceEx) {
+                        throw new HttpException(404, 'ไม่พบการตั้งค่าห้องตรวจ');
+                    }
+
+                    $newModelQueue = new TbQuequ(); //สร้างคิวห้องตรวจ
+                    $newModelQueue->attributes = $modelQueue->attributes;
+                    $newModelQueue->serviceid = $modelServiceEx['serviceid'];
+                    $newModelQueue->q_ids = null;
+                    $newModelQueue->q_status_id = 5;
+
+                    if($newModelQueue->save()){ //สร้างคิวห้องตรวจ
+                        $modelQueuetran = new TbQtrans();
+                        $modelQueuetran->setAttributes([
+                            'q_ids' => $newModelQueue['q_ids'],
+                            'servicegroupid' => $modelServiceEx['service_groupid'],
+                            'doctor_id' => $modelQTrans['doctor_id'],
+                            'checkin_date' => $modelQTrans['checkin_date'],
+                            'checkout_date' => $modelQTrans['checkout_date'],
+                            'service_status_id' => 5,
+                        ]);
+                        $modelQueuetran->save();
+                    }
+                } else if ($service['service_type_id'] == 3 && $modelQueue['countdrug'] == 1) { //ห้องการเงินและมีจ่ายยา
+                    $modelServiceEx = TbService::find()
+                        ->where(['service_type_id' => 4])
+                        ->one();
+                    if (!$modelServiceEx) {
+                        throw new HttpException(404, 'ไม่พบการตั้งค่าห้องยา');
+                    }
+                    $newModelQueue = new TbQuequ(); //สร้างคิวห้องยา
+                    $newModelQueue->attributes = $modelQueue->attributes;
+                    $newModelQueue->serviceid = $modelServiceEx['serviceid'];
+                    $newModelQueue->servicegroupid = $modelServiceEx['service_groupid'];
+                    $newModelQueue->q_ids = null;
+                    $newModelQueue->q_status_id = 12;
+
+                    if($newModelQueue->save()){ //สร้างคิวห้องยา
+                        $modelQueuetran = new TbQtrans();
+                        $modelQueuetran->setAttributes([
+                            'q_ids' => $newModelQueue['q_ids'],
+                            'servicegroupid' => $modelServiceEx['service_groupid'],
+                            'doctor_id' => $modelQTrans['doctor_id'],
+                            'checkin_date' => $modelQTrans['checkin_date'],
+                            'checkout_date' => $modelQTrans['checkout_date'],
+                            'service_status_id' => 12,
+                        ]);
+                        $modelQueuetran->save();
+                    }
+                }
                 $transaction->commit();
                 $modelQueue->sendMessage($modelQueue['serviceid']);
                 return [
@@ -4749,8 +4805,8 @@ class CallingController extends \yii\web\Controller
         $params = Yii::$app->getRequest()->get();
 
         $q =  ArrayHelper::getValue($params, 'q', null); //ข้อมูลคิว
-        $service_id =  ArrayHelper::getValue($params, 'service_id', null); //ข้อมูลแผนก
-        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', null); //ข้อมูลห้อง/โต๊ะ
+        $service_id =  ArrayHelper::getValue($params, 'service_id', $service_id); //ข้อมูลแผนก
+        $counter_service_id =  ArrayHelper::getValue($params, 'counter_service_id', $counter_service_id); //ข้อมูลห้อง/โต๊ะ
 
         if (!$q) {
             throw new HttpException(400, 'invalid q.');
