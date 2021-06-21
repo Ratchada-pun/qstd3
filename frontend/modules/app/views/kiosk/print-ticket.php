@@ -76,7 +76,9 @@ $(window).on('load', function() {
     //Barcode
     $("#bcTarget").barcode("{$bcvalue}", "$ticket->barcode_type",{
         fontSize: 10,
-        showHRI: true
+        showHRI: true,
+        barWidth: 2,
+        barHeight: 60,
     });
     //QRCode
     jQuery('#qrcode').qrcode({width: 100,height: 100,text: "{$qrvalue}" });
