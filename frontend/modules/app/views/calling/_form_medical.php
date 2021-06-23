@@ -1,4 +1,5 @@
 <?php
+
 use kartik\widgets\ActiveForm;
 use kartik\widgets\Select2;
 use yii\helpers\ArrayHelper;
@@ -28,8 +29,7 @@ use yii\helpers\Html;
         </div>
         <span class="panel-heading-text" style="font-size: 18px;">&nbsp</span>
     </div>
-    <div class="panel-body"
-         style="border: 1.5px dashed lightgrey;padding-left: 10px;padding-bottom: 0px;padding-top: 0px;">
+    <div class="panel-body" style="border: 1.5px dashed lightgrey;padding-left: 10px;padding-bottom: 0px;padding-top: 0px;">
         <?php
         $form = ActiveForm::begin([
             'id' => 'calling-form',
@@ -42,7 +42,14 @@ use yii\helpers\Html;
             <div class="col-md-4 service_profile">
                 <?=
                 $form->field($modelForm, 'service_profile')->widget(Select2::classname(), [
-                    'data' => ArrayHelper::map(TbServiceProfile::find()->where(['service_profile_status' => 1])->asArray()->all(), 'service_profile_id', 'service_name'),
+                    'data' => ArrayHelper::map(Yii::$app->db->createCommand('SELECT
+                    tb_service_profile.*,
+                    ( SELECT COUNT( tb_service.serviceid ) FROM tb_service WHERE tb_service.serviceid IN ( tb_service_profile.service_id ) AND tb_service.service_type_id in (1, 3, 4) ) AS a 
+                FROM
+                    tb_service_profile 
+                HAVING
+                    a > 0')
+                        ->queryAll(), 'service_profile_id', 'service_name'),
                     'options' => ['placeholder' => 'เลือกโปรไฟล์...'],
                     'pluginOptions' => [
                         'allowClear' => true
@@ -112,7 +119,7 @@ use yii\helpers\Html;
     </div>
     <div class="col-md-4">
         <p>
-            <?= Html::button(\yii\icons\Icon::show('check-square-o').' เรียกคิวที่เลือก <span class="count-selected">(0)</span>', ['class' => 'btn btn-lg btn-block btn-success on-call-selected', 'data-url' => '/app/calling/call-sr-selected','disabled' => true]); ?>
+            <?= Html::button(\yii\icons\Icon::show('check-square-o') . ' เรียกคิวที่เลือก <span class="count-selected">(0)</span>', ['class' => 'btn btn-lg btn-block btn-success on-call-selected', 'data-url' => '/app/calling/call-sr-selected', 'disabled' => true]); ?>
         </p>
     </div>
     <div class="col-md-4">
@@ -121,4 +128,3 @@ use yii\helpers\Html;
         </p>
     </div>
 </div>
-
