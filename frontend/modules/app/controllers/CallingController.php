@@ -36,6 +36,7 @@ use frontend\modules\app\models\QueuesInterfaceSearch;
 use kartik\form\ActiveForm;
 use yii\httpclient\Client;
 use frontend\modules\app\models\TbService;
+use frontend\modules\app\models\TbDrugDispensing;
 
 class CallingController extends \yii\web\Controller
 {
@@ -428,7 +429,7 @@ class CallingController extends \yii\web\Controller
             $profileData = $request->post('modelProfile', []);
             $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
             // $labItems = $this->findLabs();
-
+            
             $query = (new \yii\db\Query())
                 ->select([
                     'tb_caller.caller_ids',
@@ -562,7 +563,8 @@ class CallingController extends \yii\web\Controller
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
                             'waiting' => function ($url, $model, $key) use ($profileData) {
-                                if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] > 0  && $profileData['service_profile_id'] != 21) {
+                                $drug = TbDrugDispensing::findOne(['HN'=>$model['q_hn'],'DATE(created_at)' => Yii::$app->formatter->asDate('now','php:Y-m-d')]);
+                                if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] > 0  && $profileData['service_profile_id'] != 21 && !$drug) {
                                     return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
                                 } else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
                                     return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
