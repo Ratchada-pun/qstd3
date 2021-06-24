@@ -4896,7 +4896,7 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function actionWaitingPharmacy()
+    public function actionWaitingPharmacy() //รอห้องยา
     {
         $request = Yii::$app->request;
         if ($request->isAjax) {
@@ -4913,20 +4913,42 @@ class CallingController extends \yii\web\Controller
             // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
             $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
 
+            $modelQueue->q_status_id = 4;
             $modelQtran->service_status_id = 4;
             $model->call_status = TbCaller::STATUS_FINISHED;
 
-            $modelQueue->q_status_id = 12;
+            $modelServiceEx = TbService::find()->where(['service_type_id' => 4])->one();
+            if (!$modelServiceEx) {
+                throw new HttpException(404, 'ไม่พบการตั้งค่าห้องยา');
+            }
+            $newModelQueue = new TbQuequ(); //สร้างคิวห้องยา
+            $newModelQueue->attributes = $modelQueue->attributes;
+            $newModelQueue->serviceid = $modelServiceEx['serviceid'];
+            $newModelQueue->servicegroupid = $modelServiceEx['service_groupid'];
+            $newModelQueue->q_ids = null;
+            $newModelQueue->q_status_id = 12;
 
-            $modelQueuetran = new TbQtrans();
-            $modelQueuetran->setAttributes([
-                'q_ids' => $data['q_ids'],
-                'servicegroupid' => $modelQueue['servicegroupid'],
-                'doctor_id' => $modelQtran['doctor_id'],
-                'checkin_date' => $modelQtran['checkin_date'],
-                'checkout_date' => $modelQtran['checkout_date'],
-                'service_status_id' => 12,
-            ]);
+            if($newModelQueue->save()){ //สร้างคิวห้องยา
+                $modelQueuetran = new TbQtrans();
+                $modelQueuetran->setAttributes([
+                    'q_ids' => $newModelQueue['q_ids'],
+                    'servicegroupid' => $modelServiceEx['service_groupid'],
+                    'doctor_id' => $modelQtran['doctor_id'],
+                    'checkin_date' => $modelQtran['checkin_date'],
+                    'checkout_date' => $modelQtran['checkout_date'],
+                    'service_status_id' => 12,
+                ]);
+                $modelQueuetran->save();
+            }
+            // $modelQueuetran = new TbQtrans();
+            // $modelQueuetran->setAttributes([
+            //     'q_ids' => $data['q_ids'],
+            //     'servicegroupid' => $modelQueue['servicegroupid'],
+            //     'doctor_id' => $modelQtran['doctor_id'],
+            //     'checkin_date' => $modelQtran['checkin_date'],
+            //     'checkout_date' => $modelQtran['checkout_date'],
+            //     'service_status_id' => 12,
+            // ]);
 
             if ($model->save() && $modelQtran->save() && $modelQueue->save() && $modelQueuetran->save()) {
                 return [
