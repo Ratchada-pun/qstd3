@@ -562,7 +562,7 @@ class CallingController extends \yii\web\Controller
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
                             'waiting' => function ($url, $model, $key) use ($profileData) {
-                                if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] != 0  && $profileData['service_profile_id'] != 21) {
+                                if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] > 0  && $profileData['service_profile_id'] != 21) {
                                     return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
                                 } else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
                                     return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
@@ -580,7 +580,7 @@ class CallingController extends \yii\web\Controller
                                 return Url::to(['/app/calling/end', 'id' => $key]);
                             }
                             if ($action == 'waiting') {
-                                if ($model['serviceid'] == 12 && $model['countdrug'] == 1) {
+                                if ($model['serviceid'] == 12 && $model['countdrug'] > 0) {
                                     return Url::to(['/app/calling/waiting-pharmacy', 'id' => $key]);
                                 } else {
                                     return Url::to(['/app/calling/waiting-doctor', 'id' => $key]);
@@ -4736,7 +4736,7 @@ class CallingController extends \yii\web\Controller
                         ]);
                         $modelQueuetran->save();
                     }
-                } else if ($service['service_type_id'] == 3 && $modelQueue['countdrug'] == 1) { //ห้องการเงินและมีจ่ายยา
+                } else if ($service['service_type_id'] == 3 && $modelQueue['countdrug'] > 0) { //ห้องการเงินและมีจ่ายยา
                     $modelServiceEx = TbService::find()
                         ->where(['service_type_id' => 4])
                         ->one();
