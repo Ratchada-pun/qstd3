@@ -563,7 +563,7 @@ class CallingController extends \yii\web\Controller
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
                             'waiting' => function ($url, $model, $key) use ($profileData) {
-                                $drug = TbDrugDispensing::findOne(['HN'=>$model['q_hn'],'DATE(created_at)' => Yii::$app->formatter->asDate('now','php:Y-m-d')]);
+                                $drug = TbDrugDispensing::find()->where(['HN'=>$model['q_hn'],'DATE(created_at)' => Yii::$app->formatter->asDate('now','php:Y-m-d')])->one();
                                 if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] > 0  && $profileData['service_profile_id'] != 21 && !$drug) {
                                     return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
                                 } else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
