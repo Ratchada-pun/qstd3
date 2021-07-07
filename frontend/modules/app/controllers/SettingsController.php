@@ -2580,7 +2580,7 @@ class SettingsController extends \yii\web\Controller
         $model->user_person_id = $body['id_card'];
         $model->smctoken = $body['token'];
         $model->createdby = 1;
-        $model->crearedat = Yii::$app->formatter->asDate('now', 'php:Y-m-d');
+        $model->crearedat = Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s');
         if ($model->save()) {
             return $model;
         } else {
