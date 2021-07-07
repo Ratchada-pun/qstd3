@@ -345,7 +345,6 @@ CSS
                         </div>
                     </div><!-- End FormGroup /-->
 
-<?php /*
                     <div class="form-group">
                         <?= Html::activeLabel($modelService, "[{$index}]show_on_kiosk", ['class' => 'col-sm-2 control-label']) ?>
                         <div class="col-sm-4">
@@ -387,7 +386,6 @@ CSS
                             ); ?>
                         </div>
                     </div>
-*/?>
                     <div class="form-group">
                         <?= Html::activeLabel($modelService, "[{$index}]service_status", ['label' => 'สถานะคิว', 'class' => 'col-sm-2 control-label']) ?>
                         <div class="col-sm-4">
