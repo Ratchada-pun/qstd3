@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="row">
     <div class="col-md-12">
         <div class="text-center m-b-md">
-            <?= Html::img(Yii::getAlias('@web').'/img/logo/logo.jpg',['class' => 'img-responsive center-block','width' => '400px']); ?>
+            <?= Html::img(\Yii::$app->keyStorage->get('logo-url', '/img/logo/logoKM4.png'),['class' => 'img-responsive center-block','width' => \Yii::$app->keyStorage->get('logo-login-width', '400px')]); ?>
             <h3 style="margin-top: 0px;margin-bottom: 0px;"><?= Yii::t('user','PLEASE LOGIN TO APP') ?></h3>
             <small></small>
         </div>
