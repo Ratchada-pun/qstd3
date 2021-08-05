@@ -13,7 +13,7 @@ var port = process.env.PORT || 3000;
 var bodyParser = require("body-parser");
 const ioclient = require("socket.io-client");
 //const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
-const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
+const socketclient = ioclient("http://qstd3node:3002", { path: "/node/socket.io" });
 const admin = require("firebase-admin");
 
 var serviceAccount = require("./chainathos-ef609-firebase-adminsdk-r7eqo-3cfdbddd2d.json");
