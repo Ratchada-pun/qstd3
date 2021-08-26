@@ -36,6 +36,7 @@ $this->registerMetaTag([
     'name' => 'keywords',
     'content' => 'MComScience',
 ]);
+$appname = \Yii::$app->keyStorage->get('app-name', Yii::$app->name);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -46,7 +47,7 @@ $this->registerMetaTag([
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
-    <title><?php echo Html::encode(!empty($this->title) ? Yii::$app->name .' | '.strtoupper($this->title) : Yii::$app->name); ?></title>
+    <title><?php echo Html::encode(!empty($this->title) ? $appname .' | '.strtoupper($this->title) : $appname); ?></title>
     <?php $this->head() ?>
 </head>
 <body class="">

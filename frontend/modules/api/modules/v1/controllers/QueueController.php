@@ -45,7 +45,6 @@ class QueueController extends ActiveController
         return $actions;
     }
 
-
     public function actionWaitingList($serviceid = null)
     {
         $query = (new \yii\db\Query())
@@ -81,11 +80,8 @@ class QueueController extends ActiveController
         if (!empty($serviceid)) {
             $query->andWhere(['tb_quequ.serviceid' => $serviceid]);
         }
-
         return $query->all();
-
     }
-
 
     public function actionHoldList($serviceid = null,$counter_service_id = null)
     {
@@ -114,10 +110,10 @@ class QueueController extends ActiveController
             'tb_qtrans.q_ids'
         ])
         ->from('tb_caller')
-        ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
-        ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-        ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-        ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+        ->leftJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+        ->leftJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+        ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+        ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
         ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
         ->where([
             'tb_caller.call_status' => 'hold',

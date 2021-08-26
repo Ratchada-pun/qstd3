@@ -52,14 +52,7 @@ CSS
                 1 => 'เปิดใช้งาน'
             ],
             [
-                'inline' => true,
-                'item' => function ($index, $label, $name, $checked, $value) {
-                    $return = '<div class="radio"><label style="font-size: 1em">';
-                    $return .= Html::radio($name, $checked, ['value' => $value]);
-                    $return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
-                    $return .= '</label></div>';
-                    return $return;
-                }
+                'inline' => true
             ]
         );
         ?>

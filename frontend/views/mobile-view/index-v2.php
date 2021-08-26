@@ -40,6 +40,11 @@ $this->registerJs('var baseUrl = '.Json::encode(Url::base(true)).'; ',View::POS_
 .hpanel .panel-body{
     padding: 2px;
 }
+.hpanel.hbggreen .panel-body {
+    background: #0baabd;
+    color: #fff;
+    border: none;
+}
 @media (max-width: 768px) {
     h1 {
         font-size: 30px;
@@ -57,31 +62,28 @@ $this->registerJs('var baseUrl = '.Json::encode(Url::base(true)).'; ',View::POS_
             <div class="hpanel hbggreen" style="padding-top: 25px;">
                 <div class="panel-body">
                     <div class="text-center">
-                        <?= Html::img(Yii::getAlias('@web').'/img/logo/logo.jpg',['width' => '100px','class' => 'img-responsive center-block']); ?>
-                        <h4 style="line-height: 0;">โรงพยาบาลชัยนาทนเรนทร</h4>
-                        <h3>แผนกอายุรกรรม</h3>
+                        <?= Html::img(\Yii::$app->keyStorage->get('logo-company', '/img/logo/logoKM4.png'),['width' => '200px','class' => 'img-responsive center-block']); ?>
+                        <h2 style="line-height: 0; padding-top: 30px;"><?=\Yii::$app->keyStorage->get('kiosk-caption', Yii::$app->name)?></h2>
+                         <h3 style="line-height: 0; padding-top: 30px;">ส่วนงาน: <?= $service['service_name'] ?></h3>
                     </div>
+
                     <div class="text-left" style="margin-left: 20px;">
                         <div class="row">
                             <div class="col-xs-12">
                             <p style="text-align: center;" class="blink">
                                 <span style="font-size: 40px;"><?= $model['q_num'] ?></span>
                             </p>
-                            <p style="text-align: center;">
-                                <span style="font-size: 30px;">ชื่อ :</span>
-                                <span style="font-size: 30px;"><?= $model['pt_name'] ?></span>
-                            </p>
                             </div>
                         </div>
                     </div>
                     <div class="text-center">
-                        <button type="button" class="btn btn-lg btn-default" style="background-color: #62cb31;color: #fff;">คัดกรอง / ห้องตรวจ</button>
+                        <button type="button" class="btn btn-lg btn-default" style="background-color: #0baabd;color: #fff;">ช่องบริการ</button>
                     </div>
                     <div class="text-center">
                         <h3 id="counter"><?= $countData['countername']; ?></h3>
                     </div>
                     <div class="text-center">
-                        <button type="button" class="btn btn-lg btn-default" style="background-color: #62cb31;color: #fff;">คิวรอ / wait</button>
+                        <button type="button" class="btn btn-lg btn-default" style="background-color: #0baabd;color: #fff;">คิวรอ / wait</button>
                     </div>
                     <div class="text-center">
                         <h1 id="qcount"><?= $countData['count']; ?></h1>

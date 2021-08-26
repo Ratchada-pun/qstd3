@@ -107,13 +107,13 @@ class DisplayController extends \yii\web\Controller
                 $rows = (new \yii\db\Query())
                     ->select([
                         'tb_quequ.q_num',
-                        'tb_doctor.doctor_name',
+                       // 'tb_doctor.doctor_name',
                         'tb_quequ.pt_name',
                         'tb_quequ.pt_pic'
                     ])
                     ->from('tb_caller')
                     ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_caller.q_ids')
-                    ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
+                   // ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
                     ->where(['tb_caller.caller_ids' => $caller_ids, 'tb_caller.call_status' => 'calling'])
                     ->andWhere('tb_quequ.q_num LIKE :q_num')
                     ->andWhere('DATE( tb_quequ.q_timestp ) = CURRENT_DATE')
@@ -126,13 +126,13 @@ class DisplayController extends \yii\web\Controller
                     $rows = (new \yii\db\Query())
                         ->select([
                             'tb_quequ.q_num',
-                            'tb_doctor.doctor_name',
+                          //  'tb_doctor.doctor_name',
                             'tb_quequ.pt_name',
                             'tb_quequ.pt_pic'
                         ])
                         ->from('tb_caller')
                         ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_caller.q_ids')
-                        ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
+                      //  ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
                         ->where(['tb_caller.caller_ids' => $caller_ids, 'tb_caller.call_status' => 'callend'])
                         ->andWhere('tb_quequ.q_num LIKE :q_num')
                         ->addParams([':q_num' => $m . '%'])
@@ -153,7 +153,7 @@ class DisplayController extends \yii\web\Controller
                     $arr = [
                         'caller_ids' => $random,
                         'q_num' => '-',
-                        'doctor_name' => '-',
+                    //    'doctor_name' => '-',
                         'call_timestp' => date('Y-m-d H:i:s'),
                         'counterservice_callnumber' => '-',
                         'serviceid' => '',
@@ -311,9 +311,9 @@ class DisplayController extends \yii\web\Controller
                     [
                         'attribute' => 'call_timestp',
                     ],
-                    [
-                        'attribute' => 'doctor_name',
-                    ],
+                    // [
+                    //     'attribute' => 'doctor_name',
+                    // ],
                     [
                         'attribute' => 'service_name',
                     ],
@@ -686,7 +686,7 @@ class DisplayController extends \yii\web\Controller
             ->select([
                 'tb_caller.caller_ids',
                 'tb_quequ.q_num',
-                'tb_doctor.doctor_name',
+              //  'tb_doctor.doctor_name',
                 'tb_caller.call_timestp',
                 'tb_counterservice.counterservice_callnumber',
                 'tb_service.serviceid',
@@ -700,7 +700,7 @@ class DisplayController extends \yii\web\Controller
             ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
             ->innerJoin('tb_counterservice_type', 'tb_counterservice_type.counterservice_typeid = tb_counterservice.counterservice_type')
             ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-            ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
+          //  ->leftJoin('tb_doctor', 'tb_doctor.doc_id = tb_quequ.doctor_id')
             ->where([
                 'tb_caller.call_status' => ['calling', 'callend'],
                 'tb_counterservice_type.counterservice_typeid' => $config['counterservice_id'],

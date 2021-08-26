@@ -5,6 +5,7 @@ use Yii;
 use frontend\modules\app\models\TbQuequ;
 use frontend\modules\app\models\TbCaller;
 use frontend\modules\app\models\TbQtrans;
+use frontend\modules\app\models\TbService;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -16,6 +17,7 @@ class MobileViewController extends \yii\web\Controller
     {
     	$model = TbQuequ::findOne($id);
         $modelTrans = TbQtrans::findOne(['q_ids' => $id]);
+        $service =  TbService::findOne($model['serviceid']);
         $this->QID = $id;
     	if(!$model || !$modelTrans){
             return $this->renderAjax('no-data');
@@ -27,6 +29,7 @@ class MobileViewController extends \yii\web\Controller
             'modelTrans' => $modelTrans,
             'modelCaller' => $countData['modelCaller'],
             'countData' => $countData,
+            'service' => $service
         ]);
     }
 
@@ -57,30 +60,40 @@ class MobileViewController extends \yii\web\Controller
         if(!$model || !$modelTrans){
             return 0;
         }
-        if($modelTrans['service_status_id'] == 1){//ยังไม่ถูกเรียกเลย
-            $count = TbQtrans::find()
-            ->where('checkin_date < :checkin_date', [':checkin_date' => $modelTrans['checkin_date']])
-            ->andWhere(['service_status_id' => 1])
-            ->andWhere('ids <> :ids', [':ids' => $modelTrans['ids']])
-            ->andWhere('tb_quequ.serviceid <> 1')
-            ->innerJoin('tb_quequ','tb_quequ.q_ids = tb_qtrans.q_ids')
-            ->innerJoin('tb_service','tb_service.serviceid = tb_quequ.serviceid')
-            ->count();
-        }else if($modelTrans['service_status_id'] == 2 && empty($modelTrans['counter_service_id'])) {//ถูกเรียก
-            $count = 0;
-        }else if($modelTrans['service_status_id'] == 4 && !empty($modelTrans['counter_service_id'])) {//รอเรียกห้องตรวจ
-            $count = TbQtrans::find()
-            ->where('checkin_date < :checkin_date', [':checkin_date' => $modelTrans['checkin_date']])
-            ->andWhere(['service_status_id' => 4])
-            ->andWhere('ids <> :ids', [':ids' => $modelTrans['ids']])
-            ->andWhere('tb_quequ.serviceid <> 1')
-            ->andWhere(['not', ['counter_service_id' => null]])
-            ->innerJoin('tb_quequ','tb_quequ.q_ids = tb_qtrans.q_ids')
-            ->innerJoin('tb_service','tb_service.serviceid = tb_quequ.serviceid')
-            ->count();
-        }else if($modelTrans['service_status_id'] == 2 && !empty($modelTrans['counter_service_id'])) {//ถูกเรียกเข้าห้องตรวจ
-            $count = 0;
-        }
+        $count = TbQtrans::find()
+        ->andWhere([
+            'tb_qtrans.service_status_id' => 1,
+            'tb_service.serviceid' => $model['serviceid']
+        ])
+        ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+        ->andWhere('ids < :ids', [':ids' => $modelTrans['ids']])
+        ->innerJoin('tb_quequ','tb_quequ.q_ids = tb_qtrans.q_ids')
+        ->innerJoin('tb_service','tb_service.serviceid = tb_quequ.serviceid')
+        ->count();
+        // if($modelTrans['service_status_id'] == 1){//ยังไม่ถูกเรียกเลย
+        //     $count = TbQtrans::find()
+        //     ->where('checkin_date < :checkin_date', [':checkin_date' => $modelTrans['checkin_date']])
+        //     ->andWhere(['service_status_id' => 1])
+        //     ->andWhere('ids <> :ids', [':ids' => $modelTrans['ids']])
+        //     ->andWhere('tb_quequ.serviceid <> 1')
+        //     ->innerJoin('tb_quequ','tb_quequ.q_ids = tb_qtrans.q_ids')
+        //     ->innerJoin('tb_service','tb_service.serviceid = tb_quequ.serviceid')
+        //     ->count();
+        // }else if($modelTrans['service_status_id'] == 2 && empty($modelTrans['counter_service_id'])) {//ถูกเรียก
+        //     $count = 0;
+        // }else if($modelTrans['service_status_id'] == 4 && !empty($modelTrans['counter_service_id'])) {//รอเรียกห้องตรวจ
+        //     $count = TbQtrans::find()
+        //     ->where('checkin_date < :checkin_date', [':checkin_date' => $modelTrans['checkin_date']])
+        //     ->andWhere(['service_status_id' => 4])
+        //     ->andWhere('ids <> :ids', [':ids' => $modelTrans['ids']])
+        //     ->andWhere('tb_quequ.serviceid <> 1')
+        //     ->andWhere(['not', ['counter_service_id' => null]])
+        //     ->innerJoin('tb_quequ','tb_quequ.q_ids = tb_qtrans.q_ids')
+        //     ->innerJoin('tb_service','tb_service.serviceid = tb_quequ.serviceid')
+        //     ->count();
+        // }else if($modelTrans['service_status_id'] == 2 && !empty($modelTrans['counter_service_id'])) {//ถูกเรียกเข้าห้องตรวจ
+        //     $count = 0;
+        // }
         $modelCaller = TbCaller::findOne(['qtran_ids' => $modelTrans['ids']]);
 
         $countername = '-';

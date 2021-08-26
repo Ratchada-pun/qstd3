@@ -92,8 +92,10 @@ class KioskController extends \yii\web\Controller
   {
     $this->layout = '@app/views/layouts/main-kiosk.php';
     $serviceGroup = TbServicegroup::find()->orderBy(['servicegroup_order' => SORT_ASC])->all();
+    $services = TbService::find()->where(['show_on_kiosk' => 1, 'service_status' => 1])->all();
     return $this->render('index', [
       'service' => $serviceGroup,
+      'services' => $services
     ]);
   }
 
@@ -688,6 +690,146 @@ class KioskController extends \yii\web\Controller
   }
 
   public function actionCreateQueue() //สร้าง queue
+  {
+    \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+    $params = Json::decode(\Yii::$app->getRequest()->getRawBody());
+
+    if (!ArrayHelper::getValue($params, 'servicegroupid', null)) {
+      throw new HttpException(400, 'invalid servicegroupid.');
+    }
+    if (!ArrayHelper::getValue($params, 'serviceid', null)) {
+      throw new HttpException(400, 'invalid serviceid.');
+    }
+
+    $servicegroupid = ArrayHelper::getValue($params, 'servicegroupid', null); //
+    $serviceid = ArrayHelper::getValue($params, 'serviceid', null); //กลุ่มบริการ
+    $created_from = ArrayHelper::getValue($params, 'created_from', null); //คิวสร้างจาก 1 kiosk 2 mobile
+    $q_status_id = ArrayHelper::getValue($params, 'q_status_id', 1); //สถานะ
+
+    // data models
+    $modelService = TbService::findOne($serviceid); // กลุ่มบริการ
+    if ($modelService == null) {
+      throw new NotFoundHttpException('ไม่พบข้อมูลแผนก.');
+    }
+    $modelServiceGroup = TbServicegroup::findOne($servicegroupid); // กลุ่มบริการ
+    if ($modelServiceGroup == null) {
+      throw new NotFoundHttpException('ไม่พบข้อมูลกลุ่มแผนก.');
+    }
+
+    $counttslot = (new \yii\db\Query()) //หา slot เวลาที่ต้องสร้างคิว
+      ->select([
+        'tb_service_tslot.*',
+      ])
+      ->from('tb_service_tslot')
+      ->where(['tb_service_tslot.serviceid' => $serviceid])
+      ->count();
+
+    $tslotid = $this->getSlot($serviceid);
+
+    $slot = (new \yii\db\Query()) //หา slot เวลาที่ต้องสร้างคิว
+      ->select([
+        'tb_service_tslot.*',
+      ])
+      ->from('tb_service_tslot')
+      ->where(['tb_service_tslot.serviceid' => $serviceid])
+      ->andWhere('CURRENT_TIME >= tb_service_tslot.t_slot_begin')
+      ->andWhere('CURRENT_TIME <= tb_service_tslot.t_slot_end')->one();
+
+    if ($slot) {
+      $count = (new \yii\db\Query())
+        ->from('tb_quequ')
+        ->where([
+          'tb_quequ.serviceid' => $serviceid,
+          'tb_quequ.tslotid' => $slot['tslotid'],
+        ])
+        ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+        ->count();
+      $q_balance = $slot['q_limitqty'] - $count;
+      if ($q_balance == 0 && $count > 0) { //จำนวน คิว limit
+        throw new HttpException(400, 'คิวเต็ม!');
+      }
+    }
+
+    if ($counttslot > 0 && $tslotid == null) {
+      throw new HttpException(400, 'ไม่ได้อยู่ในช่วงเวลาให้บริการ!');
+    }
+
+
+    $db = Yii::$app->db;
+    $transaction = $db->beginTransaction();
+
+    try {
+
+
+      $modelQueue = new TbQuequ();
+      $q_num = $modelQueue->generateQnumber([
+        'serviceid' => $serviceid,
+        'service_prefix' => $modelService['service_prefix'],
+        'service_numdigit' => $modelService['service_numdigit'],
+      ]);
+
+      $modelQueue->setAttributes([
+
+        'q_num' => $q_num,
+        'servicegroupid' => $servicegroupid, //กลุ่มบริการ
+        'serviceid' => $serviceid,
+        'created_from' => $created_from,
+        'q_status_id' => $q_status_id, //สถานะ
+        'tslotid' => $tslotid
+      ]);
+
+      if ($modelQueue->save()) {
+
+        $modelQstatus = TbServiceStatus::findOne($modelQueue['q_status_id']);
+        $modelQtrans = TbQtrans::findOne(['q_ids' => $modelQueue->q_ids]);
+        $queue_left = (new \yii\db\Query()) //คิวรอ
+          ->select([
+            'count(`tb_quequ`.`q_ids`) as `queue_left`',
+          ])
+          ->from('`tb_quequ`')
+          ->where([
+            '`tb_quequ`.`serviceid`' => $serviceid,
+          ])
+          ->where('q_status_id <> :q_status_id', [':q_status_id' => 4])
+          ->andWhere('q_ids < :q_ids', [':q_ids' => $modelQueue['q_ids']])
+          ->andWhere('DATE(q_timestp) = CURRENT_DATE')
+          ->count();
+        if (!$modelQtrans) {
+          $modelQtrans = new TbQtrans();
+        }
+        $modelQtrans->setAttributes([
+          'q_ids' => $modelQueue->q_ids,
+          'servicegroupid' => $servicegroupid,
+          'service_status_id' => $modelQueue->q_status_id,
+        ]);
+        if ($modelQtrans->save()) {
+          $transaction->commit();
+          return [
+            'modelQueue' => $modelQueue,
+            'modelQtrans' => $modelQtrans,
+            'service_status_name' => $modelQstatus['service_status_name'],
+            'queue_left' => $queue_left,
+          ];
+        } else {
+          $transaction->rollBack();
+          throw new HttpException(422, Json::encode($modelQtrans->errors));
+        }
+      } else {
+        $transaction->rollBack();
+        throw new HttpException(422, Json::encode($modelQueue->errors));
+      }
+    } catch (\Exception $e) {
+      $transaction->rollBack();
+      throw $e;
+    } catch (\Throwable $e) {
+      $transaction->rollBack();
+      throw $e;
+    }
+  }
+
+  /*
+  public function actionCreateQueue() //สร้าง queue
 
   {
     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -914,6 +1056,7 @@ class KioskController extends \yii\web\Controller
     }
   }
 
+  */
   private function getSlot($serviceid, $tslotid = [])
   {
     $query = (new \yii\db\Query()) //หา slot เวลาที่ต้องสร้างคิว

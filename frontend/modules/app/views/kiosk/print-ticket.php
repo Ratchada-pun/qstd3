@@ -67,7 +67,7 @@ $this->registerJsFile(
 
 $qr = \Yii::$app->keyStorage->get('qr-print', 'q_qn');
 $barcode = \Yii::$app->keyStorage->get('barcode-print', 'q_qn');
-$qrvalue = $model->{$qr};
+$qrvalue =  Url::base(true).'/mobile-view/index?id='. $model->{$qr};
 $bcvalue = $model->{$barcode};
 
 $this->registerJs(<<<JS
