@@ -77,7 +77,7 @@ CSS
                         </h1>
                     </div>
                     <div class="col-md-4" style="padding-top: 50px;">
-                        <h3 class="font-light m-b-xs">
+                        <h3 class="font-light m-b-xs" style="font-size: 22px;">
                             <span class="text-primary"><?= Yii::$app->formatter->asDate('now', 'php:l ที่ d F ') . (Yii::$app->formatter->asDate('now', 'php:Y')  + 543) ?></span>
                         </h3>
                     </div>
