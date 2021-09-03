@@ -24,10 +24,10 @@ http.interceptors.response.use(
   }
 );
 
-const socket = io("https://qstd3.andamandev.com", {
+const socket = io(window.socketBaseURL, {
   transports: ["websocket", "polling"],
   forceNew: true,
-  path: "/node/socket.io"
+  path: window.socketPath
 });
 
 socket
@@ -77,7 +77,7 @@ var app = new Vue({
     patient: null,
     right: null,
     httpConfig: {
-      baseURL: "https://qstd3.andamandev.com/node",
+      baseURL: window.nodeBaseURL,
     },
 
     service_id: null,
@@ -331,7 +331,7 @@ var app = new Vue({
       const _this = this;
       try {
         const right = await http.get(`/api/queue/patient-right/${cid}`, _this.httpConfig);
-        this.setRight(right);
+        this.setRight(_.get(right, 'data'));
         return right;
       } catch (error) {
         Swal.fire({

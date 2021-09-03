@@ -37,6 +37,17 @@ const throwError = (...args) => {
   throw createError(...args);
 };
 
+const knex = require('knex')({
+  client: 'mysql',
+  connection: {
+    host : process.env.DB_HOST,
+    user : process.env.DB_USERNAME,
+    password : process.env.DB_PASSWORD,
+    database : process.env.DB_DATABASE,
+    port: process.env.DB_PORT
+  }
+});
+
 const publicKey = `-----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANTfxYalbw3kXUS/i4BZ6qPq9JXB0/zI
 5KW8iIQ9ucqvizyTSB5gYHMlfEuP/NL78+hnaEvrGeJ8JBeqLQxrpqUCAwEAAQA==
@@ -129,20 +140,20 @@ app.post("/api/queue/decrypt-data", (req, res) => {
 });
 
 app.get("/api/queue/patient-right/:cid", async (req, res) => {
+  // try {
+  //   req.assert(req.params.cid, 400, "invalid cid.");
+  //   const response = await axios.get(`/api2/v1/kiosk/pt-right?cid=${String(req.params.cid).replace(/ /g, "")}`, httpConfig);
+  //   res.send(response.data);
+  // } catch (error) {
+  //   res.status(_.get(error, 'response.status', 500)).send(error.response.data);
+  // }
   try {
-    req.assert(req.params.cid, 400, "invalid cid.");
-    const response = await axios.get(`/api2/v1/kiosk/pt-right?cid=${String(req.params.cid).replace(/ /g, "")}`, httpConfig);
-    res.send(response.data);
-  } catch (error) {
-    res.status(_.get(error, 'response.status', 500)).send(error.response.data);
-  }
-  /* try {
     // const UserServiceModel = new UserService();
-    // const token = await UserServiceModel.findLastNhsoToken();
-    // req.assert(token, 400, "invalid token");
+    const token = await knex.select('*').from('tb_token_nhso').orderBy('crearedat', 'desc').first()
+    req.assert(token, 400, "invalid token");
     const args = {
-      user_person_id: "3410101282142",
-      smctoken: "b787f6pe737k7u3a",
+      user_person_id: token.user_person_id,
+      smctoken: token.smctoken,
       person_id: String(req.params.cid).replace(/ /g, ""),
     };
 
@@ -170,7 +181,7 @@ app.get("/api/queue/patient-right/:cid", async (req, res) => {
     res.success(result);
   } catch (error) {
     res.error(error);
-  } */
+  }
 });
 
 app.post("/api/queue/create-queue", async (req, res) => {
