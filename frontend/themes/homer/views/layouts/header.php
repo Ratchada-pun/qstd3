@@ -10,7 +10,7 @@ $appname = \Yii::$app->keyStorage->get('app-name', Yii::$app->name);
     <div class="color-line">
     </div>
     <div id="logo" class="light-version" style="padding-top: 15px;">
-        <?= Html::a(Html::img(\Yii::$app->keyStorage->get('logo-company', '/img/logo/logoKM4.png'),['class' => 'img-responsive center-block','style' => \Yii::$app->keyStorage->get('logo-header-style'),]),Url::to(['/site/index']),['style' => 'text-transform: uppercase']); ?>
+        <?= Html::a(Html::img(\Yii::$app->keyStorage->get('logo-index', '/img/logo/logoKM4.png'),['class' => 'img-responsive center-block','style' => \Yii::$app->keyStorage->get('logo-header-style'),]),Url::to(['/site/index']),['style' => 'text-transform: uppercase']); ?>
         <!-- <span>
             Homer Theme
         </span> -->
