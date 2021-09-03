@@ -429,7 +429,7 @@ $this->registerJsFile(
 ['depends' => [\yii\web\JqueryAsset::class]]
 ); */
 
-$baseURL = YII_ENV_DEV ? Url::base(true) : "https://qstd3.andamandev.com";
+$baseURL = "https://qstd3.andamandev.com";
 $patientPicture = $themeAsset . "/images/kiosk/patient.png";
 $js = <<<JS
   window.baseURL = "$baseURL";
