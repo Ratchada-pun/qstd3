@@ -64,7 +64,7 @@ $this->registerJs('var baseUrl = '.Json::encode(Url::base(true)).'; ',View::POS_
                     <div class="text-center">
                         <?= Html::img(\Yii::$app->keyStorage->get('logo-company', '/img/logo/logoKM4.png'),['width' => '200px','class' => 'img-responsive center-block']); ?>
                         <h2 style="line-height: 0; padding-top: 30px;"><?=\Yii::$app->keyStorage->get('kiosk-caption', Yii::$app->name)?></h2>
-                         <h3 style="line-height: 0; padding-top: 30px;">ส่วนงาน: <?= $service['service_name'] ?></h3>
+                         <h3 style="padding-top: 30px;">ส่วนงาน: <?= $service['service_name'] ?></h3>
                     </div>
 
                     <div class="text-left" style="margin-left: 20px;">
