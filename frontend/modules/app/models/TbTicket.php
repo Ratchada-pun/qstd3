@@ -186,7 +186,7 @@ class TbTicket extends \yii\db\ActiveRecord
                                 <b style="font-size: 14px; font-weight: 600;">HN</b>  :  <b style="font-size: 13px;">0000000000</b>
                             </h6>
                             <h6 style="margin: 4px 1px;" class="color">
-                                <b style="font-size: 14px; font-weight: 600;">ชื่อ-นามสกุล</b>  :  <b style="font-size: 13px;">Banbung Hospital</b>
+                                <b style="font-size: 14px; font-weight: 600;">ชื่อ-นามสกุล</b>  :  <b style="font-size: 13px;">โรงพยาบาลสิรินธร</b>
                             </h6>
                         </div>
                     </div>
@@ -257,7 +257,7 @@ class TbTicket extends \yii\db\ActiveRecord
         return strtr($this->template, [
             '{hos_name_th}' => $this->hos_name_th,
             '{q_hn}' => '0008962222',
-            '{pt_name}' => 'Banbung Hospital',
+            '{pt_name}' => 'โรงพยาบาลสิรินธร',
             '{q_num}' => 'A001',
             '{pt_visit_type}' => 'ผู้ป่วยนัดหมาย',
             '{sec_name}' => 'แผนกห้องยา',
