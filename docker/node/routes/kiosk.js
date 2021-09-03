@@ -3,7 +3,7 @@ var qs = require("qs");
 var router = express.Router();
 const axios = require("axios");
 const config = {
-  baseURL: "http://qstd3.andamandev.com",
+  baseURL: "https://qstd3.andamandev.com",
 };
 
 router.post("/create-queue", async function(req, res) {

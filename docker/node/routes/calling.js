@@ -2,10 +2,10 @@ var express = require("express")
 var qs = require("qs")
 var router = express.Router()
 const axios = require("axios")
-axios.defaults.baseURL = "http://qstd3.andamandev.com"
+axios.defaults.baseURL = "https://qstd3.andamandev.com"
 //axios.defaults.baseURL = "http://queue-chainat.local";
 const config = {
-	baseURL: "http://qstd3.andamandev.com",
+	baseURL: "https://qstd3.andamandev.com",
 	// baseURL: "http://queue-chainat.local"
 }
 

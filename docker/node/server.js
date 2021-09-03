@@ -1,28 +1,60 @@
 require("dotenv").config();
-var app = require("express")();
-var cors = require("cors");
-var server = require("http").Server(app);
-var io = require("socket.io")(server, {
+
+const devMode = process.env.NODE_ENV === "development";
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const http = require("http");
+const httpServer = http.createServer(app);
+const options = {
   allowEIO3: true,
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "DELETE", "PUT"],
   },
-});
-var port = process.env.PORT || 3000;
-var bodyParser = require("body-parser");
+  transports: ["polling", "websocket"],
+};
+const io = require("socket.io")(httpServer, options);
+const NodeRSA = require("node-rsa");
+const key = new NodeRSA({ b: 512 });
+const bodyParser = require("body-parser");
+const morgan = require("morgan");
+const soap = require("soap");
+const _ = require("lodash");
+const axios = require("axios");
+const multiparty = require("multiparty");
+const httpConfig = {
+  baseURL: "https://qstd3.andamandev.com",
+};
+const port = process.env.PORT || 3000;
 const ioclient = require("socket.io-client");
 //const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
 const socketclient = ioclient("http://qstd3node:3003", { path: "/node/socket.io" });
-const admin = require("firebase-admin");
+const createError = require("http-errors");
+const httpAssert = require("http-assert");
+// error
+const throwError = (...args) => {
+  throw createError(...args);
+};
 
-var serviceAccount = require("./chainathos-ef609-firebase-adminsdk-r7eqo-3cfdbddd2d.json");
+const publicKey = `-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANTfxYalbw3kXUS/i4BZ6qPq9JXB0/zI
+5KW8iIQ9ucqvizyTSB5gYHMlfEuP/NL78+hnaEvrGeJ8JBeqLQxrpqUCAwEAAQA==
+-----END PUBLIC KEY-----`;
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://chainathos-ef609-default-rtdb.asia-southeast1.firebasedatabase.app",
-});
-//const socketclient = ioclient("http://q.chainathospital.org", { path: "/node/socket.io" });
+key.importKey(publicKey, "pkcs8-public-pem");
+
+const privatePem = `-----BEGIN RSA PRIVATE KEY-----
+  MIIBOgIBAAJBANTfxYalbw3kXUS/i4BZ6qPq9JXB0/zI5KW8iIQ9ucqvizyTSB5g
+  YHMlfEuP/NL78+hnaEvrGeJ8JBeqLQxrpqUCAwEAAQJAJ7IWxnYBEIkeL1y8qdGa
+  pLiCpY6AdmoL4TAYEPjltXrRnauiV860puRSRq00h4oWXRUXearAea02fnGbrZ+F
+  gQIhAOu8bPjr5Ntl1OfpaejBllSNwpiWTcYGt0caw784Aj7hAiEA5yw/3Xa1KGNz
+  nxESV2twA7XRpfyp9LoHblRFLBdrNEUCIQCryP3oT47Qyt5hudiyAxCXwU5Df5Rh
+  cFdy+3AWEqygQQIgA8Kaf1Ww+Kk1dj7m13kt50GL2XFUqmBkQo0oWuE+oykCICkc
+  6D4kj1aCh1DqX5myd+T1t8wCgwV89p+KiXg14YpF
+  -----END RSA PRIVATE KEY-----`;
+
+key.importKey(privatePem, "pkcs1-pem");
 
 socketclient
   .on("connect", () => {
@@ -34,7 +66,7 @@ socketclient
 
 // require the module
 
-var multiparty = require("multiparty");
+
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -43,20 +75,119 @@ app.use(bodyParser.json());
 app.get("/", function(req, res) {
   res.sendFile(__dirname + "/index.html");
 });
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
 
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  // res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Authorization, Accept, Origin, DNT, X-CustomHeader, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type, Content-Range, Range"
+  );
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET"); //to give access to all the methods provided
+    return res.status(200).json({});
+  }
   req.io = socketclient;
+  req.assert = httpAssert;
+  req.throw = throwError;
   next();
+});
+
+app.use(function (req, res, next) {
+  res.success = (data = "", statusCode = 200) => {
+    res.status(statusCode || 200).send({
+      statusCode: statusCode,
+      success: true,
+      message: "ok",
+      data: data,
+    });
+  };
+
+  res.error = (err) => {
+    if (devMode) {
+      console.log(err.stack);
+    }
+    let statusCode = err.status || 500;
+    res.status(statusCode);
+    res.send({
+      statusCode: statusCode,
+      success: false,
+      name: String(err.name).replace("Error", ""),
+      message: err.message,
+    });
+  };
+
+  next();
+});
+
+app.use(morgan("combined"));
+
+app.post("/api/queue/decrypt-data", (req, res) => {
+  const decryptedString = key.decrypt(req.body.encrypted, "utf8");
+  const decrypedData = JSON.parse(decryptedString);
+  res.send(decrypedData);
+});
+
+app.get("/api/queue/patient-right/:cid", async (req, res) => {
+  try {
+    req.assert(req.params.cid, 400, "invalid cid.");
+    const response = await axios.get(`/api2/v1/kiosk/pt-right?cid=${String(req.params.cid).replace(/ /g, "")}`, httpConfig);
+    res.send(response.data);
+  } catch (error) {
+    res.status(_.get(error, 'response.status', 500)).send(error.response.data);
+  }
+  /* try {
+    // const UserServiceModel = new UserService();
+    // const token = await UserServiceModel.findLastNhsoToken();
+    // req.assert(token, 400, "invalid token");
+    const args = {
+      user_person_id: "3410101282142",
+      smctoken: "b787f6pe737k7u3a",
+      person_id: String(req.params.cid).replace(/ /g, ""),
+    };
+
+    const result = await new Promise((resolve) => {
+      resolve(
+        soap
+          .createClientAsync("http://ucws.nhso.go.th/ucwstokenp1/UCWSTokenP1?WSDL")
+          .then((client) => {
+            return client.searchCurrentByPIDAsync(args);
+          })
+          .then((result) => {
+            return result[0].return;
+          })
+      );
+    });
+    req.assert(result, 404, "ไม่พบข้อมูลสิทธิการรักษา");
+    if (_.get(result, "ws_status") === "NHSO-00003") {
+      req.throw(400, _.get(result, "ws_status_desc", "Token expire."));
+    } else if (_.isEmpty(result.fname)) {
+      req.throw(400, "Not found in NHSO.");
+    } else if (_.isEmpty(result.maininscl) || _.isEmpty(result.maininscl_name)) {
+      req.throw(400, "ไม่พบข้อมูลสิทธิการรักษา");
+    }
+    // redis.set(req.params.cid + "_right", JSON.stringify(result), "EX", 60 * 60 * 24);
+    res.success(result);
+  } catch (error) {
+    res.error(error);
+  } */
+});
+
+app.post("/api/queue/create-queue", async (req, res) => {
+  try {
+    const response = await axios.post("/api2/v1/kiosk/create-queue", req.body, httpConfig);
+    req.io.emit("register", response.data);
+    res.send(response.data);
+  } catch (error) {
+    res.status(_.get(error, 'response.status', 500)).send(error.response.data);
+  }
 });
 
 var indexRouter = require("./routes/index");
 var callingRouter = require("./routes/calling");
 var dispensingRouter = require("./routes/dispensing");
 var kioskRouter = require("./routes/kiosk");
-var messageQueue = require("./jobs")(admin);
+// var messageQueue = require("./jobs")(admin);
 
 app.use("/api", indexRouter);
 app.use("/api/calling", callingRouter);
@@ -189,6 +320,38 @@ io.on("connection", function(socket) {
     socket.emit("ip", { ip: getClientIp(socket), clientId: clientId });
   });
 
+  socket.on(EVENTS.DEVICE_CONNECTED, (data) => {
+    socket.broadcast.emit(EVENTS.DEVICE_CONNECTED, data);
+  });
+
+  socket.on(EVENTS.DEVICE_DISCONNECTED, (data) => {
+    socket.broadcast.emit(EVENTS.DEVICE_DISCONNECTED, data);
+  });
+
+  socket.on(EVENTS.CARD_INSERTED, (data) => {
+    socket.broadcast.emit(EVENTS.CARD_INSERTED, data);
+  });
+
+  socket.on(EVENTS.CARD_REMOVED, (data) => {
+    socket.broadcast.emit(EVENTS.CARD_REMOVED, data);
+  });
+
+  socket.on(EVENTS.READING_START, (data) => {
+    socket.broadcast.emit(EVENTS.READING_START, data);
+  });
+
+  socket.on(EVENTS.READING_PROGRESS, (data) => {
+    socket.broadcast.emit(EVENTS.READING_PROGRESS, data);
+  });
+
+  socket.on(EVENTS.READING_COMPLETE, (data) => {
+    socket.broadcast.emit(EVENTS.READING_COMPLETE, data);
+  });
+
+  socket.on(EVENTS.READING_FAIL, (data) => {
+    socket.broadcast.emit(EVENTS.READING_FAIL, data);
+  });
+
   socket.on("join-room", (config) => {
     const roomId = getClientIp(socket);
 
@@ -256,6 +419,6 @@ io.on("connection", function(socket) {
   });
 });
 
-server.listen(port, function() {
+httpServer.listen(port, function() {
   console.log("listening on *:" + port);
 });

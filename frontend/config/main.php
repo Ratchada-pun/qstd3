@@ -15,7 +15,7 @@ return [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log', 'dektrium\user\Bootstrap'],
     'controllerNamespace' => 'frontend\controllers',
-    'name' => 'ระบบคิว รพ. ชัยนาทนเรนทร',
+    'name' => 'ระบบคิว โรงพยาบาลสิรินธร',
     'defaultRoute' => '/app/display/display-list',
     'controllerMap' => [
         'file-manager-elfinder' => [
@@ -135,6 +135,13 @@ return [
         'api' => [
             'class' => 'frontend\modules\api\Module',
         ],
+        'api2' => [
+            'class' => 'xray\modules\api\Module',
+        ],
+        'queue' => [
+            'class' => 'xray\modules\queue\Module',
+            'layout' => '@xray/views/layouts/main.php'
+        ],
     ],
     'components' => [
         'request' => [
@@ -178,6 +185,28 @@ return [
             'rules' => [
                 'dashboard' => 'site/index',
                 'displaylist' => 'app/display/data-display',
+
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'api2/v1/kiosk',
+                    'pluralize' => false,
+                    'tokens' => [
+                        '{id}' => '<id:\d+>',
+                    ],
+                    'extraPatterns' => [
+                        'GET client-ip' => 'client-ip',
+                        'OPTIONS client-ip' => 'options',
+
+                        'GET services' => 'services',
+                        'OPTIONS services' => 'options',
+
+                        'POST create-queue' => 'create-queue',
+                        'OPTIONS create-queue' => 'options',
+
+                        'GET pt-right' => 'pt-right',
+                        'OPTIONS pt-right' => 'options',
+                    ]
+                ],
             ],
         ],
         'view' => [
@@ -219,13 +248,15 @@ return [
         // ],
         'assetManager' => [
             'appendTimestamp' => true,
-            /* 'bundles' => [
-                'yii\bootstrap\BootstrapAsset' => [
+            'bundles' => [
+                /* 'yii\bootstrap\BootstrapAsset' => [
                     'depends' => [                  
                         'yii\jui\JuiAsset',
                     ],
-                ],
-            ], */
+                ], */
+                // 'yii\bootstrap\BootstrapAsset' => false,
+                // 'yii\bootstrap\BootstrapPluginAsset' => false,
+            ],
         ],
         'soapClient' => [
             'class' => 'mcomscience\soapclient\Client',
@@ -234,6 +265,28 @@ return [
                 'cache_wsdl' => WSDL_CACHE_NONE,
             ],
         ],
+        // 'response' => [
+        //     'class' => 'yii\web\Response',
+        //     'on beforeSend' => function ($event) {
+        //         $response = $event->sender;
+        //         if ($response->format == 'html') {
+        //             return $response;
+        //         }
+
+        //         $responseData = $response->data;
+
+        //         if (is_string($responseData) && json_decode($responseData)) {
+        //             $responseData = json_decode($responseData, true);
+        //         }
+
+        //         if ($response->statusCode >= 200 && $response->statusCode <= 299) {
+        //             $response->data = $responseData;
+        //         } else {
+        //             $response->data = $responseData;
+        //         }
+        //         return $response;
+        //     },
+        // ]
     ],
     'as access' => [
         'class' => 'mdm\admin\components\AccessControl',
@@ -265,7 +318,8 @@ return [
             'app/kiosk/queue-list',
             'app/kiosk/print-ticket',
             'app/drug-dispensing/drug-dispensing-list',
-            'api/*'
+            'api/*',
+            'api2/*'
         ]
     ],
     'params' => $params,

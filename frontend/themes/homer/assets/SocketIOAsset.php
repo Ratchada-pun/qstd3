@@ -13,7 +13,7 @@ class SocketIOAsset extends AssetBundle
         // 'vendor/socket.io/dist/socket.io.js',
         // YII_ENV_DEV ? 'vendor/socket.io/dist/io.js' : 'vendor/socket.io/dist/io.min.js',
         'js/socket.io.min.js' ,
-        YII_ENV_DEV ? 'vendor/socket.io/dist/io.js' : 'vendor/socket.io/dist/io.min.js',
+        YII_ENV_DEV ? 'vendor/socket.io/dist/io.dev.js' : 'vendor/socket.io/dist/io.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

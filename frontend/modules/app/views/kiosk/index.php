@@ -114,7 +114,7 @@ CSS
         <div class="row" style="padding-left: 100px;padding-right: 100px;">
             <?php
             foreach ($services as $key => $service) : ?>
-                <div class="col-md-6" style="padding-top: 30px;">
+                <div class="col-md-12" style="padding-top: 30px;">
                     <button type="button" class="btn btn-default btn-lg btn-block btn-service" data-url="<?= Url::to(['/api/kiosk/create-queue', 'serviceid' => $service['serviceid'], 'servicegroupid' => $service['service_groupid']]) ?>">
                         <?= $service['btn_kiosk_name'] ?>
                     </button>
