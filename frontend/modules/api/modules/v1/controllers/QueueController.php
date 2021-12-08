@@ -3,6 +3,7 @@
 namespace frontend\modules\api\modules\v1\controllers;
 
 use frontend\modules\app\models\TbService;
+use Yii;
 use yii\data\ActiveDataFilter;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
@@ -83,45 +84,45 @@ class QueueController extends ActiveController
         return $query->all();
     }
 
-    public function actionHoldList($serviceid = null,$counter_service_id = null)
+    public function actionHoldList($serviceid = null, $counter_service_id = null)
     {
         $query = (new \yii\db\Query())
-        ->select([
-            'tb_caller.caller_ids',
-            'tb_caller.q_ids',
-            'tb_caller.qtran_ids',
-            'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
-            'tb_caller.servicegroupid',
-            'tb_caller.counter_service_id',
-            'tb_caller.call_timestp',
-            'tb_quequ.q_num',
-            'tb_quequ.q_hn',
-            'tb_quequ.q_qn',
-            'tb_quequ.pt_name',
-            'tb_quequ.countdrug',
-            'tb_quequ.qfinace',
-            'tb_service_status.service_status_name',
-            'tb_counterservice.counterservice_name',
-            'tb_service.service_name',
-            'tb_service.serviceid',
-            'tb_service.service_prefix',
-            'tb_quequ.quickly',
-            'tb_qtrans.ids',
-            'tb_qtrans.q_ids'
-        ])
-        ->from('tb_caller')
-        ->leftJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
-        ->leftJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-        ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-        ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
-        ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-        ->where([
-            'tb_caller.call_status' => 'hold',
-            'tb_quequ.q_status_id' => [3, 11, 12, 13]
-        ])
-        ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
-        ->orderBy(['tb_caller.call_timestp' => SORT_ASC]);
-        
+            ->select([
+                'tb_caller.caller_ids',
+                'tb_caller.q_ids',
+                'tb_caller.qtran_ids',
+                'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                'tb_caller.servicegroupid',
+                'tb_caller.counter_service_id',
+                'tb_caller.call_timestp',
+                'tb_quequ.q_num',
+                'tb_quequ.q_hn',
+                'tb_quequ.q_qn',
+                'tb_quequ.pt_name',
+                'tb_quequ.countdrug',
+                'tb_quequ.qfinace',
+                'tb_service_status.service_status_name',
+                'tb_counterservice.counterservice_name',
+                'tb_service.service_name',
+                'tb_service.serviceid',
+                'tb_service.service_prefix',
+                'tb_quequ.quickly',
+                'tb_qtrans.ids',
+                'tb_qtrans.q_ids'
+            ])
+            ->from('tb_caller')
+            ->leftJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+            ->leftJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+            ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+            ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+            ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+            ->where([
+                'tb_caller.call_status' => 'hold',
+                'tb_quequ.q_status_id' => [3, 11, 12, 13]
+            ])
+            ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+            ->orderBy(['tb_caller.call_timestp' => SORT_ASC]);
+
 
         if (!empty($serviceid)) {
             $query->andWhere(['tb_quequ.serviceid' => $serviceid]);
@@ -133,4 +134,14 @@ class QueueController extends ActiveController
         return $query->all();
     }
 
+    public function actionNhsoToken()
+    {
+        $token = Yii::$app->db->createCommand('SELECT
+                tb_token_nhso.* 
+            FROM
+                tb_token_nhso 
+            ORDER BY
+                tb_token_nhso.crearedat DESC')->queryOne();
+        return $token;
+    }
 }
