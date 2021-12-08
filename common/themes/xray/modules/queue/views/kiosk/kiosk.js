@@ -330,7 +330,9 @@ var app = new Vue({
     fetchPatientRight: async function(cid) {
       const _this = this;
       try {
-        const right = await http.get(`/api/queue/patient-right/${cid}`, _this.httpConfig);
+        const right = await http.get(`/api/queue/patient-right/${cid}`, {
+          baseURL: window.nodeBaseURLLocal
+        });
         this.setRight(_.get(right, 'data'));
         return right;
       } catch (error) {

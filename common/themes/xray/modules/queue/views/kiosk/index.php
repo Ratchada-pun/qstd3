@@ -434,12 +434,14 @@ $socketBaseURL = YII_ENV_DEV ? 'http://localhost:3000' : "https://qstd3.andamand
 $socketPath = YII_ENV_DEV ? '/socket.io' : "/node/socket.io";
 $nodeBaseURL = YII_ENV_DEV ? 'http://localhost:3000' : "https://qstd3.andamandev.com/node";
 $patientPicture = $themeAsset . "/images/kiosk/patient.png";
+$nodeBaseURLLocal = YII_ENV_DEV ? 'http://localhost:3000' : "https://qstd3.andamandev.com/node";
 $js = <<<JS
   window.baseURL = "$baseURL";
   window.patientPicture = "$patientPicture";
   window.nodeBaseURL = "$nodeBaseURL";
   window.socketBaseURL = "$socketBaseURL";
   window.socketPath = "$socketPath";
+  window.nodeBaseURLLocal = "$nodeBaseURLLocal";
 JS;
 $this->registerJs($js, \yii\web\View::POS_HEAD);
 $this->registerJs($this->render(YII_ENV_DEV ? 'kiosk.js' : 'kiosk.min.js'), \yii\web\View::POS_READY);

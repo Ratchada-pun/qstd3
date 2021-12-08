@@ -319,7 +319,8 @@ return [
             'app/kiosk/print-ticket',
             'app/drug-dispensing/drug-dispensing-list',
             'api/*',
-            'api2/*'
+            'api2/*',
+            'queue/kiosk/index'
         ]
     ],
     'params' => $params,
