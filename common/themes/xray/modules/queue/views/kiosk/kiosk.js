@@ -444,6 +444,7 @@ var app = new Vue({
           picture: _.get(_this.patient, "photo"),
         };
         const created = await http.post(`/api/queue/create-queue`, body, _this.httpConfig);
+        socket.emit("register", created);
         Swal.fire({
           icon: "success",
           title: "กรุณารอรับบัตรคิว",

@@ -17,10 +17,7 @@ $('input[type="search"]').blur(function() {
     500
   );
 });
-socket
-.on('register', (res) => {
-	dt_tbwaiting.ajax.reload();
-})
+
 // Toastr options
 toastr.options = {
   debug: false,
@@ -1446,3 +1443,8 @@ $("button.on-call-selected").on("click", function(e) {
 });
 
 Queue.init();
+
+socket
+.on('register', (res) => {
+	dt_tbwaiting.ajax.reload();
+})
