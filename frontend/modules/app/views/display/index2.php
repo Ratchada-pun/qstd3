@@ -652,7 +652,7 @@ var app = new Vue({
                 pt_name: "-",
                 counterservice_callnumber: "-",
                 call_timestp: parseFloat(moment().subtract(20, "minutes").format('X')),
-                pt_pic: ""
+                pt_pic: "/img/admin.png"
             }
             
             for (let i = 0; i < limit; i++) {
@@ -755,7 +755,7 @@ var app = new Vue({
                                 pt_name: res.modelQueue.pt_name,
                                 counterservice_callnumber: res.counter.counterservice_callnumber,
                                 call_timestp: parseFloat(moment(res.modelCaller.call_timestp).format('X')),
-                                pt_pic: res.modelQueue.pt_pic
+                                pt_pic: res.modelQueue.pt_pic ? res.modelQueue.pt_pic : "/img/admin.png"
                             })
                            
                         }
@@ -804,7 +804,7 @@ var app = new Vue({
                             pt_name: row.pt_name,
                             counterservice_callnumber: row.counterservice_callnumber,
                             call_timestp: parseFloat(moment(row.call_timestp).format('X')),
-                            pt_pic: row.pt_pic
+                            pt_pic: row.pt_pic ? row.pt_pic : "/img/admin.png"
                         })
                     }
                 }
