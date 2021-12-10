@@ -71,7 +71,7 @@ class DisplayController extends \yii\web\Controller
         $config->counterservice_id = !empty($config['counterservice_id']) ? explode(",", $config['counterservice_id']) : [];
 
         $station = $config['sound_station_id'] ? TbSoundStation::findOne($config['sound_station_id']) : new TbSoundStation();
-        return $this->render('index', [
+        return $this->render('index2', [
             'config' => $config,
             'counter' => $counter,
             'station' => $station
@@ -627,14 +627,15 @@ class DisplayController extends \yii\web\Controller
             $model = TbDisplayConfig::findOne($config['display_ids']);
             $services = !empty($model['service_id']) ? explode(",", $model['service_id']) : [];
             $counters = !empty($model['counterservice_id']) ? explode(",", $model['counterservice_id']) : [];
-            $servicePrefixs = ArrayHelper::map(TbService::find()->where(['serviceid' => $services])->orderBy(['service_prefix' => SORT_ASC])->all(), 'serviceid', 'service_prefix');
+            $servicePrefixs = ArrayHelper::map(TbService::find()->where(['serviceid' => $services])->orderBy(['service_prefix' => SORT_ASC])->groupBy('service_prefix')->all(), 'serviceid', 'service_prefix');
 
             $map = ArrayHelper::map($query, 'serviceid', 'service_prefix');
             $caller_ids = ArrayHelper::getColumn($query, 'caller_ids');
             $mapArr = [];
+            $qnumArr = [];
             foreach ($servicePrefixs as $prefix) {
                 $rows = (new \yii\db\Query())
-                    ->select(['tb_quequ.q_num', 'tb_quequ.quickly'])
+                    ->select(['tb_quequ.q_num', 'tb_quequ.quickly', 'tb_caller.caller_ids'])
                     ->from('tb_caller')
                     ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_caller.q_ids')
                     ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
@@ -648,11 +649,14 @@ class DisplayController extends \yii\web\Controller
                     ->andWhere('DATE( tb_quequ.q_timestp ) = CURRENT_DATE')
                     ->addParams([':q_num' => $prefix . '%'])
                     ->orderBy(['tb_caller.call_timestp' => SORT_DESC])
+                    ->groupBy('tb_quequ.q_ids')
                     ->one();
-                if ($rows) {
+                if ($rows && !in_array($rows['q_num'], $qnumArr)) {
+                    $qnumArr[] = $rows['q_num'];
                     $mapArr[] = [
                         'prefix' => $prefix,
                         'qnum' => $rows['q_num'],
+                        'caller_ids' => $rows['caller_ids'],
                         'DT_RowAttr' => ['data-key' => $prefix],
                         'DT_RowId' => $prefix,
                     ];
@@ -660,6 +664,7 @@ class DisplayController extends \yii\web\Controller
                         $mapArr[] = [
                             'prefix' => '<small>คิวด่วน</small>',
                             'qnum' => $rows['q_num'],
+                            'caller_ids' => $rows['caller_ids'],
                             'DT_RowAttr' => ['data-key' => $prefix],
                             'DT_RowId' => $prefix,
                         ];
@@ -668,6 +673,7 @@ class DisplayController extends \yii\web\Controller
                     $mapArr[] = [
                         'prefix' => $prefix,
                         'qnum' => '-',
+                        'caller_ids' => null,
                         'DT_RowAttr' => ['data-key' => $prefix],
                         'DT_RowId' => $prefix,
                     ];
@@ -679,7 +685,7 @@ class DisplayController extends \yii\web\Controller
         }
     }
 
-    protected function findDisplayData($config)
+    protected function findDisplayData($config,  $current_qid = null)
     {
         $lastcalling = $this->lastCalling($config);
         $query = (new \yii\db\Query())
@@ -707,12 +713,15 @@ class DisplayController extends \yii\web\Controller
                 'tb_service.serviceid' => $config['service_id']
             ])
             ->andWhere('DATE( tb_quequ.q_timestp ) = CURRENT_DATE')
-            //->limit($config['display_limit'])
+            ->limit(empty($config['display_limit']) ? 2 : $config['display_limit'])
             ->orderBy([
                 'tb_caller.call_timestp' => SORT_DESC
             ]);
         if ($lastcalling) {
             $query->andWhere('tb_caller.call_timestp <= :call_timestp', [':call_timestp' => $lastcalling['call_timestp']]);
+        }
+        if ($current_qid) {
+            $query->andWhere('tb_quequ.q_ids <= :q_ids', [':q_ids' => $current_qid]);
         }
         return $query->all();
     }
