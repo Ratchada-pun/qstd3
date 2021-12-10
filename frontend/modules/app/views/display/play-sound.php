@@ -231,7 +231,6 @@ $this->params['breadcrumbs'][] = $this->title;
            
                 <section>
                     <div id="jquery_jplayer_N" class="jp-jplayer"></div>
-
                     <div id="jp_container">
                         <div class="jp-gui ui-widget ui-widget-content ui-corner-all">
                             <ul>
@@ -263,7 +262,6 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
-
 */ ?>
 <?php
 $this->registerJs(
@@ -315,13 +313,15 @@ var myPlaylist = new jPlayerPlaylist({
         var current = myPlaylist.current;
         var data = myPlaylist.playlist[current];
         if(data.wav.indexOf("please.wav") >= 0){
-            
-            Display.reloadDisplay();
-            Display.reloadDisplay2();
-            Display.reloadHold();
+            var query = yii.getQueryParams(window.location.search)
+            app.caller_ids = parseInt(data.artist.modelCaller.caller_ids)
+            //dt_tabledisplay.ajax.url( '/app/display/data-display?id='+ query.id + '&q_ids='+data.artist.modelQueue.q_ids).load();
+            // Display.reloadDisplay(data.artist.modelQueue.q_ids);
+            // Display.reloadDisplay2();
+            // Display.reloadHold();
             setTimeout(function(){
                 Display.blink(data);
-            }, 1000);
+            }, 500);
             // socket.emit('display', data);//sending data
             //toastr.success(' ' + data.title, 'Calling!', {timeOut: 5000,positionClass: "toast-top-right"});
         }
@@ -336,7 +336,6 @@ var myPlaylist = new jPlayerPlaylist({
         //console.log(myPlaylist.playlist);
     },
     ended: function (event) {
-
     },
     error: function (event) {
         console.log(event);
@@ -351,9 +350,7 @@ var myPlaylist = new jPlayerPlaylist({
     audioFullScreen: true,
     preload: 'auto'
 });
-
 myPlayerData = $(jPlayerid).data("jPlayer");
-
 myControl.progress.slider({
     animate: "fast",
     max: 100,
@@ -381,7 +378,6 @@ myControl.progress.slider({
         }
     }
 });
-
 // Create the volume slider control
 myControl.volume.slider({
     animate: "fast",
@@ -394,13 +390,12 @@ myControl.volume.slider({
         $(jPlayerid).jPlayer("option", "volume", ui.value);
     }
 });
-
 $("#jplayer_inspector").jPlayerInspector({jPlayer:$(jPlayerid)});
-
 //Socket Event
 socket
 .on('call', (res) => {
-    if(model != null && Object.keys(model).length){
+    console.log(res)
+    if(model != null && Object.keys(model).length && myPlaylist.playlist.filter(r => r.title === res.modelQueue.q_num).length === 0){
         var counters = (model.counterserviceid).split(',').map(v => parseInt(v));
         if(jQuery.inArray(parseInt(res.counter.counterserviceid), counters) != -1) {
             if(jQuery.inArray((res.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
@@ -409,7 +404,7 @@ socket
                 // Display.reloadHold();
                 
                 setTimeout(function(){
-                    Queue.addMedia(res);
+                    // Queue.addMedia(res);
                    
                 }, 1000);
             }
@@ -420,7 +415,6 @@ socket
     //     Queue.addMedia(res);
     // }
 });
-
 Queue = {
     updateStatus: function(ids){
         $.ajax({

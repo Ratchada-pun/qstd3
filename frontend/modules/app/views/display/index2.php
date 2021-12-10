@@ -445,16 +445,6 @@ socket
         // Display.reloadDisplay2();
 		// Display.reloadHold();
 		setTimeout(function(){
-			if(undefined != dt_tabledisplay.row( '#' + res.artist.data.caller_ids ).data()){
-			}else{
-                /* var th = moment().locale('th');
-				dt_tabledisplay.row( ':eq(0)' ).remove();
-				dt_tabledisplay.row.add( {
-			        "q_num": '<text class="'+res.title+'">' + res.title + '</text>',
-                    "service_number": '<text class="'+res.title+'">' + res.artist.counter.counterservice_callnumber + '</text>',
-                    "call_timestp": th.format("YYYY-MM-DD H:mm:ss")
-			    } ).draw().node(); */
-			}
 			Display.blink(res);
 		}, 1000);
     }
@@ -498,14 +488,14 @@ Display = {
     },
     addRows: function(){
         var th = moment().locale('th');
-        var data = dt_tabledisplay.rows().data();
+        //var data = dt_tabledisplay.rows().data();
         if(data.length < config.display_limit){
             for (i = data.length; i < config.display_limit; i++) { 
-                dt_tabledisplay.row.add( {
-                    "q_num": '<text>-</text>',
-                    "service_number": '<text>-</text>',
-                    "call_timestp": th.format("YYYY-MM-DD H:mm:ss")
-                } ).draw().node();
+                // dt_tabledisplay.row.add( {
+                //     "q_num": '<text>-</text>',
+                //     "service_number": '<text>-</text>',
+                //     "call_timestp": th.format("YYYY-MM-DD H:mm:ss")
+                // } ).draw().node();
             }
         }
     },
@@ -515,17 +505,17 @@ Display = {
     reloadDisplay: function(q_ids = null){
         if(q_ids) {
             var query = yii.getQueryParams(window.location.search)
-            dt_tabledisplay.ajax.url( '/app/display/data-display?id='+ query.id + '&q_ids='+q_ids).load();
+            //dt_tabledisplay.ajax.url( '/app/display/data-display?id='+ query.id + '&q_ids='+q_ids).load();
         } else {
-            dt_tabledisplay.ajax.reload();//โหลดข้อมูลแสดงผล
+            //dt_tabledisplay.ajax.reload();//โหลดข้อมูลแสดงผล
         }
        
     },
     reloadDisplay2: function(){
-        dt_tabledisplay2.ajax.reload();//โหลดข้อมูลแสดงผล
+        //dt_tabledisplay2.ajax.reload();//โหลดข้อมูลแสดงผล
     },
     removeRow: function(res){
-        dt_tabledisplay.row( '#' + res.data.caller_ids ).remove().draw();
+        //dt_tabledisplay.row( '#' + res.data.caller_ids ).remove().draw();
     },
     checkService: function(res){
         if( jQuery.inArray((res.artist.modelQueue.serviceid).toString(), config.service_id) != -1 && jQuery.inArray((res.artist.counter.counterservice_type).toString(), config.counterservice_id) != -1) {
