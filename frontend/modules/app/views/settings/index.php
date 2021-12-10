@@ -2,6 +2,9 @@
 use homer\assets\ToastrAsset;
 ToastrAsset::register($this);
 
+use homer\assets\SocketIOAsset;
+
+SocketIOAsset::register($this);
 $this->title = 'ตั้งค่า';
 
 ?>
@@ -77,6 +80,7 @@ $this->title = 'ตั้งค่า';
 <?php
 echo $this->render('modal');
 $this->registerJs(<<<JS
+window.socket = socket 
 $('body').addClass('hide-sidebar');
 Events = {
     toggle: function(elm,state,action){

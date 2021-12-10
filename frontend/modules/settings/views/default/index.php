@@ -2,6 +2,9 @@
 use yii\helpers\Html;
 use yii\bootstrap\Tabs;
 use homer\widgets\Panel;
+use homer\assets\SocketIOAsset;
+
+SocketIOAsset::register($this);
 
 $this->title = 'Settings';
 ?>

@@ -438,6 +438,7 @@ var \$form = $('#form-service-group');
         contentType: false,
         success: function (data) {
             if(data.status == '200'){
+                socket.emit('setting',{model:'service'})
                 $('#ajaxCrudModal').modal('hide');//hide modal
                 table.ajax.reload();//reload table
                 swal({//alert completed!

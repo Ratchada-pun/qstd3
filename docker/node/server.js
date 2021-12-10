@@ -326,6 +326,9 @@ io.on("connection", function(socket) {
   socket.on("finish", function(res) {
     socket.broadcast.emit("finish", res);
   });
+  socket.on("setting", function(res) {
+    socket.broadcast.emit("setting", res);
+  });
 
   socket.on("get ip", (clientId) => {
     socket.emit("ip", { ip: getClientIp(socket), clientId: clientId });

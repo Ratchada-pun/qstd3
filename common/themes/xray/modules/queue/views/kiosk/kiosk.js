@@ -42,6 +42,8 @@ socket
       socket.connect();
     }
     // socket.close();
+  }).on('setting', (res) => {
+    window.location.reload()
   });
 
 const SMARTCARD_EVENTS = {

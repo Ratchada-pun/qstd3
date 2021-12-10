@@ -537,6 +537,9 @@ socket
         // Display.removeRow(res);
         // Display.addRows();
 	}
+})
+.on('setting', (res) => {
+    window.location.reload()
 });
 
 Display = {
