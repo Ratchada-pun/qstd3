@@ -182,10 +182,39 @@ $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD
                 <tbody>
                     <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
                         <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
-                            <table class="table" style="background-color: inherit;margin-bottom: 0px;">
+                            <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                 <tbody>
                                     <tr style="border:0px;">
+                                        <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
+                                            <div style="margin: auto;">
+                                                <img :src="item.pt_pic" alt="" style="width:140px">
+                                            </div>
+                                        </td>
 
+                                        <td  style="border-top:0px; width: 60%">
+                                            <span :class="item.q_num">
+                                                {{ item.q_num }}
+                                            </span>
+                                        </td>
+
+                                        <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
+                                            <span :class="item.q_num">
+                                                {{ item.counterservice_callnumber }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr style="border:0px;">
+                                        <td style="border-top:0px; text-align:center;width:60%">
+                                            <span :class="item.q_num">
+                                                {{ item.pt_name }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <tbody>
+                                    <tr style="border:0px;">
                                         <td style="border-top:0px; width: 80%">
                                             <span :class="item.q_num">
                                                 {{ item.q_num }}
@@ -202,6 +231,47 @@ $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD
                                         <td style="border-top:0px; text-align:center;width:80%">
                                             <span :class="item.q_num">
                                                 {{ item.pt_name }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <tbody>
+                                    <tr style="border:0px;">
+                                        <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
+                                            <div style="margin: auto;">
+                                                <img :src="item.pt_pic" alt="" style="width:140px">
+                                            </div>
+                                        </td>
+
+                                        <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
+                                            <span :class="item.q_num">
+                                                {{ item.q_num }}
+                                            </span>
+                                        </td>
+
+                                        <td style="border-top:0px; width: 40%;vertical-align: middle;">
+                                            <span :class="item.q_num">
+                                                {{ item.counterservice_callnumber }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <tbody>
+                                    <tr style="border:0px;">
+
+                                        <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                            <span :class="item.q_num">
+                                                {{ item.q_num }}
+                                            </span>
+                                        </td>
+
+                                        <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                            <span :class="item.q_num">
+                                                {{ item.counterservice_callnumber }}
                                             </span>
                                         </td>
                                     </tr>
@@ -547,7 +617,8 @@ var app = new Vue({
   el: '#app',
   data: {
     qlist: [],
-    caller_ids: null
+    caller_ids: null,
+    config: config
   },
   mounted() {
       this.initTableLastQueue();
@@ -580,7 +651,8 @@ var app = new Vue({
                 caller_ids: "-",
                 pt_name: "-",
                 counterservice_callnumber: "-",
-                call_timestp: parseFloat(moment().subtract(20, "minutes").format('X'))
+                call_timestp: parseFloat(moment().subtract(20, "minutes").format('X')),
+                pt_pic: ""
             }
             
             for (let i = 0; i < limit; i++) {
@@ -682,7 +754,8 @@ var app = new Vue({
                                 caller_ids: res.modelCaller.caller_ids,
                                 pt_name: res.modelQueue.pt_name,
                                 counterservice_callnumber: res.counter.counterservice_callnumber,
-                                call_timestp: parseFloat(moment(res.modelCaller.call_timestp).format('X'))
+                                call_timestp: parseFloat(moment(res.modelCaller.call_timestp).format('X')),
+                                pt_pic: res.modelQueue.pt_pic
                             })
                            
                         }
@@ -730,7 +803,8 @@ var app = new Vue({
                             caller_ids: row.caller_ids,
                             pt_name: row.pt_name,
                             counterservice_callnumber: row.counterservice_callnumber,
-                            call_timestp: parseFloat(moment(row.call_timestp).format('X'))
+                            call_timestp: parseFloat(moment(row.call_timestp).format('X')),
+                            pt_pic: row.pt_pic
                         })
                     }
                 }
