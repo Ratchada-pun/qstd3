@@ -17,6 +17,10 @@ $('input[type="search"]').blur(function() {
     500
   );
 });
+socket
+.on('register', (res) => {
+	dt_tbwaiting.ajax.reload();
+})
 // Toastr options
 toastr.options = {
   debug: false,

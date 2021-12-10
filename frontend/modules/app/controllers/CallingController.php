@@ -564,11 +564,12 @@ class CallingController extends \yii\web\Controller
                             },
                             'waiting' => function ($url, $model, $key) use ($profileData) {
                                 $drug = TbDrugDispensing::find()->where(['HN'=>$model['q_hn'],'DATE(created_at)' => Yii::$app->formatter->asDate('now','php:Y-m-d')])->one();
-                                if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] > 0  && $profileData['service_profile_id'] != 21 && !$drug) {
-                                    return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
-                                } else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
-                                    return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
-                                }
+                                // if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] > 0  && $profileData['service_profile_id'] != 21 && !$drug) {
+                                //     return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
+                                // } 
+                                // else if ($model['serviceid'] != 11 && $model['serviceid'] != 12 && $model['serviceid'] != 13) {
+                                //     return Html::a('ส่งห้องแพทย์', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'รอพบแพทย์', 'data-url' => '/app/calling/waiting-doctor']);
+                                // }
                             },
                         ],
                         'urlCreator' => function ($action,  $model,  $key, $index) {
