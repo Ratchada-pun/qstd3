@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
-$this->title = 'ระบบคิวอัจฉริยะ';
+$this->title = 'โรงพยาบาลสิรินธร';
 
 $css = <<<CSS
   .kiosk-container {
@@ -93,6 +93,11 @@ $css = <<<CSS
     color: #FFFFFF;
   }
 
+  .iq-card-body {
+    padding: 20px;
+    font-size: 45px;
+}
+
 CSS;
 $this->registerCss($css);
 
@@ -105,10 +110,10 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
     <!-- begin: Title -->
     <div class="row">
       <div class="col-md-12 col-lg-12 col-sm-12">
-        <div class="sawatdee text-center">
-          <h3 class="text-center">
-            โรงพยาบาลสิรินธร ยินดีให้บริการค่ะ
-          </h3>
+        <div class="sawatdee text-center" style="padding-top: 46px;">
+          <h1 class="text-center">
+            แผนกเวชระเบียน ยินดีให้บริการค่ะ
+          </h1>
           <div class="sawatdee-img">
             <?= Html::img($themeAsset . '/images/kiosk/sawatdee.gif', ['style' => 'margin-left: 10rem;']) ?>
           </div>
@@ -119,23 +124,25 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
     <div class="row">
       <div class="col-md-12 col-lg-12 col-sm-12">
         <section>
-          <h4 class="text-center">
+          <h1 class="text-center">
             ทำรายการด้วย
-          </h4>
+          </h1>
         </section>
       </div>
     </div>
+    
+    <br>
 
     <div class="row">
 
-      <div class="col-xl-6 col-sm-6 animated animate__zoomIn faster">
+      <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
         <a href="#" class="button-effect" @click.prevent="onSelectAction('scan-idcard')">
           <div class="iq-card card-section-1">
             <div class="iq-card-body">
               <div class="d-flex">
-                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
-                  <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
-                    <h4>สแกนบัตรประชาชน</h4>
+                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto" >
+                  <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option" >
+                    <h4 >สแกนบัตรประชาชน</h4>
                   </span>
                 </div>
                 <div>
@@ -147,7 +154,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
         </a>
       </div>
 
-      <div class="col-xl-6 col-sm-6 animated animate__zoomIn faster">
+      <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
         <a href="#" class="button-effect" @click.prevent="onSelectAction('hn-or-idcard')">
           <div class="iq-card card-section-1">
             <div class="iq-card-body">
@@ -166,7 +173,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
         </a>
       </div>
 
-      <div class="col-xl-6 col-sm-6 animated animate__zoomIn faster">
+      <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
         <a href="#" class="button-effect" @click.prevent="onSelectAction('no-idcard')">
           <div class="iq-card card-section-1">
             <div class="iq-card-body">
@@ -192,8 +199,9 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
   <section v-if="action === 'scan-idcard' && !patient" class="section-scan-idcard">
     <div v-cloak class="row">
       <div class="col-md-12 col-lg-12 col-sm-12">
-        <div class="text-center m-auto">
-          <h2>ทำรายการด้วยบัตรประชาชน</h2>
+        <div class="text-center"  style="padding-top: 46px;">
+          <h1>ทำรายการด้วยบัตรประชาชน</h1>
+          <br>
           <?= Html::img($themeAsset . '/images/kiosk/Thai-smart-card.png', ['style' => '']) ?>
           <h4>
             {{ loadingMsg }}
@@ -205,9 +213,9 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
     </div>
     <br>
     <div class="row">
-      <div class="col-md-4 col-lg-4 col-sm-12">
+      <div class="col-md-3 col-lg-3 col-sm-12">
       </div>
-      <div class="col-md-4 col-lg-4 col-sm-12">
+      <div class="col-md-6 col-lg-6 col-sm-12">
         <a href="#" class="button-effect" @click.prevent="onCancelAction()">
           <div class="iq-card card-section-2" style="background: #dc3545;">
             <div class="iq-card-body" style="padding: 10px;">
@@ -222,7 +230,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
           </div>
         </a>
       </div>
-      <div class="col-md-4 col-lg-4 col-sm-12">
+      <div class="col-md-2 col-lg-2 col-sm-12">
       </div>
     </div>
   </section>

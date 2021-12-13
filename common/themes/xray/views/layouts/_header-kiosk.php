@@ -3,9 +3,9 @@
   use yii\helpers\Html;
 
   $css = <<<CSS
-  body, h1, h2, h3, h4, h5, h6 {
+  /* body, h1, h2, h3, h4, h5, h6 {
     font-family: 'Sriracha', sans-serif !important;
-  }
+  } */
 
   .time>span.time__hours:not(:last-child):after,
   .time>span.time__min:not(:last-child):after,
@@ -58,8 +58,10 @@ CSS;
        <div class="iq-search-bar">
          <?= Html::img('https://qstd3.andamandev.com/uploads/sirintorn.png', ['width' => '80px', 'height' => '80px']) ?>
        </div>
+       <br>
        <div class="kiosk-title">
-         <h1 class="display-6 mb-0 text-white">ระบบคิวอัจฉริยะ</h1>
+         <h1 class="display-6 mb-0 text-white">โรงพยาบาลสิรินธร</h1>
+         <h3 class="display-6 mb-0 text-white">Sirindhorn Hospital</h3>
        </div>
        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
          <i class="ri-menu-3-line"></i>
