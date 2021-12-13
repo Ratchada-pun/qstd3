@@ -149,7 +149,7 @@ $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD
 <div id="app" class="container">
     <div class="row">
         <div class="col-xs-8 col-sm-8 col-md-8 border-right" style="text-align: center;">
-            <h1 class="text-success" style="color: <?= $config['title_left_color']; ?>"><?= $config['title_left'] ?></h1>
+            <h1 class="text-success" style="color: <?= $config['title_left_color']; ?> font-size:40px;"><?= $config['title_left'] ?></h1>
         </div>
         <?php /*
 	    <div class="col-xs-4 col-sm-4 col-md-4 border-right" style="text-align: center;">
