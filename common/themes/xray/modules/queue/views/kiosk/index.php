@@ -356,22 +356,22 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
 
   <section v-if="patient || right || action === 'no-idcard'">
     <div v-cloak class="row pt-5">
-      <div class="col-md-12 col-lg-12 col-sm-12">
+      <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 15px;">
         <div class="service-title">
-          <h3>เลือกบริการ</h3>
+          <h1>เลือกบริการ</h1>
         </div>
 
         <div class="row">
-          <div v-for="(item, index) in services" :key="index" class="col-md-6 col-lg-6 col-sm-12">
+          <div v-for="(item, index) in services" :key="index" class="col-md-12 col-lg-12 col-sm-12">
             <a href="#" class="button-effect" @click.prevent="onSelectService(item.serviceid)">
               <div class="iq-card card-section-1" :style="{ background: service_id === item.serviceid ? '#ffffff' : '#17a2b8' }">
                 <div class="iq-card-body" style="padding: 10px;">
                   <div class="d-flex">
                     <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
                       <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option text-center">
-                        <h4 :class="{ 'text-white': service_id !== item.serviceid, 'text-success': service_id === item.serviceid }">
+                        <h3 :class="{ 'text-white': service_id !== item.serviceid, 'text-success': service_id === item.serviceid }">
                           {{ item.btn_kiosk_name }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
-                        </h4>
+                        </h3>
                       </span>
                     </div>
                   </div>
