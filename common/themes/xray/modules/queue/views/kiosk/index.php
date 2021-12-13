@@ -245,7 +245,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
   <!-- Begin:: ป้อนเลข HN หรือ เลขบัตรประชาชน -->
   <section v-if="action === 'hn-or-idcard' && !patient && !right" class="section-scan-idcard">
     <div v-cloak class="row">
-      <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 154px;">
+      <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 140px;">
         <div class="text-center" style="padding-top: 46px;">
           <h1>ป้อนหมายเลขบัตรประจำตัวประชาชน</h1>
         </div>
@@ -280,7 +280,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
     </div>
     <br>
     <div class="row">
-      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 120px">
+      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 115px">
         <a href="#" class="button-effect" @click.prevent="onCancelAction()">
           <div class="iq-card card-section-2" style="background: #dc3545;">
             <div class="iq-card-body" style="padding: 10px;">
@@ -295,8 +295,8 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
           </div>
         </a>
       </div>
-      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 120px"></div>
-      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 120px">
+      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 115px"></div>
+      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 115px">
         <a href="#" class="button-effect" @click.prevent="onConfirmSearch()">
           <div class="iq-card card-section-2" style="background: #28a745;">
             <div class="iq-card-body" style="padding: 10px;">
