@@ -130,11 +130,9 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
         </section>
       </div>
     </div>
-    
     <br>
-
+    <br>
     <div class="row">
-
       <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
         <a href="#" class="button-effect" @click.prevent="onSelectAction('scan-idcard')">
           <div class="iq-card card-section-1">
@@ -200,7 +198,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
   <!-- begin:: สแกนบัตรประชาชน -->
   <section v-if="action === 'scan-idcard' && !patient" class="section-scan-idcard">
     <div v-cloak class="row">
-      <div class="col-md-12 col-lg-12 col-sm-12">
+      <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 154px;">
         <div class="text-center"  style="padding-top: 46px;">
           <h1>ทำรายการด้วยบัตรประชาชน</h1>
           <br>
@@ -217,7 +215,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
     <div class="row">
       <div class="col-md-3 col-lg-3 col-sm-12">
       </div>
-      <div class="col-md-6 col-lg-6 col-sm-12">
+      <div class="col-md-6 col-lg-6 col-sm-12" style="padding-top: 120px">
         <a href="#" class="button-effect" @click.prevent="onCancelAction()">
           <div class="iq-card card-section-2" style="background: #dc3545;">
             <div class="iq-card-body" style="padding: 10px;">
