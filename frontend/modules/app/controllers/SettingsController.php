@@ -2577,8 +2577,8 @@ class SettingsController extends \yii\web\Controller
         $params = Yii::$app->getRequest()->getRawBody();
         $body = Json::decode($params);
         $model = new TbTokenNhso();
-        $model->user_person_id = $body['id_card'];
-        $model->smctoken = $body['token'];
+        $model->user_person_id = preg_replace('/\s+/', '', $body['id_card']);
+        $model->smctoken = preg_replace('/\s+/', '', $body['token']);
         $model->createdby = 1;
         $model->crearedat = Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s');
         if ($model->save()) {
