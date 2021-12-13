@@ -95,7 +95,7 @@ $css = <<<CSS
 
   .iq-card-body {
     padding: 20px;
-    font-size: 45px;
+    font-size: 30px;
 }
 
 CSS;
@@ -142,7 +142,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
               <div class="d-flex">
                 <div class="d-flex flex-column flex-grow-1 gutter-b m-auto" >
                   <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option" >
-                    <h4 >สแกนบัตรประชาชน</h4>
+                    <h4>สแกนบัตรประชาชน</h4>
                   </span>
                 </div>
                 <div>
@@ -183,9 +183,11 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
                     <h4>รับคิว(กรณีไม่มีบัตรประชาชน)</h4>
                   </span>
                 </div>
+                <?php /*
                 <div>
                   <?= Html::img($themeAsset . '/images/kiosk/thai-id-card.png', ['width' => '100px']) ?>
                 </div>
+                */?>
               </div>
             </div>
           </div>
