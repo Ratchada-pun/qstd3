@@ -97,6 +97,12 @@ $css = <<<CSS
     padding: 20px;
     font-size: 30px;
 }
+footer.bg-white.iq-footer {
+    position: fixed;
+    bottom: 0;
+    right: 120px;
+    left: 120px;
+}
 
 CSS;
 $this->registerCss($css);
@@ -239,17 +245,18 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
   <!-- Begin:: ป้อนเลข HN หรือ เลขบัตรประชาชน -->
   <section v-if="action === 'hn-or-idcard' && !patient && !right" class="section-scan-idcard">
     <div v-cloak class="row">
-      <div class="col-md-12 col-lg-12 col-sm-12">
-        <div class="text-center m-auto">
-          <h2>ป้อนหมายเลขบัตรประจำตัวประชาชน</h2>
+      <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 154px;">
+        <div class="text-center" style="padding-top: 46px;">
+          <h1>ป้อนหมายเลขบัตรประจำตัวประชาชน</h1>
         </div>
+        <br>
         <form>
           <div class="form-group row mb-0">
             <div class="col-md-8 col-md-offset-2 offset-sm-2">
               <input v-model="search" ref="search" id="input-hn-or-idcard" type="number" max="13" class="form-control form-control-lg text-center bg-white" style="font-size: 2rem;color: #17a2b8;" autofocus>
             </div>
           </div>
-
+        <br>
           <div class="form-group row">
             <div class="col-md-8 col-md-offset-2 offset-sm-2">
               <div class="buttons">
@@ -273,7 +280,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
     </div>
     <br>
     <div class="row">
-      <div class="col-md-4 col-lg-4 col-sm-12">
+      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 120px">
         <a href="#" class="button-effect" @click.prevent="onCancelAction()">
           <div class="iq-card card-section-2" style="background: #dc3545;">
             <div class="iq-card-body" style="padding: 10px;">
@@ -288,8 +295,8 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
           </div>
         </a>
       </div>
-      <div class="col-md-4 col-lg-4 col-sm-12"></div>
-      <div class="col-md-4 col-lg-4 col-sm-12">
+      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 120px"></div>
+      <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 120px">
         <a href="#" class="button-effect" @click.prevent="onConfirmSearch()">
           <div class="iq-card card-section-2" style="background: #28a745;">
             <div class="iq-card-body" style="padding: 10px;">
