@@ -369,9 +369,9 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
                   <div class="d-flex">
                     <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
                       <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option text-center">
-                        <h3 :class="{ 'text-white': service_id !== item.serviceid, 'text-success': service_id === item.serviceid }">
+                        <h4 :class="{ 'text-white': service_id !== item.serviceid, 'text-success': service_id === item.serviceid }">
                           {{ item.btn_kiosk_name }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
-                        </h3>
+                        </h4>
                       </span>
                     </div>
                   </div>
