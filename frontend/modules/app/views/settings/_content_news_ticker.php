@@ -177,6 +177,7 @@ function initCheckbox(){
             success:function(){
                 var table = $('#tb-news-ticker').DataTable();
                 table.ajax.reload();
+                socket.emit('setting',{model:'TbNewsTicker'})
                // initCheckbox();
             },
             error:function(jqXHR,  textStatus,  errorThrown){
