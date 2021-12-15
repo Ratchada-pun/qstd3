@@ -506,7 +506,7 @@ var app = new Vue({
                     didOpen: () => {
                       $(Swal.getTitle()).css("fontSize", "5rem");
                       $(Swal.getTitle()).css("padding", "0 1em 0");
-                      $(Swal.getConfirmButton()).css("fontSize", "2rem");
+                      $(Swal.getConfirmButton()).css("fontSize", "3rem");
                       $(Swal.getConfirmButton()).css("width", "200px");
                       $(Swal.getIcon()).css("fontSize", "2rem");
                     },
