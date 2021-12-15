@@ -6,6 +6,7 @@ use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use common\traits\ModelTrait;
+use frontend\modules\app\models\TbNewsTicker;
 use frontend\modules\app\models\TbTokenNhso;
 use yii\web\HttpException;
 
@@ -22,7 +23,10 @@ class KioskController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $news_ticker = TbNewsTicker::findOne(['news_ticker_status' => 1]);
+        return $this->render('index',[
+            'news_ticker' => $news_ticker
+        ]);
     }
 
     public function actionClientIp()

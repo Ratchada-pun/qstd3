@@ -27,7 +27,7 @@ http.interceptors.response.use(
 const socket = io(window.socketBaseURL, {
   transports: ["websocket", "polling"],
   forceNew: true,
-  path: window.socketPath
+  path: window.socketPath,
 });
 
 socket
@@ -42,8 +42,9 @@ socket
       socket.connect();
     }
     // socket.close();
-  }).on('setting', (res) => {
-    window.location.reload()
+  })
+  .on("setting", (res) => {
+    window.location.reload();
   });
 
 const SMARTCARD_EVENTS = {
@@ -176,6 +177,11 @@ var app = new Vue({
         setTimeout(() => {
           $("#input-hn-or-idcard").focus();
         }, 100);
+      }
+    },
+    search: function(newVal, oldVal) {
+      if (String(newVal).length === 13) {
+        this.onConfirmSearch();
       }
     },
   },
@@ -316,6 +322,63 @@ var app = new Vue({
         _this.setProfile(profile);
         _this.setLoading(false);
         _this.setLoadingMessage("กรุณาเสียบบัตรประชาชน");
+        if (_this.right) {
+          // UCS = สิทธิหลักประกันสุขภาพแห่งชาติ
+          // WEL = สิทธิหลักประกันสุขภาพแห่งชาติ (ยกเว้นการร่วมจ่ายค่าบริการ 30 บาท)
+          // hmain 15049 = รพ.สิรินธร
+          if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
+            _this.service_id = "38";
+            Swal.close();
+            // _this.onCreateQueue(autoConfirm);
+          } else if (
+            _this.right.hmain !== "15049" &&
+            (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")
+          ) {
+            //_this.service_id = "40";
+            //  _this.onCreateQueue(autoConfirm);
+            Swal.fire({
+              title: "คุณมี ใบส่งตัว/ใบ Refer มาพร้อมการรักษาวันนี้หรือไม่?",
+              text: "",
+              icon: "question",
+              width: "60%",
+              showCancelButton: true,
+              reverseButtons: true,
+              allowOutsideClick: false,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "มี",
+              cancelButtonText: "ไม่มี",
+              didOpen: () => {
+                $(Swal.getTitle()).css("fontSize", "5rem");
+                $(Swal.getTitle()).css("padding", "0 1em 0");
+                $(Swal.getConfirmButton()).css("fontSize", "2rem");
+                $(Swal.getConfirmButton()).css("width", "200px");
+                $(Swal.getCancelButton()).css("fontSize", "2rem");
+                $(Swal.getCancelButton()).css("width", "200px");
+                $(Swal.getIcon()).css("fontSize", "2rem");
+              },
+            }).then((result) => {
+              if (result.isConfirmed) {
+                Swal.fire({
+                  icon: "warning",
+                  title: "กรุณาติดต่อห้องเบอร์ 1",
+                  confirmButtonText: "ปิด",
+                  width: "60%",
+                  didOpen: () => {
+                    $(Swal.getTitle()).css("fontSize", "5rem");
+                    $(Swal.getTitle()).css("padding", "0 1em 0");
+                    $(Swal.getConfirmButton()).css("fontSize", "2rem");
+                    $(Swal.getConfirmButton()).css("width", "200px");
+                    $(Swal.getIcon()).css("fontSize", "2rem");
+                  },
+                });
+                _this.onCancelAction();
+              } else {
+                _this.service_id = "40";
+              }
+            });
+          }
+        }
         _this.loading2 = false;
       } catch (error) {
         _this.loading2 = false;
@@ -333,9 +396,9 @@ var app = new Vue({
       const _this = this;
       try {
         const right = await http.get(`/api/queue/patient-right/${cid}`, {
-          baseURL: window.nodeBaseURLLocal
+          baseURL: window.nodeBaseURLLocal,
         });
-        this.setRight(_.get(right, 'data'));
+        this.setRight(_.get(right, "data"));
         return right;
       } catch (error) {
         Swal.fire({
@@ -399,7 +462,64 @@ var app = new Vue({
           });
           await _this.fetchPatientRight(_this.search);
           if (_this.right) {
-            Swal.close();
+            // UCS = สิทธิหลักประกันสุขภาพแห่งชาติ
+            // WEL = สิทธิหลักประกันสุขภาพแห่งชาติ (ยกเว้นการร่วมจ่ายค่าบริการ 30 บาท)
+            // hmain 15049 = รพ.สิรินธร
+            if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
+              _this.service_id = "38";
+              Swal.close();
+              // _this.onCreateQueue(autoConfirm);
+            } else if (
+              _this.right.hmain !== "15049" &&
+              (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")
+            ) {
+              //_this.service_id = "40";
+              //  _this.onCreateQueue(autoConfirm);
+              Swal.fire({
+                title: "คุณมี ใบส่งตัว/ใบ Refer มาพร้อมการรักษาวันนี้หรือไม่?",
+                text: "",
+                icon: "question",
+                width: "60%",
+                showCancelButton: true,
+                reverseButtons: true,
+                allowOutsideClick: false,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "มี",
+                cancelButtonText: "ไม่มี",
+                didOpen: () => {
+                  $(Swal.getTitle()).css("fontSize", "5rem");
+                  $(Swal.getTitle()).css("padding", "0 1em 0");
+                  $(Swal.getConfirmButton()).css("fontSize", "2rem");
+                  $(Swal.getConfirmButton()).css("width", "200px");
+                  $(Swal.getCancelButton()).css("fontSize", "2rem");
+                  $(Swal.getCancelButton()).css("width", "200px");
+                  $(Swal.getIcon()).css("fontSize", "2rem");
+                },
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  Swal.fire({
+                    icon: "warning",
+                    title: "กรุณาติดต่อห้องเบอร์ 1",
+                    confirmButtonText: "ปิด",
+                    width: "60%",
+                    didOpen: () => {
+                      $(Swal.getTitle()).css("fontSize", "5rem");
+                      $(Swal.getTitle()).css("padding", "0 1em 0");
+                      $(Swal.getConfirmButton()).css("fontSize", "2rem");
+                      $(Swal.getConfirmButton()).css("width", "200px");
+                      $(Swal.getIcon()).css("fontSize", "2rem");
+                    },
+                  });
+                  _this.onCancelAction();
+                } else {
+                  _this.service_id = "40";
+                }
+              });
+            } else {
+              Swal.close();
+            }
+            //
           }
         } catch (error) {
           Swal.fire({
@@ -415,7 +535,7 @@ var app = new Vue({
       this.service_id = serviceId;
     },
 
-    onCreateQueue: async function() {
+    onCreateQueue: async function(autoConfirm = false) {
       const _this = this;
       if (!_this.service_id) {
         Swal.fire({
@@ -424,42 +544,72 @@ var app = new Vue({
           text: "",
         });
         return;
-      }
-      try {
-        Swal.fire({
-          title: "กรุณารอสักครู่...",
-          text: "ระบบกำลังทำรายการ",
-          timerProgressBar: true,
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        const body = {
-          service_id: _this.service_id,
-          cid: _this.cid,
-          patient_name: _this.getPatientname(),
-          age: _this.age,
-          maininscl_name: _this.rightName,
-          picture: _.get(_this.patient, "photo"),
-        };
-        const created = await http.post(`/api/queue/create-queue`, body, _this.httpConfig);
-        socket.emit("register", created);
-        Swal.fire({
-          icon: "success",
-          title: "กรุณารอรับบัตรคิว",
-          text: "",
-          timer: 3000,
-          showConfirmButton: false,
-        });
-        _this.onCancelAction();
-        window.open(`/queue/kiosk/print-ticket?id=${created.modelQueue.q_ids}`, "myPrint", "width=800, height=600");
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: error.message,
-        });
+      } else {
+        try {
+          Swal.fire({
+            title: "กรุณารอสักครู่...",
+            text: "ระบบกำลังทำรายการ",
+            timerProgressBar: true,
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+          const body = {
+            service_id: _this.service_id,
+            cid: _this.cid,
+            patient_name: _this.getPatientname(),
+            age: String(_this.age),
+            maininscl_name: _this.rightName,
+            picture: _.get(_this.patient, "photo"),
+            right: _this.right,
+          };
+          const created = await http.post(`/api/queue/create-queue`, body, _this.httpConfig);
+          socket.emit("register", created);
+          Swal.fire({
+            icon: "success",
+            title: "กรุณารอรับบัตรคิว",
+            text: "",
+            timer: 3000,
+            showConfirmButton: false,
+          });
+          _this.onCancelAction();
+          window.open(`/queue/kiosk/print-ticket?id=${created.modelQueue.q_ids}`, "myPrint", "width=800, height=600");
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: error.message,
+          });
+        }
+        // Swal.fire({
+        //   title: "ยืนยันออกบัตรคิว?",
+        //   text: "",
+        //   icon: "warning",
+        //   showCancelButton: true,
+        //   confirmButtonColor: "#3085d6",
+        //   cancelButtonColor: "#d33",
+        //   confirmButtonText: 'ตกลง / OK <i class="far fa-check-circle"></i>',
+        //   cancelButtonText: '<i class="fas fa-times"></i> ยกเลิก / Cancel',
+        //   showLoaderOnConfirm: true,
+        //   reverseButtons: true,
+        //   allowOutsideClick: false,
+        //   width: "60%",
+        //   didOpen: () => {
+        //     $(Swal.getTitle()).css("fontSize", "4rem");
+        //     $(Swal.getConfirmButton()).css("fontSize", "2rem");
+        //     $(Swal.getCancelButton()).css("fontSize", "2rem");
+        //     Swal.clickConfirm();
+        //   },
+        //   preConfirm: function() {
+        //     return new Promise(async function(resolve) {});
+        //   },
+        // }).then((result) => {
+        //   if (result.isConfirmed) {
+        //   } else {
+        //     _this.onCancelAction();
+        //   }
+        // });
       }
     },
 
@@ -473,6 +623,9 @@ var app = new Vue({
         return `${title}${fname} ${lname}`;
       }
       return "";
+    },
+    getRight: function(field, defaultValue = "") {
+      return _.get(this.right, field, defaultValue);
     },
   },
 });

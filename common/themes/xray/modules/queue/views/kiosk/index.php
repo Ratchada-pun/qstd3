@@ -102,6 +102,7 @@ footer.bg-white.iq-footer {
     bottom: 0;
     right: 120px;
     left: 120px;
+    /* display:none; */
 }
 
 CSS;
@@ -196,6 +197,14 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
             </div>
           </div>
         </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-sm-12">
+          <marquee direction="left" scrollamount="5"  style="font-size: 40px; color: #a579ed;"  >
+             <?php echo $news_ticker['news_ticker_detail'] ?>
+          </marquee>
       </div>
     </div>
   </section>
@@ -320,7 +329,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
     <div v-cloak class="row">
       <div class="col-md-12 col-lg-12 col-sm-12">
         <h3>ข้อมูลทั่วไป</h3>
-        <div class="iq-card iq-card-block iq-card-stretch iq-card-height iq-user-profile-block" style="height: 75%;">
+        <div class="iq-card iq-card-block iq-card-stretch iq-card-height iq-user-profile-block" style="height: 90%;">
           <div class="iq-card-body">
             <div class="user-details-block">
               <div class="user-profile text-center" style="background-color: #eeeeee;border-radius: 1.75rem;width: 135px;height: 135px;margin: auto;margin-top: -85px !important">
@@ -329,7 +338,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
               <div class="text-center mt-3">
                 <h4><b>{{ patientName }}</b></h4>
                 <p>
-                <h4>อายุ {{ age }} ปี</h4>
+                  <h4>อายุ {{ age }} ปี</h4>
                 </p>
               </div>
               <ul class="doctoe-sedual d-flex align-items-center justify-content-between p-0 mt-4 mb-0">
@@ -344,6 +353,25 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
                 <li class="text-center">
                   <h4 class="text-primary">สิทธิการรักษา</h4>
                   <h5>{{ rightName }}<span></span></h5>
+                </li>
+              </ul>
+              <ul class="doctoe-sedual d-flex align-items-center justify-content-between p-0 mt-4 mb-0">
+                <li class="text-center">
+                  <h4 class="text-primary">หน่วยบริการประจำ</h4>
+                  <h5>
+                    {{ getRight('hmain_op_name', '-') }}
+                    <span></span>
+                  </h5>
+                </li>
+                <li class="text-center">
+                  <h4 class="text-primary">หน่วยบริการปฐมภูมิ</h4>
+                  <h5>{{ getRight('hsub_name', '-') }}<span></span></h5>
+                </li>
+              </ul>
+              <ul class="doctoe-sedual d-flex align-items-center justify-content-between p-0 mt-8 mb-0">
+                <li class="text-left">
+                  <h4 class="text-primary" style="margin-left:8%">หน่วยบริการรับส่งต่อ</h4>
+                  <h5 style="margin-left:15%">{{ getRight('hmain_name', '-') }}<span></span></h5>
                 </li>
               </ul>
             </div>

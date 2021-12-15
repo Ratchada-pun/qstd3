@@ -13,13 +13,13 @@ use yii\helpers\Html;
         <div class="panel-tools">
             <a class="showhide"><i class="fa fa-chevron-up"></i></a>
         </div>
-        <!-- <div class="checkbox" style="display: inline-block;margin-bottom: 0px;">
+        <div class="checkbox" style="display: inline-block;margin-bottom: 0px;">
             <label>
                 <input type="checkbox" value="0" name="tablet-mode" id="tablet-mode">
                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                 <i class="pe-7s-phone"></i> Tablet Mode
             </label>
-        </div> -->
+        </div>
         <div class="checkbox" style="display: inline-block;margin-bottom: 0px;">
             <label>
                 <input type="checkbox" value="0" name="tablet-mode" id="fullscreen-toggler">

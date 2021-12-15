@@ -51,9 +51,13 @@ echo Tabs::widget([
             'content' => $this->render('_content_calling_config'),
         ],
         [
-            'label' => 'Lab',
-            'content' => $this->render('_content_lab'),
+            'label' => 'ประชาสัมพันธ์',
+            'content' => $this->render('_content_news_ticker'),
         ],
+        // [
+        //     'label' => 'Lab',
+        //     'content' => $this->render('_content_lab'),
+        // ],
         [
             'label' => 'รีเซ็ตคิว',
             'content' => $this->render('_content_qreset'),

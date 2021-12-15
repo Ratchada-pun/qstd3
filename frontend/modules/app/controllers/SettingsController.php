@@ -52,6 +52,7 @@ use frontend\modules\app\models\TbTokenNhso;
 use kartik\switchinput\SwitchInput;
 use yii\web\HttpException;
 use frontend\modules\app\models\mobile\TbQuequ;
+use frontend\modules\app\models\TbNewsTicker;
 
 class SettingsController extends \yii\web\Controller
 {
@@ -84,7 +85,8 @@ class SettingsController extends \yii\web\Controller
                     'delete-sound-station' => ['POST'],
                     'delete-cid-station' => ['POST'],
                     'delete-kiosk' => ['POST'],
-                    'delete-calling-config' => ['POST']
+                    'delete-calling-config' => ['POST'],
+                    'delete-news-ticker' => ['POST'],
 
                 ],
             ],
@@ -2842,4 +2844,196 @@ class SettingsController extends \yii\web\Controller
         TbCallingConfig::updateAll(['notice_queue_status' => 0], ['<>', 'calling_id', $request->post('id')]);  //update ข้อมูใน table ทั้งหมด
         return Json::encode($model);
     }
+
+
+    public function actionDataNewsTicker()
+    {
+        $request = Yii::$app->request;
+
+        if ($request->isAjax) {
+            $query = (new \yii\db\Query())
+                ->select([
+                    'tb_news_ticker.news_ticker_id', 
+                    'tb_news_ticker.news_ticker_detail', 
+                    'tb_news_ticker.news_ticker_status'
+                ])
+                ->from('tb_news_ticker')
+                ->orderBy('tb_news_ticker.news_ticker_id DESC');
+
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => [
+                    'pageSize' => false,
+                ],
+                'key' => 'news_ticker_id'
+            ]);
+            $columns = Yii::createObject([
+                'class' => ColumnData::className(),
+                'dataProvider' => $dataProvider,
+                'formatter' => Yii::$app->getFormatter(),
+                'columns' => [
+                    [
+                        'attribute' => 'news_ticker_id',
+                    ],
+                    [
+                        'attribute' => 'news_ticker_detail',
+                    ],
+                    [
+                        'attribute' => 'news_ticker_status',
+                        'value' => function ($model, $key, $index) {
+                            return $this->getBadgeStatus($model['news_ticker_status']);
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'news_ticker_status1',
+                        'value' => function ($model, $key, $index) {
+                            $checked = $model['news_ticker_status'] == 1 ? 'checked' : '';
+                            return '<label class="switch ">' .
+                                '<span>เปิด</span>' .
+                                '<input type="checkbox" class="success" data-key="' . $model['news_ticker_id'] . '" value="' . $model['news_ticker_status'] . '" ' . $checked . '>' .
+                                '<span class="slider round"></span>' .
+                                '</label>';
+                        },
+                        'format' => 'raw'
+                    ],
+                    [
+                        'class' => ActionTable::className(),
+                        'template' => ' {update} {delete} ',
+                        'updateOptions' => [
+                            'role' => 'modal-remote'
+                        ],
+                        'deleteOptions' => [
+                            'class' => 'text-danger'
+                        ],
+                        'urlCreator' => function ($action, $model, $key, $index) {
+
+                            if ($action == 'update') {
+                                return Url::to(['/app/settings/update-news-ticker', 'id' => $key]);
+                            }
+                            if ($action == 'delete') {
+                                return Url::to(['/app/settings/delete-news-ticker', 'id' => $key]);
+                            }
+                        }
+
+                    ]
+                ]
+            ]);
+
+            return Json::encode(['data' => $columns->renderDataColumns()]);
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
+        }
+    }
+
+
+    public function actionCreateNewsTicker()
+    {
+        $request = Yii::$app->request;
+        $model = new TbNewsTicker();
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($request->isGet) {
+                return [
+                    'title' => "เพิ่มข้อความประชาสัมพันธ์",
+                    'content' => $this->renderAjax('_form_news_ticker', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+
+                ];
+            } else if ($model->load($request->post()) && $model->save()) {
+                return [
+                    'title' => "เพิ่มข้อความประชาสัมพันธ์",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
+                    'status' => '200',
+                ];
+            } else {
+                return [
+                    'title' => "เพิ่มข้อความประชาสัมพันธ์",
+                    'content' => $this->renderAjax('_form_news_ticker', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+                    'status' => 'validate',
+                    'validate' => ActiveForm::validate($model),
+                ];
+            }
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
+        }
+    }
+
+    public function actionUpdateNewsTicker($id)
+    {
+        $request = Yii::$app->request;
+        $model = TbNewsTicker::findOne($id);
+
+        if ($request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            if ($request->isGet) {
+                return [
+                    'title' => "แก้ไขข้อความประชาสัมพันธ์",
+                    'content' => $this->renderAjax('_form_news_ticker', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+
+                ];
+            } else if ($model->load($request->post()) && $model->save()) {
+                return [
+                    'title' => "แก้ไขข้อความประชาสัมพันธ์",
+                    'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
+                    'footer' => Html::button('Close', ['class' => 'btn btn-default', 'data-dismiss' => "modal"]),
+                    'status' => '200',
+                ];
+            } else {
+                return [
+                    'title' => "แก้ไขข้อความประชาสัมพันธ์",
+                    'content' => $this->renderAjax('_form_news_ticker', [
+                        'model' => $model,
+                    ]),
+                    'footer' => '',
+                    'status' => 'validate',
+                    'validate' => ActiveForm::validate($model),
+                ];
+            }
+        } else {
+            throw new MethodNotAllowedHttpException('method not allowed.');
+        }
+    }
+
+
+    public function actionSaveStatusNewsTicker()
+    {
+        $request = Yii::$app->request;
+        $model = TbNewsTicker::findOne($request->post('id'));
+        $model->news_ticker_status = $request->post('value');
+        $model->save();
+
+        TbNewsTicker::updateAll(['news_ticker_status' => 0], ['<>', 'news_ticker_id', $request->post('id')]);  //update ข้อมูใน table ทั้งหมด
+        return Json::encode($model);
+    }
+
+    
+    public function actionDeleteNewsTicker($id)
+    {
+        $request = Yii::$app->request;
+        TbNewsTicker::findOne($id)->delete();
+        if ($request->isAjax) {
+            /*
+            *   Process for ajax request
+            */
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ['forceClose' => true];
+        } else {
+            /*
+            *   Process for non-ajax request
+            */
+            return $this->redirect(['index']);
+        }
+    }
+
 }

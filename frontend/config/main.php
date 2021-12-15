@@ -317,6 +317,7 @@ return [
             'app/kiosk/scan-queue-mobile-hn',
             'app/kiosk/queue-list',
             'app/kiosk/print-ticket',
+            'queue/kiosk/print-ticket',
             'app/drug-dispensing/drug-dispensing-list',
             'api/*',
             'api2/*',

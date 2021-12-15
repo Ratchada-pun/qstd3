@@ -167,6 +167,8 @@ class KioskController extends ActiveController
         'service_numdigit' => $service['service_numdigit'],
       ]);
 
+      $right = ArrayHelper::getValue($params, 'right', null);
+
       $model->setAttributes([
         'q_num' => $queue_no,
         'cid' => ArrayHelper::getValue($params, 'cid', null),
@@ -177,6 +179,11 @@ class KioskController extends ActiveController
         'serviceid' => $service['serviceid'],
         'q_status_id' => 1,
         'tslotid' => $tslotid,
+        'purchaseprovince_name' => ArrayHelper::getValue($right, 'purchaseprovince_name', null),
+        'hsub_name' => ArrayHelper::getValue($right, 'hsub_name', null),
+        'hmain_name' => ArrayHelper::getValue($right, 'hmain_name', null),
+        'paid_model' => ArrayHelper::getValue($right, 'paid_model', null),
+        'hmain_op_name' => ArrayHelper::getValue($right, 'hmain_op_name', null),
       ]);
       if (!empty($picture) && !empty($cid)) {
         $pt_pic = $this->uploadPicture($picture, Yii::$app->security->generateRandomString());
