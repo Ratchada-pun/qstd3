@@ -78,6 +78,7 @@ var \$form = $('#form-news-ticker');
         contentType: false,
         success: function (data) {
             if(data.status == '200'){
+                socket.emit('setting',{model:'TbNewsTicker'})
                 $('#ajaxCrudModal').modal('hide');//hide modal
                 table.ajax.reload();//reload table
                 swal({//alert completed!
