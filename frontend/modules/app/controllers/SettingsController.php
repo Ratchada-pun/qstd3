@@ -2632,7 +2632,7 @@ class SettingsController extends \yii\web\Controller
                     if (!empty($deletedIDs)) {
                         TbServiceTslot::deleteAll(['tslotid' => $deletedIDs]);
                     }
-                }else{
+                } else {
                     TbServiceTslot::deleteAll(['serviceid' => $id]);
                 }
 
@@ -2853,8 +2853,8 @@ class SettingsController extends \yii\web\Controller
         if ($request->isAjax) {
             $query = (new \yii\db\Query())
                 ->select([
-                    'tb_news_ticker.news_ticker_id', 
-                    'tb_news_ticker.news_ticker_detail', 
+                    'tb_news_ticker.news_ticker_id',
+                    'tb_news_ticker.news_ticker_detail',
                     'tb_news_ticker.news_ticker_status'
                 ])
                 ->from('tb_news_ticker')
@@ -2944,6 +2944,10 @@ class SettingsController extends \yii\web\Controller
 
                 ];
             } else if ($model->load($request->post()) && $model->save()) {
+                if ($model->news_ticker_status == 1) {
+                    TbNewsTicker::updateAll(['news_ticker_status' => 0], ['<>', 'news_ticker_id', $model->news_ticker_id]);
+                }
+
                 return [
                     'title' => "เพิ่มข้อความประชาสัมพันธ์",
                     'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
@@ -2983,6 +2987,9 @@ class SettingsController extends \yii\web\Controller
 
                 ];
             } else if ($model->load($request->post()) && $model->save()) {
+                if ($model->news_ticker_status == 1) {
+                    TbNewsTicker::updateAll(['news_ticker_status' => 0], ['<>', 'news_ticker_id', $model->news_ticker_id]);
+                }
                 return [
                     'title' => "แก้ไขข้อความประชาสัมพันธ์",
                     'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
@@ -3017,7 +3024,7 @@ class SettingsController extends \yii\web\Controller
         return Json::encode($model);
     }
 
-    
+
     public function actionDeleteNewsTicker($id)
     {
         $request = Yii::$app->request;
@@ -3035,5 +3042,4 @@ class SettingsController extends \yii\web\Controller
             return $this->redirect(['index']);
         }
     }
-
 }
