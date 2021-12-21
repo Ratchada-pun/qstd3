@@ -37,6 +37,7 @@ use kartik\form\ActiveForm;
 use yii\httpclient\Client;
 use frontend\modules\app\models\TbService;
 use frontend\modules\app\models\TbDrugDispensing;
+use frontend\modules\app\models\TbProfilePriority;
 
 class CallingController extends \yii\web\Controller
 {
@@ -208,9 +209,10 @@ class CallingController extends \yii\web\Controller
         $modelForm = new CallingForm();
         $modelProfile = new TbServiceProfile();
         $modelForm->service_profile = $profileid;
-        $modelForm->counter_service = $counterid;
+
         if ($profileid != null) {
             $modelProfile = $this->findModelServiceProfile($profileid);
+            $modelForm->counter_service = $modelProfile['counterserviceid'];
         }
         return $this->render('medical', [
             'modelForm' => $modelForm,
@@ -284,47 +286,58 @@ class CallingController extends \yii\web\Controller
             \Yii::$app->response->format = Response::FORMAT_JSON;
             $formData = $request->post('modelForm', []);
             $profileData = $request->post('modelProfile', []);
-            $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
-            $labItems = $this->findLabs();
-            $query = (new \yii\db\Query())
-                ->select([
-                    'tb_qtrans.ids',
-                    'tb_qtrans.q_ids',
-                    'tb_qtrans.counter_service_id',
-                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
-                    'tb_qtrans.service_status_id',
-                    'tb_quequ.q_num',
-                    'tb_quequ.q_hn',
-                    'tb_quequ.q_vn',
-                    'tb_quequ.q_qn',
-                    'tb_quequ.pt_name',
-                    'tb_counterservice.counterservice_name',
-                    'tb_service_status.service_status_name',
-                    'tb_service.service_name',
-                    'tb_service.serviceid',
-                    'tb_service.service_prefix',
-                    'tb_quequ.quickly'
+            if (empty($profileData)) {
+                return [];
+            }
+            $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
+            $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+            $data = [];
+            foreach ($prioritys as $key => $priority) {
+                $query = (new \yii\db\Query())
+                    ->select([
+                        'tb_qtrans.ids',
+                        'tb_qtrans.q_ids',
+                        'tb_qtrans.counter_service_id',
+                        'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                        'tb_qtrans.service_status_id',
+                        'tb_quequ.q_num',
+                        'tb_quequ.q_hn',
+                        'tb_quequ.q_vn',
+                        'tb_quequ.q_qn',
+                        'tb_quequ.pt_name',
+                        'tb_counterservice.counterservice_name',
+                        'tb_service_status.service_status_name',
+                        'tb_service.service_name',
+                        'tb_service.serviceid',
+                        'tb_service.service_prefix',
+                        'tb_quequ.quickly'
 
-                ])
-                ->from('tb_qtrans')
-                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-                ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
-                ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-                ->where([
-                    'tb_quequ.serviceid' => $services,
-                    'tb_qtrans.service_status_id' => [1, 11, 12, 13]
-                ])
-                ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
-                ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'checkin_date' => SORT_ASC]);
+                    ])
+                    ->from('tb_qtrans')
+                    ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                    ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
+                    ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                    ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+                    ->where([
+                        'tb_quequ.serviceid' => $priority['service_id'],
+                        'tb_qtrans.service_status_id' => [1]
+                    ])
+                    ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+                    ->orderBy('tb_quequ.q_timestp ASC');
+                $data = ArrayHelper::merge($data, $query->all());
+            }
+                // $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
+                // $labItems = $this->findLabs();
+            ;
 
-            $dataProvider = new ActiveDataProvider([
-                'query' => $query,
+            $dataProvider = new ArrayDataProvider([
+                'allModels' => $data,
                 'pagination' => [
                     'pageSize' => false,
                 ],
                 'key' => 'q_ids'
             ]);
+
             $columns = Yii::createObject([
                 'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
@@ -427,55 +440,64 @@ class CallingController extends \yii\web\Controller
 
             $formData = $request->post('modelForm', []);
             $profileData = $request->post('modelProfile', []);
-            $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
+            // $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
             // $labItems = $this->findLabs();
-            
-            $query = (new \yii\db\Query())
-                ->select([
-                    'tb_caller.caller_ids',
-                    'tb_caller.q_ids',
-                    'tb_caller.qtran_ids',
-                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
-                    'tb_caller.servicegroupid',
-                    'tb_caller.counter_service_id',
-                    'tb_caller.call_timestp',
-                    'tb_quequ.q_num',
-                    'tb_quequ.q_hn',
-                    'tb_quequ.q_qn',
-                    'tb_quequ.pt_name',
-                    'tb_quequ.countdrug',
-                    'tb_quequ.qfinace',
-                    'tb_service_status.service_status_name',
-                    'tb_counterservice.counterservice_name',
-                    'tb_service.service_name',
-                    'tb_service.serviceid',
-                    'tb_service.service_prefix',
-                    'tb_quequ.quickly',
-                    'tb_qtrans.ids',
-                    'tb_qtrans.q_ids'
-                ])
-                ->from('tb_caller')
-                ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
-                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-                ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-                ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
-                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-                ->where([
-                    'tb_quequ.serviceid' => $services,
-                    'tb_caller.counter_service_id' => $formData['counter_service'],
-                    'tb_caller.call_status' => ['calling', 'callend'],
-                    'tb_quequ.q_status_id' => [2, 11, 12, 13]
-                ])
-                ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
-                ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
+            if (empty($profileData)) {
+                return [];
+            }
+            $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
+            $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+            $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
 
-            $dataProvider = new ActiveDataProvider([
-                'query' => $query,
+            $data = [];
+            foreach ($prioritys as $key => $priority) {
+                $query = (new \yii\db\Query())
+                    ->select([
+                        'tb_caller.caller_ids',
+                        'tb_caller.qtran_ids',
+                        'DATE_FORMAT( DATE_ADD( tb_qtrans.checkin_date, INTERVAL 543 YEAR ), \'%H:%i:%s\' ) AS checkin_date',
+                        'tb_caller.servicegroupid',
+                        'tb_caller.counter_service_id',
+                        'tb_caller.call_timestp',
+                        'tb_quequ.q_num',
+                        'tb_quequ.q_hn',
+                        'tb_quequ.pt_name',
+                        'tb_service_status.service_status_name',
+                        'tb_counterservice.counterservice_name',
+                        'tb_service.service_name',
+                        'tb_service.serviceid',
+                        'tb_service.service_prefix',
+                        'tb_quequ.quickly',
+                        'tb_qtrans.ids'
+                    ])
+                    ->from('tb_caller')
+                    ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+                    ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                    ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                    ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+                    ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+                    ->leftJoin('tb_service_profile', 'tb_service_profile.service_profile_id = tb_caller.service_profile_id')
+                    ->leftJoin('tb_profile_priority', 'tb_service_profile.service_profile_id = tb_profile_priority.service_profile_id')
+                    ->where([
+                        'tb_quequ.serviceid' => $priority['service_id'],
+                        'tb_caller.counter_service_id' => $formData['counter_service'],
+                        'tb_caller.call_status' => ['calling', 'callend'],
+                        'tb_quequ.q_status_id' => [2, 11, 12, 13]
+                    ])
+                    ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+                    ->orderBy(['tb_caller.call_timestp' => SORT_DESC])
+                    ->groupBy('tb_caller.caller_ids');
+                $data = ArrayHelper::merge($data, $query->all());
+            }
+
+            $dataProvider = new ArrayDataProvider([
+                'allModels' => $data,
                 'pagination' => [
                     'pageSize' => false,
                 ],
                 'key' => 'caller_ids'
             ]);
+
             $columns = Yii::createObject([
                 'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
@@ -563,7 +585,7 @@ class CallingController extends \yii\web\Controller
                                 return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'title' => 'END', 'data-url' => '/app/calling/end-medical']);
                             },
                             'waiting' => function ($url, $model, $key) use ($profileData) {
-                                $drug = TbDrugDispensing::find()->where(['HN'=>$model['q_hn'],'DATE(created_at)' => Yii::$app->formatter->asDate('now','php:Y-m-d')])->one();
+                                $drug = TbDrugDispensing::find()->where(['HN' => $model['q_hn'], 'DATE(created_at)' => Yii::$app->formatter->asDate('now', 'php:Y-m-d')])->one();
                                 // if ($model['serviceid'] == 12 && $model['serviceid'] != 11 && $model['countdrug'] > 0  && $profileData['service_profile_id'] != 21 && !$drug) {
                                 //     return Html::a('ส่งห้องยา', $url, ['class' => 'btn btn-info btn-waiting', 'title' => 'ส่งห้องยา', 'data-url' => '/app/calling/waiting-pharmacy']);
                                 // } 
@@ -609,55 +631,62 @@ class CallingController extends \yii\web\Controller
 
             $formData = $request->post('modelForm', []);
             $profileData = $request->post('modelProfile', []);
-            $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
-            $labItems = $this->findLabs();
+            if (empty($profileData)) {
+                return [];
+            }
+            $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
+            $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+            $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
 
-            $query = (new \yii\db\Query())
-                ->select([
-                    'tb_caller.caller_ids',
-                    'tb_caller.q_ids',
-                    'tb_caller.qtran_ids',
-                    'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
-                    'tb_caller.servicegroupid',
-                    'tb_caller.counter_service_id',
-                    'tb_caller.call_timestp',
-                    'tb_quequ.q_num',
-                    'tb_quequ.q_hn',
-                    'tb_quequ.q_qn',
-                    'tb_quequ.pt_name',
-                    'tb_quequ.countdrug',
-                    'tb_quequ.qfinace',
-                    'tb_service_status.service_status_name',
-                    'tb_counterservice.counterservice_name',
-                    'tb_service.service_name',
-                    'tb_service.serviceid',
-                    'tb_service.service_prefix',
-                    'tb_quequ.quickly',
-                    'tb_qtrans.ids',
-                    'tb_qtrans.q_ids'
-                ])
-                ->from('tb_caller')
-                ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
-                ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
-                ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
-                ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
-                ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
-                ->where([
-                    'tb_quequ.serviceid' => $services,
-                    'tb_caller.counter_service_id' => $formData['counter_service'],
-                    'tb_caller.call_status' => 'hold',
-                    'tb_quequ.q_status_id' => [3, 11, 12, 13]
-                ])
-                ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
-                ->orderBy(['tb_quequ.quickly' => SORT_DESC, 'tb_caller.call_timestp' => SORT_ASC]);
+            $data = [];
+            foreach ($prioritys as $key => $priority) {
+                $query = (new \yii\db\Query())
+                    ->select([
+                        'tb_caller.caller_ids',
+                        'tb_caller.qtran_ids',
+                        'DATE_FORMAT( DATE_ADD( tb_qtrans.checkin_date, INTERVAL 543 YEAR ), \'%H:%i:%s\' ) AS checkin_date',
+                        'tb_caller.servicegroupid',
+                        'tb_caller.counter_service_id',
+                        'tb_caller.call_timestp',
+                        'tb_quequ.q_num',
+                        'tb_quequ.q_hn',
+                        'tb_quequ.pt_name',
+                        'tb_service_status.service_status_name',
+                        'tb_counterservice.counterservice_name',
+                        'tb_service.service_name',
+                        'tb_service.serviceid',
+                        'tb_service.service_prefix',
+                        'tb_quequ.quickly',
+                        'tb_qtrans.ids'
+                    ])
+                    ->from('tb_caller')
+                    ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+                    ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+                    ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+                    ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+                    ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+                    ->leftJoin('tb_service_profile', 'tb_service_profile.service_profile_id = tb_caller.service_profile_id')
+                    ->leftJoin('tb_profile_priority', 'tb_service_profile.service_profile_id = tb_profile_priority.service_profile_id')
+                    ->where([
+                        'tb_quequ.serviceid' => $priority['service_id'],
+                        'tb_caller.counter_service_id' => $formData['counter_service'],
+                        'tb_caller.call_status' => 'hold',
+                        'tb_quequ.q_status_id' => [3, 11, 12, 13]
+                    ])
+                    ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+                    ->orderBy(['tb_caller.call_timestp' => SORT_DESC])
+                    ->groupBy('tb_caller.caller_ids');
+                $data = ArrayHelper::merge($data, $query->all());
+            }
 
-            $dataProvider = new ActiveDataProvider([
-                'query' => $query,
+            $dataProvider = new ArrayDataProvider([
+                'allModels' => $data,
                 'pagination' => [
                     'pageSize' => false,
                 ],
                 'key' => 'caller_ids'
             ]);
+
             $columns = Yii::createObject([
                 'class' => ColumnData::class,
                 'dataProvider' => $dataProvider,
@@ -766,8 +795,7 @@ class CallingController extends \yii\web\Controller
                 $dataProfile = $request->post('modelProfile', []);
                 $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
                 $counter = $this->findModelCounterservice($dataForm['counter_service']);
-                $modelQ = $this->findModelQuequ($id);
-                $modelQueue = TbQuequ::findOne($id);
+                $modelQueue = $this->findModelQuequ($id);
 
 
                 $model = new TbCaller();
@@ -776,6 +804,7 @@ class CallingController extends \yii\web\Controller
                 $model->counter_service_id = $dataForm['counter_service'];
                 $model->call_timestp = new Expression('NOW()');
                 $model->call_status = TbCaller::STATUS_CALLING;
+                $model->service_profile_id = $modelProfile['service_profile_id'];
 
                 $modelTrans = $this->findModelQTrans($data['ids']);
                 $modelTrans->service_status_id = 2;
@@ -786,28 +815,28 @@ class CallingController extends \yii\web\Controller
                     $data['counter_service_id'] = $counter['counterserviceid'];
                     $transaction->commit();
 
-                    $modelQueue->sendMessage($modelQueue['serviceid']);
-                    if (!empty($modelQueue['token'])) {
-                        $client = new Client();
-                        $client->createRequest()
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->setMethod('POST')
-                            ->setUrl(Yii::$app->params['messageURL'])
-                            ->addHeaders(['content-type' => 'application/json'])
-                            ->setData([
-                                'message' => [
-                                    'data' => [
-                                        'type' => 'call-queue'
-                                    ],
-                                    'notification' => [
-                                        'title' => 'ถึงคิวของคุณแล้ว!',
-                                        'body' => $modelQueue['q_num']
-                                    ],
-                                    'token' => $modelQueue['token']
-                                ],
-                            ])
-                            ->send();
-                    }
+                    // $modelQueue->sendMessage($modelQueue['serviceid']);
+                    // if (!empty($modelQueue['token'])) {
+                    //     $client = new Client();
+                    //     $client->createRequest()
+                    //         ->setFormat(Client::FORMAT_JSON)
+                    //         ->setMethod('POST')
+                    //         ->setUrl(Yii::$app->params['messageURL'])
+                    //         ->addHeaders(['content-type' => 'application/json'])
+                    //         ->setData([
+                    //             'message' => [
+                    //                 'data' => [
+                    //                     'type' => 'call-queue'
+                    //                 ],
+                    //                 'notification' => [
+                    //                     'title' => 'ถึงคิวของคุณแล้ว!',
+                    //                     'body' => $modelQueue['q_num']
+                    //                 ],
+                    //                 'token' => $modelQueue['token']
+                    //             ],
+                    //         ])
+                    //         ->send();
+                    // }
                     return [
                         'status' => '200',
                         'message' => 'success',
@@ -851,11 +880,8 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
-            // $modelQ = $this->findModelQuequ($data['q_ids']);
-            $modelQueue = TbQuequ::findOne($data['q_ids']);
-
-
             $model = $this->findModelCaller($id);
+            $modelQueue = $this->findModelQuequ($model['q_ids']);
             $model->call_timestp = new Expression('NOW()');
             $model->call_status = TbCaller::STATUS_CALLING;
 
@@ -863,28 +889,6 @@ class CallingController extends \yii\web\Controller
             $modelTrans->service_status_id = 2;
             $modelQueue->q_status_id = 2;
             if ($model->save() && $modelTrans->save() && $modelQueue->save()) {
-                $modelQueue->sendMessage($modelQueue['serviceid']);
-                if (!empty($modelQueue['token'])) {
-                    $client = new Client();
-                    $client->createRequest()
-                        ->setFormat(Client::FORMAT_JSON)
-                        ->setMethod('POST')
-                        ->setUrl(Yii::$app->params['messageURL'])
-                        ->addHeaders(['content-type' => 'application/json'])
-                        ->setData([
-                            'message' => [
-                                'data' => [
-                                    'type' => 'call-queue'
-                                ],
-                                'notification' => [
-                                    'title' => 'ถึงคิวของคุณแล้ว!',
-                                    'body' => $modelQueue['q_num']
-                                ],
-                                'token' => $modelQueue['token']
-                            ],
-                        ])
-                        ->send();
-                }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -920,38 +924,37 @@ class CallingController extends \yii\web\Controller
             $dataProfile = $request->post('modelProfile', []);
             $modelProfile = $this->findModelServiceProfile($dataProfile['service_profile_id']);
             $counter = $this->findModelCounterservice($dataForm['counter_service']);
-            // $modelQ = $this->findModelQuequ($data['q_ids']);
-            $modelQueue = TbQuequ::findOne($data['q_ids']);
-
             $model = $this->findModelCaller($id);
+            $modelQueue = $this->findModelQuequ($model['q_ids']);
+
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             $modelQtran->service_status_id = 3;
             $model->call_status = TbCaller::STATUS_HOLD;
 
             $modelQueue->q_status_id = 3;
             if ($model->save() && $modelQtran->save() && $modelQueue->save()) {
-                $modelQueue->sendMessage($modelQueue['serviceid']);
-                if (!empty($modelQueue['token'])) {
-                    $client = new Client();
-                    $client->createRequest()
-                        ->setFormat(Client::FORMAT_JSON)
-                        ->setMethod('POST')
-                        ->setUrl(Yii::$app->params['messageURL'])
-                        ->addHeaders(['content-type' => 'application/json'])
-                        ->setData([
-                            'message' => [
-                                'data' => [
-                                    'type' => 'hold-queue'
-                                ],
-                                'notification' => [
-                                    'title' => 'คิวของคุณเรียกผ่านไปแล้ว!',
-                                    'body' => $modelQueue['q_num']
-                                ],
-                                'token' => $modelQueue['token']
-                            ],
-                        ])
-                        ->send();
-                }
+                // $modelQueue->sendMessage($modelQueue['serviceid']);
+                // if (!empty($modelQueue['token'])) {
+                //     $client = new Client();
+                //     $client->createRequest()
+                //         ->setFormat(Client::FORMAT_JSON)
+                //         ->setMethod('POST')
+                //         ->setUrl(Yii::$app->params['messageURL'])
+                //         ->addHeaders(['content-type' => 'application/json'])
+                //         ->setData([
+                //             'message' => [
+                //                 'data' => [
+                //                     'type' => 'hold-queue'
+                //                 ],
+                //                 'notification' => [
+                //                     'title' => 'คิวของคุณเรียกผ่านไปแล้ว!',
+                //                     'body' => $modelQueue['q_num']
+                //                 ],
+                //                 'token' => $modelQueue['token']
+                //             ],
+                //         ])
+                //         ->send();
+                // }
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -990,7 +993,7 @@ class CallingController extends \yii\web\Controller
             $model = $this->findModelCaller($data['caller_ids']);
             $modelQtran = $this->findModelQTrans($model['qtran_ids']);
             // $modelQ = $this->findModelQuequ($modelQtran['q_ids']);
-            $modelQueue = TbQuequ::findOne($modelQtran['q_ids']);
+            $modelQueue = $this->findModelQuequ($model['q_ids']);
 
 
             $modelQtran->service_status_id = 4;
@@ -1000,7 +1003,7 @@ class CallingController extends \yii\web\Controller
             $modelQueue->q_status_id = 4;
 
             if ($model->save() && $modelQtran->save() && $modelQueue->save()) {
-                $modelQueue->sendMessage($modelQueue['serviceid']);
+                // $modelQueue->sendMessage($modelQueue['serviceid']);
                 return [
                     'status' => '200',
                     'message' => 'success',
@@ -2171,7 +2174,7 @@ class CallingController extends \yii\web\Controller
             $labItems = $this->findLabs();
             $query = (new \yii\db\Query())
                 ->select([
-                    'tb_qtrans.ids',
+                    'tb_qtrans.ids1',
                     'tb_qtrans.q_ids',
                     'tb_qtrans.counter_service_id',
                     'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
@@ -2611,6 +2614,7 @@ class CallingController extends \yii\web\Controller
                 $model = new TbCaller();
                 $model->q_ids = $data['q_ids'];
                 $model->qtran_ids = $data['ids'];
+                $model->service_profile_id = $modelProfile['service_profile_id'];
                 //$model->servicegroupid = $modelProfile['service_groupid'];
                 $model->counter_service_id = $dataForm['counter_service'];
                 $model->call_timestp = new Expression('NOW()');
@@ -4456,7 +4460,7 @@ class CallingController extends \yii\web\Controller
 
         try {
             $modelQueue = TbQuequ::find()
-                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [1, 2, 3, 5,11,12,13]])
+                ->where(['q_num' => strtoupper($q), 'serviceid' => $service_id, 'q_status_id' => [1, 2, 3, 5, 11, 12, 13]])
                 ->orWhere(['q_qn' => $q])
                 ->andWhere('DATE(q_timestp) = CURRENT_DATE')
                 ->orderBy('q_ids DESC')
@@ -4472,7 +4476,7 @@ class CallingController extends \yii\web\Controller
             $modelCaller = TbCaller::findOne(['q_ids' => $modelQueue['q_ids'], 'call_status' => ['calling', 'hold', 'callend']]);
             if (!$modelCaller) {
                 $modelCaller = new TbCaller();
-                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5,11,12,13]]);
+                $modelQTrans = TbQtrans::findOne(['q_ids' => $modelQueue['q_ids'], 'service_status_id' => [1, 2, 3, 5, 11, 12, 13]]);
                 $modelCaller->qtran_ids = $modelQTrans['ids'];
             } else {
                 $modelQTrans = $this->findModelQTrans($modelCaller['qtran_ids']);
@@ -4727,7 +4731,7 @@ class CallingController extends \yii\web\Controller
                     $newModelQueue->q_ids = null;
                     $newModelQueue->q_status_id = 5;
 
-                    if($newModelQueue->save()){ //สร้างคิวห้องตรวจ
+                    if ($newModelQueue->save()) { //สร้างคิวห้องตรวจ
                         $modelQueuetran = new TbQtrans();
                         $modelQueuetran->setAttributes([
                             'q_ids' => $newModelQueue['q_ids'],
@@ -4753,7 +4757,7 @@ class CallingController extends \yii\web\Controller
                     $newModelQueue->q_ids = null;
                     $newModelQueue->q_status_id = 12;
 
-                    if($newModelQueue->save()){ //สร้างคิวห้องยา
+                    if ($newModelQueue->save()) { //สร้างคิวห้องยา
                         $modelQueuetran = new TbQtrans();
                         $modelQueuetran->setAttributes([
                             'q_ids' => $newModelQueue['q_ids'],
@@ -4931,7 +4935,7 @@ class CallingController extends \yii\web\Controller
             $newModelQueue->q_ids = null;
             $newModelQueue->q_status_id = 12;
 
-            if($newModelQueue->save()){ //สร้างคิวห้องยา
+            if ($newModelQueue->save()) { //สร้างคิวห้องยา
                 $modelQueuetran = new TbQtrans();
                 $modelQueuetran->setAttributes([
                     'q_ids' => $newModelQueue['q_ids'],
@@ -5226,5 +5230,157 @@ class CallingController extends \yii\web\Controller
             throw new HttpException(404, 'ไม่พบรายการคิว');
         }
         return $modelQueue;
+    }
+
+    public function actionCallTablet($profileid = null, $counterid = null)
+    {
+        $this->layout = '@homer/views/layouts/main-blank.php';
+        $user    = Yii::$app->user->identity;
+        $profile = $user->profile;
+        $modelForm = new CallingForm();
+        $modelProfile = new TbServiceProfile();
+        $modelForm->service_profile = $profileid;
+        $services = [];
+
+        if ($profileid != null) {
+            $modelProfile = $this->findModelServiceProfile($profileid);
+            $modelForm->counter_service = $modelProfile['counterserviceid'];
+            $profile->service_profile_id = $profileid;
+            $profile->save();
+
+            $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+            $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
+            $services = (new \yii\db\Query())
+                ->select(['tb_servicegroup.*', 'tb_service.*'])
+                ->from('tb_service')
+                ->innerJoin('tb_servicegroup', 'tb_servicegroup.servicegroupid = tb_service.service_groupid')
+                ->where([
+                    'tb_service.serviceid' => $serviceids,
+                    'tb_service.service_status' => 1
+                ])
+                ->all();
+        } else if ($profile->service_profile_id) {
+            $modelProfile = $this->findModelServiceProfile($profile->service_profile_id);
+            $modelForm->counter_service = $modelProfile['counterserviceid'];
+            $modelForm->service_profile = $profile->service_profile_id;
+            $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+            $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
+            $services = (new \yii\db\Query())
+                ->select(['tb_servicegroup.*', 'tb_service.*'])
+                ->from('tb_service')
+                ->innerJoin('tb_servicegroup', 'tb_servicegroup.servicegroupid = tb_service.service_groupid')
+                ->where([
+                    'tb_service.serviceid' => $serviceids,
+                    'tb_service.service_status' => 1
+                ])
+                ->all();
+        }
+
+        return $this->render('_tablet', [
+            'modelForm' => $modelForm,
+            'modelProfile' => $modelProfile,
+            'services' => $services,
+        ]);
+    }
+
+    public function actionLastQueue()
+    {
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $request = Yii::$app->request;
+        $formData = $request->post('modelForm', []);
+        $profileData = $request->post('modelProfile', []);
+        $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
+        $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+        $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
+        $query = (new \yii\db\Query())
+            ->select([
+                'tb_caller.caller_ids',
+                'tb_caller.qtran_ids',
+                'DATE_FORMAT( DATE_ADD( tb_qtrans.checkin_date, INTERVAL 543 YEAR ), \'%H:%i:%s\' ) AS checkin_date',
+                'tb_caller.servicegroupid',
+                'tb_caller.counter_service_id',
+                'tb_caller.call_timestp',
+                'tb_quequ.q_num',
+                'tb_quequ.q_hn',
+                'tb_quequ.pt_name',
+                'tb_service_status.service_status_name',
+                'tb_counterservice.counterservice_name',
+                'tb_service.service_name',
+                'tb_service.serviceid',
+                'tb_service.service_prefix',
+                'tb_quequ.quickly',
+                'tb_qtrans.ids'
+            ])
+            ->from('tb_caller')
+            ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+            ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+            ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+            ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+            ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+            ->leftJoin('tb_service_profile', 'tb_service_profile.service_profile_id = tb_caller.service_profile_id')
+            ->leftJoin('tb_profile_priority', 'tb_service_profile.service_profile_id = tb_profile_priority.service_profile_id')
+            ->where([
+                'tb_quequ.serviceid' => $serviceids,
+                'tb_caller.counter_service_id' => $formData['counter_service'],
+                'tb_caller.call_status' => ['calling', 'callend'],
+                'tb_quequ.q_status_id' => [2, 11, 12, 13]
+            ])
+            ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+            ->orderBy(['tb_caller.call_timestp' => SORT_DESC])
+            ->groupBy('tb_caller.caller_ids')
+            ->one();
+        return $query;
+    }
+
+    public function actionLastHoldQueue()
+    {
+        \Yii::$app->response->format = Response::FORMAT_JSON;
+        $request = Yii::$app->request;
+        $formData = $request->post('modelForm', []);
+        $profileData = $request->post('modelProfile', []);
+        if(empty($profileData)){
+            return null;
+        }
+        $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
+        $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+        $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
+        $query = (new \yii\db\Query())
+            ->select([
+                'tb_caller.caller_ids',
+                'tb_caller.qtran_ids',
+                'DATE_FORMAT( DATE_ADD( tb_qtrans.checkin_date, INTERVAL 543 YEAR ), \'%H:%i:%s\' ) AS checkin_date',
+                'tb_caller.servicegroupid',
+                'tb_caller.counter_service_id',
+                'tb_caller.call_timestp',
+                'tb_quequ.q_num',
+                'tb_quequ.q_hn',
+                'tb_quequ.pt_name',
+                'tb_service_status.service_status_name',
+                'tb_counterservice.counterservice_name',
+                'tb_service.service_name',
+                'tb_service.serviceid',
+                'tb_service.service_prefix',
+                'tb_quequ.quickly',
+                'tb_qtrans.ids'
+            ])
+            ->from('tb_caller')
+            ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
+            ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+            ->innerJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+            ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')
+            ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+            ->leftJoin('tb_service_profile', 'tb_service_profile.service_profile_id = tb_caller.service_profile_id')
+            ->leftJoin('tb_profile_priority', 'tb_service_profile.service_profile_id = tb_profile_priority.service_profile_id')
+            ->where([
+                'tb_quequ.serviceid' => $serviceids,
+                'tb_caller.counter_service_id' => $formData['counter_service'],
+                'tb_caller.call_status' => 'hold',
+                'tb_quequ.q_status_id' => [3, 11, 12, 13]
+            ])
+            ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+            ->orderBy(['tb_caller.call_timestp' => SORT_DESC])
+            ->groupBy('tb_caller.caller_ids')
+            ->one();
+        return $query;
     }
 }

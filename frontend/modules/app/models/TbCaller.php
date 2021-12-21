@@ -21,6 +21,7 @@ use yii\db\Expression;
  * @property int $updated_by
  * @property string $updated_at
  * @property string $call_status รอเรียก/เรียกแล้ว/Hold
+ * @property int $service_profile_id โปรไฟล์
  */
 class TbCaller extends \yii\db\ActiveRecord
 {
@@ -63,7 +64,7 @@ class TbCaller extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['q_ids', 'qtran_ids', 'servicegroupid', 'counter_service_id', 'created_by', 'updated_by'], 'integer'],
+            [['q_ids', 'qtran_ids', 'servicegroupid', 'counter_service_id', 'created_by', 'updated_by', 'service_profile_id'], 'integer'],
             [['call_timestp', 'created_at', 'updated_at'], 'safe'],
             [['call_status'], 'string', 'max' => 10],
         ];
@@ -86,6 +87,7 @@ class TbCaller extends \yii\db\ActiveRecord
             'updated_by' => 'Updated By',
             'updated_at' => 'Updated At',
             'call_status' => 'รอเรียก/เรียกแล้ว/Hold',
+            'service_profile_id' => 'โปรไฟล์',
         ];
     }
 

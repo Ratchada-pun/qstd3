@@ -24,11 +24,16 @@ class CallingForm extends \yii\base\Model
         return ArrayHelper::map(TbDoctorStatus::find()->asArray()->all(), 'ID', 'Status_T');
     }
 
-    public function getDataCounter()
+    public function getDataCounters()
     {
         if (!empty($this->service_profile)) {
             $model = TbServiceProfile::findOne($this->service_profile);
-            return ArrayHelper::map(TbCounterservice::find()->where(['counterservice_type' => $model['counterservice_typeid'], 'counterservice_status' => 1])->orderBy(['service_order' => SORT_ASC])->asArray()->all(), 'counterserviceid', 'counterservice_name');
+            return ArrayHelper::map(TbCounterservice::find()
+                ->where([
+                    'counterservice_type' => $model['counterservice_typeid'],
+                    'counterservice_status' => 1,
+                    'counterserviceid' => $model['counterserviceid'],
+                ])->orderBy(['service_order' => SORT_ASC])->asArray()->all(), 'counterserviceid', 'counterservice_name');
         } else {
             return [];
         }
@@ -52,7 +57,10 @@ class CallingForm extends \yii\base\Model
     {
         return ArrayHelper::map(
             TbCounterservice::find()
-                ->where(['counterservice_type' => $profile['counterservice_typeid'], 'counterservice_status' => 1])
+                ->where([
+                    'counterservice_type' => $profile['counterservice_typeid'],
+                    'counterservice_status' => 1
+                ])
                 ->asArray()
                 ->orderBy(['service_order' => SORT_ASC])
                 ->all(),

@@ -42,14 +42,7 @@ use yii\helpers\Html;
             <div class="col-md-4 service_profile">
                 <?=
                 $form->field($modelForm, 'service_profile')->widget(Select2::classname(), [
-                    'data' => ArrayHelper::map(Yii::$app->db->createCommand('SELECT
-                    tb_service_profile.*,
-                    ( SELECT COUNT( tb_service.serviceid ) FROM tb_service WHERE tb_service.serviceid IN ( tb_service_profile.service_id ) AND tb_service.service_type_id in (1, 3, 4) ) AS a 
-                FROM
-                    tb_service_profile 
-                HAVING
-                    a > 0')
-                        ->queryAll(), 'service_profile_id', 'service_name'),
+                    'data' => ArrayHelper::map(TbServiceProfile::find()->where(['service_profile_status' => 1])->all(), 'service_profile_id', 'service_name'),
                     'options' => ['placeholder' => 'เลือกโปรไฟล์...'],
                     'pluginOptions' => [
                         'allowClear' => true
@@ -69,7 +62,7 @@ use yii\helpers\Html;
                 ?>
             </div>
 
-            <div class="col-md-4 counter_service">
+            <div class="col-md-4 counter_service" style="display: none;">
                 <?=
                 $form->field($modelForm, 'counter_service')->widget(Select2::classname(), [
                     'data' => $modelForm->dataCounter,

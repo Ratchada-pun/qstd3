@@ -425,7 +425,7 @@ if ($action == 'index') {
                 var rows = api.rows( {page:"current"} ).nodes();
                 var columns = api.columns().nodes();
                 var last=null;
-                api.column(2, {page:"current"} ).data().each( function ( group, i ) {
+                api.column(5, {page:"current"} ).data().each( function ( group, i ) {
                     var data = api.rows(i).data();
                     if ( last !== group ) {
                         if(data[0].quickly == "1"){
@@ -518,7 +518,7 @@ if ($action == 'index') {
                 var rows = api.rows( {page:"current"} ).nodes();
                 var columns = api.columns().nodes();
                 var last=null;
-                api.column(2, {page:"current"} ).data().each( function ( group, i ) {
+                api.column(5, {page:"current"} ).data().each( function ( group, i ) {
                     var data = api.rows(i).data();
                     if ( last !== group ) {
                         if(data[0].quickly == "1"){
@@ -605,7 +605,7 @@ if ($action == 'index') {
                 var rows = api.rows( {page:\'current\'} ).nodes();
                 var last=null;
     
-                api.column(2, {page:\'current\'} ).data().each( function ( group, i ) {
+                api.column(4, {page:\'current\'} ).data().each( function ( group, i ) {
                     if ( last !== group ) {
                         $(rows).eq( i ).before(
                             \'<tr class="group"><td colspan="8">\'+group+\'</td></tr>\'

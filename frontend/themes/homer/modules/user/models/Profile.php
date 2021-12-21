@@ -14,7 +14,7 @@ class Profile extends BaseProfile
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['avatar','avatar_path','avatar_base_url'], 'safe'];
+        $rules[] = [['avatar','avatar_path','avatar_base_url', 'service_profile_id'], 'safe'];
         return $rules;
     }
 

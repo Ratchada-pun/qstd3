@@ -7,6 +7,7 @@ use homer\behaviors\CoreMultiValueBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "tb_service_profile".
  *
@@ -17,6 +18,7 @@ use yii\helpers\ArrayHelper;
  */
 class TbServiceProfile extends \yii\db\ActiveRecord
 {
+    public $items;
     /**
      * @inheritdoc
      */
@@ -47,10 +49,11 @@ class TbServiceProfile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['service_name', 'counterservice_typeid', 'service_id','service_profile_status'], 'required'],
-            [['counterservice_typeid','service_status_id'], 'integer'],
-            [['service_name'], 'string', 'max' => 100],
-            [['service_id', 'counter_service_ids'],'safe']
+            [['service_name', 'counterservice_typeid', 'service_profile_status', 'counterserviceid'], 'required'],
+            [['counterservice_typeid', 'service_profile_status', 'service_status_id', 'counterserviceid'], 'integer'],
+            [['counter_service_ids'], 'string'],
+            [['items'], 'safe'],
+            [['service_name', 'service_id'], 'string', 'max' => 100],
         ];
     }
 
@@ -61,12 +64,13 @@ class TbServiceProfile extends \yii\db\ActiveRecord
     {
         return [
             'service_profile_id' => 'Service Profile ID',
-            'service_name' => 'Service Name',
-            'counterservice_typeid' => 'Counter',
-            'service_id' => 'Service ID',
+            'service_name' => 'ชื่อโปรไฟล์',
+            'counterservice_typeid' => 'ประเภทช่องบริการ',
+            'service_id' => 'งานบริการ',
             'service_profile_status' => 'สถานะ',
-            'service_status_id' => 'สถานะคิว',
-            'counter_service_ids' => 'ห้องตรวจที่ต้องการส่งคิวจากซักประวัติไป',
+            'counter_service_ids' => 'Counter Service Ids',
+            'service_status_id' => 'สถานะการให้บริการ',
+            'counterserviceid' => 'ช่องบริการ',
         ];
     }
 
@@ -79,16 +83,17 @@ class TbServiceProfile extends \yii\db\ActiveRecord
         return new TbServiceProfileQuery(get_called_class());
     }
 
-    public function getServieceList(){
+    public function getServieceList()
+    {
         $li = [];
-        if(!empty($this->service_id)){
-            $counters = explode(",",$this->service_id);
-            $model = TbService::find()->where(['serviceid' => $counters,'service_status' => 1])->all();
+        if (!empty($this->service_id)) {
+            $counters = explode(",", $this->service_id);
+            $model = TbService::find()->where(['serviceid' => $counters, 'service_status' => 1])->all();
             foreach ($model as $key => $value) {
-                $li[] = Html::tag('li',$value['service_name']);
+                $li[] = Html::tag('li', $value['service_name']);
             }
         }
-        return count($li) > 0 ? Html::tag('ol',implode("\n", $li)) : '';
+        return count($li) > 0 ? Html::tag('ol', implode("\n", $li)) : '';
     }
 
     public function getTbCounterserviceType()
@@ -100,13 +105,19 @@ class TbServiceProfile extends \yii\db\ActiveRecord
         return $this->hasOne(TbServiceStatus::className(), ['service_status_id' => 'service_status_id']);
     }
 
-    public function getPrefixs(){
+    public function getPrefixs()
+    {
         $prefix = [];
-        if(!empty($this->service_id)){
-            $services = explode(",",$this->service_id);
-            $model = TbService::find()->where(['serviceid' => $services,'service_status' => 1])->all();
-            $prefix = ArrayHelper::map($model,'service_prefix','service_prefix');
+        if (!empty($this->service_id)) {
+            $services = explode(",", $this->service_id);
+            $model = TbService::find()->where(['serviceid' => $services, 'service_status' => 1])->all();
+            $prefix = ArrayHelper::map($model, 'service_prefix', 'service_prefix');
         }
         return $prefix;
+    }
+
+    public function getProfilePrioritys()
+    {
+        return $this->hasMany(TbProfilePriority::className(), ['service_profile_id' => 'service_profile_id']);
     }
 }

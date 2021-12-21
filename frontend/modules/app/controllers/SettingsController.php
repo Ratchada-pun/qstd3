@@ -53,6 +53,7 @@ use kartik\switchinput\SwitchInput;
 use yii\web\HttpException;
 use frontend\modules\app\models\mobile\TbQuequ;
 use frontend\modules\app\models\TbNewsTicker;
+use frontend\modules\app\models\TbProfilePriority;
 
 class SettingsController extends \yii\web\Controller
 {
@@ -1903,6 +1904,25 @@ class SettingsController extends \yii\web\Controller
 
                 ];
             } else if ($model->load($request->post()) && $model->save()) {
+                $ids = [];
+                foreach ($model->items as $key => $item) {
+                    $modelPri = new TbProfilePriority();
+                    if (!empty($item['profile_priority_id'])) {
+                        $modelPri = TbProfilePriority::findOne($item['profile_priority_id']);
+                    }
+                    $modelPri->setAttributes([
+                        'profile_priority_seq' => $item['profile_priority_seq'],
+                        'service_profile_id' => $model['service_profile_id'],
+                        'service_id' => $item['service_id'],
+                    ]);
+                    if ($modelPri->save()) {
+                        $ids[] = $modelPri->profile_priority_id;
+                    }
+                }
+                $models = TbProfilePriority::find()->where(['NOT IN', 'profile_priority_id', $ids])->all();
+                foreach ($models as $model) {
+                    $model->delete();
+                }
                 return [
                     'title' => "Service Profile",
                     'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
@@ -1936,6 +1956,15 @@ class SettingsController extends \yii\web\Controller
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
+                $model->items = TbProfilePriority::find()->where(['service_profile_id' => $id])->asArray()->orderBy('profile_priority_seq ASC')->all();
+                // $items = [];
+                // foreach ($model->profilePrioritys as $key => $item) {
+                //     $items[] = [
+                //         'profile_priority_seq' => $item['profile_priority_seq'],
+                //         'service_profile_id' => $model['service_profile_id'],
+                //         'service_id' => $item['service_id'],
+                //     ];
+                // }
                 return [
                     'title' => "Service Profile",
                     'content' => $this->renderAjax('_form_service_profile', [
@@ -1945,6 +1974,25 @@ class SettingsController extends \yii\web\Controller
 
                 ];
             } else if ($model->load($request->post()) && $model->save()) {
+                $ids = [];
+                foreach ($model->items as $key => $item) {
+                    $modelPri = new TbProfilePriority();
+                    if (!empty($item['profile_priority_id'])) {
+                        $modelPri = TbProfilePriority::findOne($item['profile_priority_id']);
+                    }
+                    $modelPri->setAttributes([
+                        'profile_priority_seq' => $item['profile_priority_seq'],
+                        'service_profile_id' => $model['service_profile_id'],
+                        'service_id' => $item['service_id'],
+                    ]);
+                    if ($modelPri->save()) {
+                        $ids[] = $modelPri->profile_priority_id;
+                    }
+                }
+                $models = TbProfilePriority::find()->where(['NOT IN', 'profile_priority_id', $ids])->all();
+                foreach ($models as $model) {
+                    $model->delete();
+                }
                 return [
                     'title' => "Service Profile",
                     'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
@@ -3041,5 +3089,28 @@ class SettingsController extends \yii\web\Controller
             */
             return $this->redirect(['index']);
         }
+    }
+
+    public function actionSubCounterType()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $out = [];
+        if (isset($_POST['depdrop_parents'])) {
+            $id = end($_POST['depdrop_parents']);
+            $list = TbCounterservice::find()->andWhere(['counterservice_type' => $id])->asArray()->all();
+            $selected  = null;
+            if ($id != null && count($list) > 0) {
+                $selected = '';
+                foreach ($list as $i => $counter) {
+                    $out[] = ['id' => $counter['counterserviceid'], 'name' => $counter['counterservice_name']];
+                    if ($i == 0) {
+                        $selected = $counter['counterserviceid'];
+                    }
+                }
+                // Shows how you can preselect a value
+                return ['output' => $out, 'selected' => $selected];
+            }
+        }
+        return ['output' => '', 'selected' => ''];
     }
 }
