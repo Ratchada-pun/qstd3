@@ -480,7 +480,7 @@ Queue = {
     addMedia: function(res){
         $.each(res.sound, function( index, sound ) {
             myPlaylist.add({
-                title: res.data.qnumber,
+                title: res.modelQueue.q_num,
                 artist: res,
                 wav: sound
             });
