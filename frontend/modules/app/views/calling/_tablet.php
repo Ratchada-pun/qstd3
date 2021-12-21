@@ -54,6 +54,9 @@ div.dt-buttons{
         float: right !important;
     }
 }
+table tbody tr td span.badge{
+    font-size: 20px !important;
+}
 CSS;
 
 $this->registerCss($css);
@@ -62,11 +65,7 @@ $this->registerCss($css);
     <div class="col-lg-12">
         <div class="hpanel">
             <div class="panel-heading hbuilt">
-                <div class="panel-tools">
-                    <a class="showhide"><i class="fa fa-chevron-up"></i></a>
-                    <a class="closebox"><i class="fa fa-times"></i></a>
-                </div>
-                <?= Html::encode($this->title) ?>
+                <h3><?= Html::encode($this->title) ?></h3> 
             </div>
             <div class="panel-body">
                 <?php
@@ -197,9 +196,9 @@ $this->registerCss($css);
                     <div class="col-lg-4 col-md-4 col-sm-4">
                         <div class="hpanel">
                             <div class="panel-heading hbuilt">
-                                <h2>
+                                <h3>
                                     เรียกคิว
-                                </h2>
+                                </h3>
                             </div>
                             <div class="panel-body" style="padding: 10px;">
                                 <form method="get" class="form-horizontal">
