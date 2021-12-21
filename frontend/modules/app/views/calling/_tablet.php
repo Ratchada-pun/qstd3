@@ -13,6 +13,7 @@ use yii\web\JsExpression;
 use homer\assets\SocketIOAsset;
 use homer\assets\SweetAlert2Asset;
 use homer\assets\ToastrAsset;
+use yii\bootstrap\Tabs;
 use yii\helpers\Json;
 use yii\web\View;
 
@@ -117,30 +118,81 @@ $this->registerCss($css);
 
                 <div class="row">
                     <div class="col-lg-8 col-md-8 col-sm-8">
-                        <div class="hpanel">
-                            <div class="panel-heading hbuilt">
-                                <h2>คิวรอ</h2>
-                            </div>
-                            <div class="panel-body" style="padding: 10px;">
-                                <?php
-                                echo Table::widget([
-                                    'tableOptions' => ['class' => 'table table-striped table-hover table-bordered table-condensed', 'width' => '100%', 'id' => 'tb-waiting'],
-                                    //'caption' => Html::tag('span','ลงทะเบียนแล้ว',['class' => 'badge badge-success']),
-                                    'beforeHeader' => [
-                                        [
-                                            'columns' => [
-                                                ['content' => 'คิว', 'options' => ['style' => 'text-align: center;']],
-                                                ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;']],
-                                                ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
-                                                ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
+                        <?php
+                        echo Tabs::widget([
+                            'items' => [
+                                [
+                                    'label' => 'คิวรอ (<span class="count-waiting">0</span>)',
+                                    'active' => true,
+                                    'headerOptions' => [],
+                                    'options' => ['id' => 'tab-1'],
+                                    'linkOptions' => [
+                                        'style' => 'font-size: 2rem;'
+                                    ]
+                                ],
+                                [
+                                    'label' => 'คิวพัก (<span class="count-hold">0</span>)',
+                                    'headerOptions' => [],
+                                    'options' => ['id' => 'tab-2'],
+                                    'linkOptions' => [
+                                        'style' => 'font-size: 2rem;'
+                                    ]
+                                ],
+                            ],
+                            'renderTabContent' => false,
+                            'encodeLabels' => false,
+
+                        ]);
+                        ?>
+                        <div class="tab-content">
+                            <div id="tab-1" class="tab-pane active">
+                                <div class="hpanel">
+                                    <div class="panel-body" style="padding: 10px;">
+                                        <?php
+                                        echo Table::widget([
+                                            'tableOptions' => ['class' => 'table table-striped table-hover table-bordered table-condensed', 'width' => '100%', 'id' => 'tb-waiting'],
+                                            //'caption' => Html::tag('span','ลงทะเบียนแล้ว',['class' => 'badge badge-success']),
+                                            'beforeHeader' => [
+                                                [
+                                                    'columns' => [
+                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
+                                                    ],
+                                                    'options' => ['style' => 'background-color:cornsilk;'],
+                                                ]
                                             ],
-                                            'options' => ['style' => 'background-color:cornsilk;'],
-                                        ]
-                                    ],
-                                ]);
-                                ?>
+                                        ]);
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tab-2" class="tab-pane ">
+                                <div class="hpanel">
+                                    <div class="panel-body" style="padding: 10px;">
+                                        <?php
+                                        echo Table::widget([
+                                            'tableOptions' => ['class' => 'table table-striped table-hover table-bordered table-condensed', 'width' => '100%', 'id' => 'tb-hold'],
+                                            //'caption' => Html::tag('span','ลงทะเบียนแล้ว',['class' => 'badge badge-success']),
+                                            'beforeHeader' => [
+                                                [
+                                                    'columns' => [
+                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
+                                                    ],
+                                                    'options' => ['style' => 'background-color:cornsilk;'],
+                                                ]
+                                            ],
+                                        ]);
+                                        ?>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                     <div class="col-lg-4 col-md-4 col-sm-4">
                         <div class="hpanel">
@@ -260,6 +312,87 @@ echo Datatables::widget([
     ]
 ]);
 
+echo Datatables::widget([
+    'id' => 'tb-hold',
+    'buttons' => true,
+    'clientOptions' => [
+        'ajax' => [
+            'url' => Url::base(true) . '/app/calling/data-tbhold',
+            'data' => ['modelForm' => $modelForm, 'modelProfile' => $modelProfile],
+            "type" => "POST"
+        ],
+        "dom" => "<'row'<'col-xs-6'f><'col-xs-6'l>> <'row'<'col-xs-12'tr>> <'row'<'col-xs-5'i><'col-xs-7'p>>",
+        "language" => array_merge(Yii::$app->params['dtLanguage'], [
+            "search" => "_INPUT_ ",
+            "searchPlaceholder" => "ค้นหา...",
+            "lengthMenu" => "_MENU_"
+        ]),
+        "pageLength" => -1,
+        "lengthMenu" => [[10, 25, 50, 75, 100, -1], [10, 25, 50, 75, 100, 'All']],
+        "autoWidth" => false,
+        "deferRender" => true,
+        "ordering" => false,
+        //"searching" => false,
+        "searchHighlight" => true,
+        "responsive" => true,
+        "drawCallback" => new JsExpression ('function(settings) {
+            var api = this.api();
+            var count  = api.data().count();
+            $(".count-hold").html(count);
+
+            var rows = api.rows( {page:"current"} ).nodes();
+            var columns = api.columns().nodes();
+            var last=null;
+            api.column(2, {page:"current"} ).data().each( function ( group, i ) {
+                var data = api.rows(i).data();
+                if ( last !== group ) {
+                    $(rows).eq( i ).before(
+                        \'<tr class=""><td style="text-align: left;font-size:16px" colspan="\'+columns.length+\'">\'+group +\'</td></tr>\'
+                    );
+                    last = group;
+                }
+            } );
+        }'),
+        'initComplete' => new JsExpression ('
+            function () {
+                var api = this.api();
+                dtFnc.initResponsive( api );
+                dtFnc.initColumnIndex( api );
+            }
+        '),
+        'columns' => [
+            [
+                "data" => "q_num",
+                "className" => "dt-body-center dt-head-nowrap",
+                "title" => "<i class=\"fa fa-money\"></i> คิว"
+            ],
+            [
+                "data" => "pt_name",
+                "className" => "dt-body-left dt-head-nowrap",
+                "title" => "ชื่อ"
+            ],
+            [
+                "data" => "service_name",
+                "className" => "dt-body-left dt-head-nowrap",
+                "title" => "บริการ",
+                "visible" => false,
+            ],
+            [
+                "data" => "actions",
+                "className" => "dt-center dt-nowrap",
+                "orderable" => false,
+                "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"
+            ]
+        ],
+    ],
+    'clientEvents' => [
+        'error.dt' => 'function ( e, settings, techNote, message ){
+            e.preventDefault();
+            swal({title: \'Error...!\',html: \'<small>\'+message+\'</small>\',type: \'error\',});
+        }'
+    ]
+]);
+
 $js = <<<JS
     $('#callingform-service_profile').on('change', function() {
         if($(this).val()){
@@ -321,6 +454,7 @@ $js = <<<JS
                             },
                             success: function(res) {
                                 if (res.status == 200) {
+                                    $('#input_q_num').val(data.qnumber)
                                     dt_tbwaiting.ajax.reload(); //โหลดข้อมูลคิวรอ
                                     toastr.success("CALL " + data.qnumber, "Success!", {
                                         timeOut: 3000,
@@ -354,6 +488,87 @@ $js = <<<JS
             }).then((result) => {
                 if (result.value) {
                     //Confirm
+                }
+            });
+        }
+    });
+
+
+    //เรียกคิว hold
+    $("#tb-hold tbody").on("click", "tr td a.btn-calling", function (event) {
+        event.preventDefault();
+        var tr = $(this).closest("tr"),
+            url = $(this).attr("href");
+        if (tr.hasClass("child") && typeof dt_tbhold.row(tr).data() === "undefined") {
+            tr = $(this)
+                .closest("tr")
+                .prev();
+        }
+        var key = tr.data("key");
+        var data = dt_tbhold.row(tr).data();
+        var countername = $("#callingform-counter_service").select2("data")[0]["text"] || "";
+        if (checkCounter()) {
+            swal({
+                title: "ยืนยันเรียกคิว " + data.qnumber + " ?",
+                text: data.pt_name,
+                html:
+                    '<small class="text-danger" style="font-size: 13px;">กด Enter เพื่อยืนยัน / กด Esc เพื่อยกเลิก</small>' +
+                    "<p>" +
+                    countername +
+                    "</p>",
+                type: "question",
+                showCancelButton: true,
+                confirmButtonText: "เรียกคิว",
+                cancelButtonText: "ยกเลิก",
+                allowOutsideClick: false,
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve, reject) {
+                        $.ajax({
+                            method: "POST",
+                            url: url,
+                            dataType: "json",
+                            data: {
+                                data: data, //Data in column Datatable
+                                modelForm: modelForm, //Data Model CallingForm
+                                modelProfile: modelProfile,
+                            },
+                            success: function (res) {
+                                if (res.status == 200) {
+                                    $('#input_q_num').val(data.qnumber)
+                                    dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
+                                    toastr.success("CALL " + data.qnumber, "Success!", {
+                                        timeOut: 3000,
+                                        positionClass: "toast-top-right",
+                                        progressBar: true,
+                                        closeButton: true,
+                                    });
+                                    socket.emit("call", res); //sending data
+                                    resolve();
+                                } else {
+                                    swal({
+                                        type: "error",
+                                        title: "เกิดข้อผิดพลาด!!",
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                    });
+                                }
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                swal({
+                                    type: "error",
+                                    title: errorThrown,
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                });
+                            },
+                        });
+                    });
+                },
+            }).then((result) => {
+                if (result.value) {
+                    //Confirm
+                    swal.close();
                 }
             });
         }
@@ -508,6 +723,7 @@ $js = <<<JS
                                         if (res.status == 200) {
                                             $('#input_q_num').val(data.q_num)
                                             dt_tbwaiting.ajax.reload(); //โหลดข้อมูลคิวรอ
+                                            dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
                                             toastr.success("CALL " + data.q_num, "Success!", {
                                                 timeOut: 3000,
                                                 positionClass: "toast-top-right",
@@ -596,6 +812,7 @@ $js = <<<JS
                                         if (res.status == 200) {
                                             $('#input_q_num').val('')
                                             dt_tbwaiting.ajax.reload(); //โหลดข้อมูลคิวรอ
+                                            dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
                                             toastr.success("HOLD " + data.q_num, "Success!", {
                                                 timeOut: 3000,
                                                 positionClass: "toast-top-right",
@@ -686,6 +903,7 @@ $js = <<<JS
                                         if (res.status == "200") {
                                             $('#input_q_num').val('')
                                             dt_tbwaiting.ajax.reload(); //โหลดข้อมูลคิวรอ
+                                            dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
                                             toastr.success("END " + data.q_num, "Success!", {
                                                 timeOut: 3000,
                                                 positionClass: "toast-top-right",
@@ -777,6 +995,9 @@ $js = <<<JS
     })
     .on("call", (res) => {
         dt_tbwaiting.ajax.reload();
+    })
+    .on("hold", (res) => {
+        dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
     })
 JS;
 $this->registerJs($js);

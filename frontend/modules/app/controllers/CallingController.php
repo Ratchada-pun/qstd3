@@ -762,14 +762,14 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'class' => ActionTable::class,
-                        'template' => '{recall} {end}',
+                        'template' => '{recall}',
                         'buttons' => [
                             'recall' => function ($url, $model, $key) {
                                 return Html::a('เรียกคิว', $url, ['class' => 'btn btn-success btn-calling', 'data-url' => '/app/calling/callhold-screening-room']);
                             },
-                            'end' => function ($url, $model, $key) {
-                                return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'data-url' => '/app/calling/endhold-screening-room']);
-                            },
+                            // 'end' => function ($url, $model, $key) {
+                            //     return Html::a('เสร็จสิ้น', $url, ['class' => 'btn btn-danger btn-end', 'data-url' => '/app/calling/endhold-screening-room']);
+                            // },
                         ],
                     ]
                 ]
