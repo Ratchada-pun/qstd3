@@ -357,7 +357,6 @@ echo Datatables::widget([
             function () {
                 var api = this.api();
                 dtFnc.initResponsive( api );
-                dtFnc.initColumnIndex( api );
             }
         '),
         'columns' => [
