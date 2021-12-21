@@ -155,8 +155,8 @@ $this->registerCss($css);
                                             'beforeHeader' => [
                                                 [
                                                     'columns' => [
-                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;']],
-                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center; font-size: 12pt;']],
+                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 12pt;']],
                                                         ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
                                                         ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
                                                     ],
@@ -178,10 +178,10 @@ $this->registerCss($css);
                                             'beforeHeader' => [
                                                 [
                                                     'columns' => [
-                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;']],
-                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;font-size: 12pt;']],
+                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 12pt;']],
                                                         ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
-                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
+                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;font-size: 12pt;']],
                                                     ],
                                                     'options' => ['style' => 'background-color:cornsilk;'],
                                                 ]
@@ -204,7 +204,7 @@ $this->registerCss($css);
                             <div class="panel-body" style="padding: 10px;">
                                 <form method="get" class="form-horizontal">
                                     <div class="col-sm-12">
-                                        <input type="text" id="input_q_num" autofocus placeholder="เลขคิว" class="form-control input-lg m-b">
+                                        <input type="text" id="input_q_num" autofocus placeholder="เลขคิว" class="form-control input-lg m-b" style="border-color: #3f5872 !important;font-size: 16pt;font-weight: 600;">
                                     </div>
                                     <p class="text-center">
                                         <button style="width: 48%;text-transform: uppercase;" class="btn btn-warning activity-callnext" type="button"><i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i> <br>คิวถัดไป</button>
