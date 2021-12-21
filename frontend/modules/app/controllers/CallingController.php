@@ -5289,6 +5289,9 @@ class CallingController extends \yii\web\Controller
         $request = Yii::$app->request;
         $formData = $request->post('modelForm', []);
         $profileData = $request->post('modelProfile', []);
+        if(empty($profileData)){
+            return null;
+        }
         $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
         $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
         $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
