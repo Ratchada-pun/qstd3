@@ -118,6 +118,44 @@ class TbServiceProfile extends \yii\db\ActiveRecord
 
     public function getProfilePrioritys()
     {
-        return $this->hasMany(TbProfilePriority::className(), ['service_profile_id' => 'service_profile_id']);
+        return $this->hasMany(TbProfilePriority::className(), ['service_profile_id' => 'service_profile_id'])->orderBy(['profile_priority_seq' => SORT_ASC]);
+    }
+
+    public function getCountWaiting()
+    {
+        $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $this->service_profile_id])->orderBy('profile_priority_seq ASC')->all();
+        $serviceids = ArrayHelper::getColumn($prioritys, 'service_id');
+        $query = (new \yii\db\Query())
+            ->select([
+                'tb_qtrans.ids',
+                'tb_qtrans.q_ids',
+                'tb_qtrans.counter_service_id',
+                'DATE_FORMAT(DATE_ADD(tb_qtrans.checkin_date, INTERVAL 543 YEAR),\'%H:%i:%s\') as checkin_date',
+                'tb_qtrans.service_status_id',
+                'tb_quequ.q_num',
+                'tb_quequ.q_hn',
+                'tb_quequ.q_vn',
+                'tb_quequ.q_qn',
+                'tb_quequ.pt_name',
+                'tb_counterservice.counterservice_name',
+                'tb_service_status.service_status_name',
+                'tb_service.service_name',
+                'tb_service.serviceid',
+                'tb_service.service_prefix',
+                'tb_quequ.quickly'
+
+            ])
+            ->from('tb_qtrans')
+            ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+            ->leftJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_qtrans.counter_service_id')
+            ->leftJoin('tb_service_status', 'tb_service_status.service_status_id = tb_qtrans.service_status_id')
+            ->leftJoin('tb_service', 'tb_service.serviceid = tb_quequ.serviceid')
+            ->where([
+                'tb_quequ.serviceid' => $serviceids,
+                'tb_qtrans.service_status_id' => [1]
+            ])
+            ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
+            ->orderBy('tb_quequ.q_timestp ASC');
+        return $query->count();
     }
 }

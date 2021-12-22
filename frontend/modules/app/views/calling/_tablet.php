@@ -55,68 +55,67 @@ div.dt-buttons{
     }
 }
 table tbody tr td span.badge{
-    font-size: 20px !important;
+    font-size: 28px !important;
 }
 CSS;
 
 $this->registerCss($css);
 ?>
+<div class="form-group row">
+    <div class="col-md-12" style="display: flex;">
+        <?php foreach ($services as $key => $service) { ?>
+            <div style="padding-bottom:2px">
+                <span class="badge badge-primary" style="margin-right: 5px;font-size:16px; ">
+                    <?php echo $service['service_name'] ?>
+                </span>
+            </div>
+
+        <?php } ?>
+    </div>
+</div>
 <div class="row">
     <div class="col-lg-12">
         <div class="hpanel">
-            <div class="panel-heading hbuilt">
-                <h3><?= Html::encode($this->title) ?></h3> 
-            </div>
-            <div class="panel-body">
-                <?php
-                $form = ActiveForm::begin([
-                    'id' => 'calling-form',
-                    'type' => 'horizontal',
-                    'options' => ['autocomplete' => 'off'],
-                    'formConfig' => ['showLabels' => false],
-                ]) ?>
-                <div class="form-group row" style="margin-bottom: 0;">
-                    <div class="col-md-6">
-                        <?=
-                        $form->field($modelForm, 'service_profile')->widget(Select2::classname(), [
-                            'data' => ArrayHelper::map(TbServiceProfile::find()->where(['service_profile_status' => 1])->all(), 'service_profile_id', 'service_name'),
-                            'options' => ['placeholder' => 'เลือกช่องบริการ...'],
-                            'pluginOptions' => [
-                                'allowClear' => true
-                            ],
-                            'theme' => Select2::THEME_BOOTSTRAP,
-                            'size' => Select2::LARGE,
-                        ]);
-                        ?>
-                    </div>
-                    <div class="col-md-6 counter_service" style="display: none;">
-                        <?=
-                        $form->field($modelForm, 'counter_service')->widget(Select2::classname(), [
-                            'data' => $modelForm->dataCounter,
-                            'options' => ['placeholder' => 'เลือก...'],
-                            'pluginOptions' => [
-                                'allowClear' => true
-                            ],
-                            'theme' => Select2::THEME_BOOTSTRAP,
-                            'size' => Select2::LARGE,
-                        ]);
-                        ?>
-                    </div>
-                </div>
 
-                <div class="form-group row">
-                    <div class="col-md-12">
-                        <?php foreach ($services as $key => $service) { ?>
-                            <span class="label label-primary" style="margin-right: 5px;">
-                                <?php echo $service['service_name'] ?>
-                            </span>
-                        <?php } ?>
-                    </div>
-                </div>
-                <?php ActiveForm::end() ?>
+            <div class="panel-body">
 
                 <div class="row">
-                    <div class="col-lg-8 col-md-8 col-sm-8">
+                    <div class="col-lg-7 col-md-7 col-sm-7">
+                        <?php $form = ActiveForm::begin([
+                            'id' => 'calling-form',
+                            'type' => 'horizontal',
+                            'options' => ['autocomplete' => 'off'],
+                            'formConfig' => ['showLabels' => false],
+                        ]) ?>
+                        <div class="form-group row" style="margin-bottom: 0;">
+                            <div class="col-md-10">
+                                <?=
+                                $form->field($modelForm, 'service_profile')->widget(Select2::classname(), [
+                                    'data' => ArrayHelper::map(TbServiceProfile::find()->where(['service_profile_status' => 1])->all(), 'service_profile_id', 'service_name'),
+                                    'options' => ['placeholder' => 'เลือกช่องบริการ...'],
+                                    'pluginOptions' => [
+                                        'allowClear' => true
+                                    ],
+                                    'theme' => Select2::THEME_BOOTSTRAP,
+                                    'size' => Select2::LARGE,
+                                ]);
+                                ?>
+                            </div>
+                            <div class="col-md-12 counter_service" style="display: none;">
+                                <?=
+                                $form->field($modelForm, 'counter_service')->widget(Select2::classname(), [
+                                    'data' => $modelForm->dataCounter,
+                                    'options' => ['placeholder' => 'เลือก...'],
+                                    'pluginOptions' => [
+                                        'allowClear' => true
+                                    ],
+                                    'theme' => Select2::THEME_BOOTSTRAP,
+                                    'size' => Select2::LARGE,
+                                ]);
+                                ?>
+                            </div>
+                        </div>
+                        <?php ActiveForm::end() ?>
                         <?php
                         echo Tabs::widget([
                             'items' => [
@@ -126,7 +125,7 @@ $this->registerCss($css);
                                     'headerOptions' => [],
                                     'options' => ['id' => 'tab-1'],
                                     'linkOptions' => [
-                                        'style' => 'font-size: 2rem;'
+                                        'style' => 'font-size: 3rem;color: #9b59b6'
                                     ]
                                 ],
                                 [
@@ -134,7 +133,7 @@ $this->registerCss($css);
                                     'headerOptions' => [],
                                     'options' => ['id' => 'tab-2'],
                                     'linkOptions' => [
-                                        'style' => 'font-size: 2rem;'
+                                        'style' => 'font-size: 3rem;color: #e74c3c'
                                     ]
                                 ],
                             ],
@@ -154,8 +153,8 @@ $this->registerCss($css);
                                             'beforeHeader' => [
                                                 [
                                                     'columns' => [
-                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center; font-size: 12pt;']],
-                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 12pt;']],
+                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center; font-size: 20px;']],
+                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
                                                         ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
                                                         ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
                                                     ],
@@ -177,10 +176,10 @@ $this->registerCss($css);
                                             'beforeHeader' => [
                                                 [
                                                     'columns' => [
-                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;font-size: 12pt;']],
-                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 12pt;']],
+                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
+                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
                                                         ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
-                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;font-size: 12pt;']],
+                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;font-size: 20px;']],
                                                     ],
                                                     'options' => ['style' => 'background-color:cornsilk;'],
                                                 ]
@@ -193,26 +192,21 @@ $this->registerCss($css);
                         </div>
 
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-4">
+                    <div class="col-lg-5 col-md-5 col-sm-5">
                         <div class="hpanel">
-                            <div class="panel-heading hbuilt">
-                                <h3>
-                                    เรียกคิว
-                                </h3>
-                            </div>
                             <div class="panel-body" style="padding: 10px;">
                                 <form method="get" class="form-horizontal">
                                     <div class="col-sm-12">
-                                        <input type="text" id="input_q_num" autofocus placeholder="เลขคิว" class="form-control input-lg m-b" style="border-color: #3f5872 !important;font-size: 16pt;font-weight: 600;">
+                                        <input type="text" id="input_q_num" placeholder="เลขคิว" class="form-control input-lg m-b" style="border-color: #3f5872 !important;font-size: 4.5rem;font-weight: 600;">
                                     </div>
                                     <p class="text-center">
-                                        <button style="width: 48%;text-transform: uppercase;" class="btn btn-warning activity-callnext" type="button"><i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i> <br>คิวถัดไป</button>
-                                        <button style="width: 48%;text-transform: uppercase;" class="btn btn-success btn-recall" type="button"><i class="fa fa-volume-up fa-2x" aria-hidden="true"></i> <br>เรียกคิว</button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-warning activity-callnext" type="button"><i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i> <br>คิวถัดไป</button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-success btn-recall" type="button"><i class="fa fa-volume-up fa-2x" aria-hidden="true"></i> <br>เรียกคิว</button>
 
                                     </p>
                                     <p class="text-center">
-                                        <button style="width: 48%;text-transform: uppercase;" class="btn btn-warning2 btn-hold" type="button"><i class="fa fa-hand-paper-o fa-2x" aria-hidden="true"></i> <br>พักคิว</button>
-                                        <button style="width: 48%;text-transform: uppercase;" class="btn btn-info btn-finish" type="button"><i class="fa fa-check-square-o fa-2x" aria-hidden="true"></i> <br>จบคิว</button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-warning2 btn-hold" type="button"><i class="fa fa-hand-paper-o fa-2x" aria-hidden="true"></i> <br>พักคิว</button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-info btn-finish" type="button"><i class="fa fa-check-square-o fa-2x" aria-hidden="true"></i> <br>จบคิว</button>
                                     </p>
                             </div>
                             </form>
@@ -265,7 +259,7 @@ echo Datatables::widget([
                 var data = api.rows(i).data();
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        \'<tr class=""><td style="text-align: left;font-size:16px" colspan="\'+columns.length+\'">\'+group +\'</td></tr>\'
+                        \'<tr class=""><td style="text-align: left;font-size:20px" colspan="\'+columns.length+\'">\'+group +\'</td></tr>\'
                     );
                     last = group;
                 }
@@ -334,7 +328,7 @@ echo Datatables::widget([
         //"searching" => false,
         "searchHighlight" => true,
         "responsive" => true,
-        "drawCallback" => new JsExpression ('function(settings) {
+        "drawCallback" => new JsExpression('function(settings) {
             var api = this.api();
             var count  = api.data().count();
             $(".count-hold").html(count);
@@ -346,13 +340,13 @@ echo Datatables::widget([
                 var data = api.rows(i).data();
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        \'<tr class=""><td style="text-align: left;font-size:16px" colspan="\'+columns.length+\'">\'+group +\'</td></tr>\'
+                        \'<tr class=""><td style="text-align: left;font-size:20px" colspan="\'+columns.length+\'">\'+group +\'</td></tr>\'
                     );
                     last = group;
                 }
             } );
         }'),
-        'initComplete' => new JsExpression ('
+        'initComplete' => new JsExpression('
             function () {
                 var api = this.api();
                 dtFnc.initResponsive( api );
