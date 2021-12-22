@@ -85,7 +85,7 @@ $js = <<<JS
         e.preventDefault()
         var url = $(this).attr('href');
         swal({
-            title: 'Are you sure?',
+            title: 'ยืนยันการคัดลอก?',
             text: "",
             type: 'warning',
             showCancelButton: true,
