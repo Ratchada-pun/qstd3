@@ -73,3 +73,57 @@ use yii\helpers\Url;
         }'
     ]
 ]); ?>
+
+<?php
+// $this->registerJsFile(
+//     '//cdn.jsdelivr.net/npm/sweetalert2@11',
+//     ['depends' => [\yii\web\JqueryAsset::class]]
+// );
+
+$js = <<<JS
+    $('#tb-service-profile tbody').on('click', 'tr td a.btn-copy-service-profile', function(e){
+        e.preventDefault()
+        var url = $(this).attr('href');
+        swal({
+            title: 'Are you sure?',
+            text: "",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Copy',
+            showLoaderOnConfirm: true,
+            // didOpen: () => {
+            //     $(Swal.getIcon()).css('fontSize', '12px')
+            // },
+            preConfirm: function() {
+                return new Promise(function(resolve) {
+                    $.ajax({
+                        method: "POST",
+                        url: url,
+                        dataType: "json",
+                        success: function (res) {
+                            var table = $('#tb-service-profile').DataTable();
+                            table.ajax.reload();//reload table
+                            resolve()
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: errorThrown,
+                            })
+                        },
+                    });
+                })
+            }
+        }).then((result) => {
+            if (result.value) {
+                
+            }
+        })
+    });
+JS;
+
+$this->registerJs($js);
+?>

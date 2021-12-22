@@ -223,6 +223,7 @@ class SettingsController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         TbServiceProfile::findOne($id)->delete();
+        TbProfilePriority::deleteAll(['service_profile_id' => $id]);
 
         if ($request->isAjax) {
             /*
@@ -236,6 +237,34 @@ class SettingsController extends \yii\web\Controller
             */
             return $this->redirect(['index']);
         }
+    }
+
+    public function actionCopyServiceProfile($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $request = Yii::$app->request;
+        $profile = TbServiceProfile::find()->where(['service_profile_id' => $id])->one();
+        $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $id])->all();
+
+
+        $model = new TbServiceProfile();
+        $model->attributes = $profile->attributes;
+        $model->service_profile_id = null;
+        $model->service_name = $profile->service_name . ' Copy';
+        $model->isNewRecord = true;
+        if ($model->save()) {
+            foreach ($prioritys as $priority) {
+                $modelpri = new TbProfilePriority();
+                $modelpri->attributes = $priority->attributes;
+                $modelpri->service_profile_id = $model->service_profile_id;
+                if (!$modelpri->save()) {
+                    throw new \yii\web\HttpException(400, Json::encode($modelpri->errors));
+                }
+            }
+        } else {
+            throw new \yii\web\HttpException(400, Json::encode($model->errors));
+        }
+        return ['message' => 'Success fully.'];
     }
 
     public function actionDeleteSoundStation($id)
@@ -951,7 +980,7 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'class' => ActionTable::className(),
-                        'template' => '{update} {delete}',
+                        'template' => '{copy} {update} {delete}',
                         'updateOptions' => [
                             'role' => 'modal-remote'
                         ],
@@ -959,13 +988,43 @@ class SettingsController extends \yii\web\Controller
                             'class' => 'text-danger'
                         ],
                         'urlCreator' => function ($action, $model, $key, $index) {
+                            if ($action == 'copy') {
+                                return Url::to(['/app/settings/copy-service-profile', 'id' => $key]);
+                            }
                             if ($action == 'update') {
                                 return Url::to(['/app/settings/update-service-profile', 'id' => $key]);
                             }
                             if ($action == 'delete') {
                                 return Url::to(['/app/settings/delete-service-profile', 'id' => $key]);
                             }
-                        }
+                        },
+                        'buttons' => [
+                            'copy' => function ($url, $model, $key) {
+                                return Html::a('<i class="fa fa-files-o" aria-hidden="true"></i>', $url, [
+                                    'title' => 'คัดลอก',
+                                    'data-pjax' => 0,
+                                    'class' => 'btn-copy-service-profile'
+                                ]);
+                            },
+
+                            'update' => function ($url, $model, $key) {
+                                return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url, [
+                                    'title' => 'ปรับปรุง',
+                                    'data-pjax' => 0,
+                                    'role' => 'modal-remote'
+                                ]);
+                            },
+                            'delete' => function ($url, $model, $key) {
+                                return Html::a('<span class="glyphicon glyphicon-trash text-danger"></span>', $url, [
+                                    'title' => 'ลบ',
+                                    'data-pjax' => 0,
+                                    'data' => [
+                                        'method' => 'post',
+                                        'confirm' => 'คุณแน่ใจหรือไม่ที่จะลบรายการนี้?'
+                                    ]
+                                ]);
+                            },
+                        ],
                     ]
                 ]
             ]);
@@ -1975,24 +2034,35 @@ class SettingsController extends \yii\web\Controller
                 ];
             } else if ($model->load($request->post()) && $model->save()) {
                 $ids = [];
-                foreach ($model->items as $key => $item) {
-                    $modelPri = new TbProfilePriority();
-                    if (!empty($item['profile_priority_id'])) {
-                        $modelPri = TbProfilePriority::findOne($item['profile_priority_id']);
+                if ($model->items) {
+                    foreach ($model->items as $key => $item) {
+                        $modelPri = new TbProfilePriority();
+                        if (!empty($item['profile_priority_id'])) {
+                            $modelPri = TbProfilePriority::findOne($item['profile_priority_id']);
+                        }
+                        $modelPri->setAttributes([
+                            'profile_priority_seq' => $item['profile_priority_seq'],
+                            'service_profile_id' => $model['service_profile_id'],
+                            'service_id' => $item['service_id'],
+                        ]);
+                        if ($modelPri->save()) {
+                            $ids[] = $modelPri->profile_priority_id;
+                        }
                     }
-                    $modelPri->setAttributes([
-                        'profile_priority_seq' => $item['profile_priority_seq'],
-                        'service_profile_id' => $model['service_profile_id'],
-                        'service_id' => $item['service_id'],
-                    ]);
-                    if ($modelPri->save()) {
-                        $ids[] = $modelPri->profile_priority_id;
+                    $models = TbProfilePriority::find()
+                        ->where(['NOT IN', 'profile_priority_id', $ids])
+                        ->andWhere(['service_profile_id' => $model['service_profile_id'],])->all();
+                    foreach ($models as $model) {
+                        $model->delete();
+                    }
+                } else {
+                    $models = TbProfilePriority::find()
+                        ->andWhere(['service_profile_id' => $model['service_profile_id'],])->all();
+                    foreach ($models as $model) {
+                        $model->delete();
                     }
                 }
-                $models = TbProfilePriority::find()->where(['NOT IN', 'profile_priority_id', $ids])->all();
-                foreach ($models as $model) {
-                    $model->delete();
-                }
+
                 return [
                     'title' => "Service Profile",
                     'content' => '<span class="text-success">บันทึกสำเร็จ!</span>',
