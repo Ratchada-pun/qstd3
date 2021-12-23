@@ -153,11 +153,9 @@ $this->registerCss('
 
 <div class="row">
     <div class="col-md-8">
-        <?php
-        $form = ActiveForm::begin(['id' => 'form-priority']);
-        ?>
+        <?php $form = ActiveForm::begin(['id' => 'form-priority']); ?>
         <?php Pjax::begin(['id' => 'pjax-form']) ?>
-        <table cellpadding="1" cellspacing="1" class="table table-bordered" >
+        <table cellpadding="1" cellspacing="1" class="table table-bordered">
             <thead>
                 <tr>
                     <th class="h-bg-violet text-white" style="text-align: center;">#</th>
@@ -174,8 +172,14 @@ $this->registerCss('
                     $lastIndex = 0;
                     ?>
                     <tr style="background-color: #ffffff;">
-                        <td>
+                        <td style="text-align: center;">
                             <?= $index + 1 ?>
+                            <?php
+                            // necessary for update action.
+                            if (!$model->isNewRecord) {
+                                echo Html::activeHiddenInput($model, "[{$index}]service_profile_id");
+                            }
+                            ?>
                         </td>
                         <td>
                             <?= $form->field($model, "[$index]counterserviceid", ['showLabels' => false])->widget(Select2::classname(), [

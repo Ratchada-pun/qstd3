@@ -169,6 +169,17 @@ class KioskController extends ActiveController
 
       $right = ArrayHelper::getValue($params, 'right', null);
 
+      $count = (new \yii\db\Query())
+        ->select(['tb_quequ.q_ids'])
+        ->from('tb_quequ')
+        ->where([
+          'tb_quequ.serviceid' => $service['serviceid'],
+          'tb_quequ.q_status_id' => 1
+        ])
+        ->andWhere('DATE( tb_quequ.q_timestp ) = CURRENT_DATE')
+        ->andWhere('tb_quequ.q_timestp < :q_timestp', [':q_timestp' => Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s')])
+        ->count();
+
       $model->setAttributes([
         'q_num' => $queue_no,
         'cid' => ArrayHelper::getValue($params, 'cid', null),
@@ -184,6 +195,7 @@ class KioskController extends ActiveController
         'hmain_name' => ArrayHelper::getValue($right, 'hmain_name', null),
         'paid_model' => ArrayHelper::getValue($right, 'paid_model', null),
         'hmain_op_name' => ArrayHelper::getValue($right, 'hmain_op_name', null),
+        'wating_time' => $count != 0 && !empty($service['average_time']) ? number_format($count * $service['average_time']) : 0
       ]);
       if (!empty($picture) && !empty($cid)) {
         $pt_pic = $this->uploadPicture($picture, Yii::$app->security->generateRandomString());

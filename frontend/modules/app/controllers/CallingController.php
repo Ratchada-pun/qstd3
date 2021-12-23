@@ -291,6 +291,7 @@ class CallingController extends \yii\web\Controller
             }
             $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
             $prioritys = TbProfilePriority::find()->where(['service_profile_id' => $modelProfile['service_profile_id']])->orderBy('profile_priority_seq ASC')->all();
+            $times = ArrayHelper::map(TbService::find()->all(), 'serviceid', 'average_time');
             $data = [];
             foreach ($prioritys as $key => $priority) {
                 $query = (new \yii\db\Query())
@@ -310,8 +311,8 @@ class CallingController extends \yii\web\Controller
                         'tb_service.service_name',
                         'tb_service.serviceid',
                         'tb_service.service_prefix',
-                        'tb_quequ.quickly'
-
+                        'tb_quequ.quickly',
+                        'tb_quequ.q_timestp'
                     ])
                     ->from('tb_qtrans')
                     ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
@@ -390,6 +391,25 @@ class CallingController extends \yii\web\Controller
                         'attribute' => 'service_prefix',
                     ],
                     [
+                        'attribute' => 'waiting_avg',
+                        'value' => function ($model, $key, $index, $column) use ($times) {
+                            $count = (new \yii\db\Query())
+                                ->select(['tb_quequ.q_ids'])
+                                ->from('tb_quequ')
+                                ->where([
+                                    'tb_quequ.serviceid' => $model['serviceid'],
+                                    'tb_quequ.q_status_id' => 1
+                                ])
+                                ->andWhere('DATE( tb_quequ.q_timestp ) = CURRENT_DATE')
+                                ->andWhere('tb_quequ.q_ids < :q_ids', [':q_ids' => $key])
+                                ->count();
+                            if ($count == 0 && ArrayHelper::getValue($times, $model['serviceid'], 0) <= 0) {
+                                return 0;
+                            }
+                            return number_format($count * ArrayHelper::getValue($times, $model['serviceid'], 0));
+                        },
+                    ],
+                    [
                         'attribute' => 'qnumber',
                         'value' => function ($model, $key, $index, $column) {
                             return $model['q_num'];
@@ -397,6 +417,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'quickly',
+                    ],
+                    [
+                        'attribute' => 'q_timestp',
                     ],
                     // [
                     //     'attribute' => 'checkbox',
@@ -468,7 +491,8 @@ class CallingController extends \yii\web\Controller
                         'tb_service.serviceid',
                         'tb_service.service_prefix',
                         'tb_quequ.quickly',
-                        'tb_qtrans.ids'
+                        'tb_qtrans.ids',
+                        'tb_quequ.q_timestp'
                     ])
                     ->from('tb_caller')
                     ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
@@ -570,6 +594,9 @@ class CallingController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'quickly',
+                    ],
+                    [
+                        'attribute' => 'q_timestp',
                     ],
                     [
                         'class' => ActionTable::class,
@@ -5289,7 +5316,7 @@ class CallingController extends \yii\web\Controller
         $request = Yii::$app->request;
         $formData = $request->post('modelForm', []);
         $profileData = $request->post('modelProfile', []);
-        if(empty($profileData)){
+        if (empty($profileData)) {
             return null;
         }
         $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);
@@ -5341,7 +5368,7 @@ class CallingController extends \yii\web\Controller
         $request = Yii::$app->request;
         $formData = $request->post('modelForm', []);
         $profileData = $request->post('modelProfile', []);
-        if(empty($profileData)){
+        if (empty($profileData)) {
             return null;
         }
         $modelProfile = $this->findModelServiceProfile($profileData['service_profile_id']);

@@ -7,6 +7,7 @@ use Yii;
 use frontend\modules\app\models\TbProfilePriority;
 use frontend\modules\app\models\TbProfilePrioritySearch;
 use frontend\modules\app\models\TbServiceProfile;
+use kartik\form\ActiveForm;
 use yii\base\Model;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -189,6 +190,8 @@ class ProfilePriorityController extends Controller
                 $transaction->rollBack();
             }
         }
+
+       
 
         return $this->render('_display_priority', [
             'models' => $models,

@@ -60,7 +60,7 @@ class TbQueue extends \yii\db\ActiveRecord
         return [
             [['q_num', 'servicegroupid', 'serviceid', 'q_status_id'], 'required'],
             [['q_timestp', 'created_at', 'updated_at'], 'safe'],
-            [['q_arrive_time', 'q_appoint_time', 'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'quickly', 'serviceid', 'created_from', 'q_status_id', 'counterserviceid', 'tslotid', 'countdrug', 'qfinace', 'paid_model'], 'integer'],
+            [['q_arrive_time', 'q_appoint_time', 'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'quickly', 'serviceid', 'created_from', 'q_status_id', 'counterserviceid', 'tslotid', 'countdrug', 'qfinace', 'paid_model','wating_time'], 'integer'],
             [['u_id', 'token', 'hmain_op_name'], 'string'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
             [['cid'], 'string', 'max' => 13],
@@ -117,6 +117,7 @@ class TbQueue extends \yii\db\ActiveRecord
             'hmain_name' => 'ชื่อหน่วยบริกำรที่รับกำรส่งต่อ ',
             'paid_model' => 'รูปแบบกำรให้บริกำรเพื่อรับกำรจัดสรรเงิน(model)',
             'hmain_op_name' => 'ชื่อหน่วยบริการประจำ',
+            'wating_time' => 'เวลารอคอยเฉลี่ย',
         ];
     }
 

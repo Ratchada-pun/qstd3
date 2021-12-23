@@ -416,6 +416,14 @@ $this->registerJs('var select2Data = ' . Json::encode(ArrayHelper::map(TbCounter
     <div id="jplayer_notify"></div>
 
 <?php
+$this->registerJsFile(
+    '@web/js/countdown.min.js',
+    ['depends' => [\yii\web\JqueryAsset::class]]
+);
+$this->registerJsFile(
+    '@web/vendor/momentjs/moment.min.js',
+    ['depends' => [\yii\web\JqueryAsset::class]]
+);
 echo $this->render('modal');
 echo $this->render('_datatables', ['modelForm' => $modelForm, 'modelProfile' => $modelProfile, 'action' => Yii::$app->controller->action->id]);
 $this->registerJsFile('https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js');
@@ -498,7 +506,37 @@ $(document).ready(function() {
     } ).draw();
 } );
 
+var timerId = [];
 
+dt_tbwaiting.on('xhr.dt', function ( e, settings, json, xhr ) {
+    for (let i = 0; i < timerId.length; i++) {
+        const timer = timerId[i];
+        window.clearInterval(timer);
+    }
+    setTimeout(() => {
+        dt_tbwaiting.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+            var data = this.data();
+            var tr = this.node();
+            var tId = countdown(
+                moment(data.q_timestp),
+                function(ts) {
+                    var now = moment();
+                    var then = moment(data.q_timestp);
+                    var minutes = now.diff(then, 'minutes')
+                    if(ts.hours > 0) {
+                        document.getElementById('waiting-' + data.q_ids).innerHTML = `\${ts.hours} ชม. \${ts.minutes} น.`;
+                    } else {
+                        document.getElementById('waiting-' + data.q_ids).innerHTML = `\${ts.minutes} น.`;
+                    }
+                    if(minutes >= parseInt(data.time_max)){
+                        $(tr).find('td').css('background-color','#ffc107')
+                    }
+                },
+                countdown.HOURS|countdown.MINUTES|countdown.SECONDS);
+                timerId.push(tId)
+        } );
+    }, 1000);
+});
 JS
 );
 ?>

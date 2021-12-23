@@ -359,7 +359,8 @@ class SettingsController extends \yii\web\Controller
                     'tb_service.show_on_kiosk',
                     'tb_service.show_on_mobile',
                     'tb_service.service_type_id',
-                    'tb_service_type.service_type_name'
+                    'tb_service_type.service_type_name',
+                    'tb_service.average_time'
                 ])
                 ->from('tb_servicegroup')
                 ->leftJoin('tb_service', 'tb_service.service_groupid = tb_servicegroup.servicegroupid')
@@ -426,6 +427,9 @@ class SettingsController extends \yii\web\Controller
                             return $this->getBadgeStatus($model['service_status']);
                         },
                         'format' => 'raw'
+                    ],
+                    [
+                        'attribute' => 'average_time',
                     ],
                     // [
                     //     'attribute' => 'service_status_id',

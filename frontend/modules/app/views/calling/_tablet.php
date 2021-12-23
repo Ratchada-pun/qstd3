@@ -156,6 +156,7 @@ $this->registerCss($css);
                                                         ['content' => 'คิว', 'options' => ['style' => 'text-align: center; font-size: 20px;']],
                                                         ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
                                                         ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => 'เวลารอ', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
                                                         ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
                                                     ],
                                                     'options' => ['style' => 'background-color:cornsilk;'],
@@ -220,7 +221,14 @@ $this->registerCss($css);
 </div>
 
 <?php
-
+$this->registerJsFile(
+    '@web/js/countdown.min.js',
+    ['depends' => [\yii\web\JqueryAsset::class]]
+);
+$this->registerJsFile(
+    '@web/vendor/momentjs/moment.min.js',
+    ['depends' => [\yii\web\JqueryAsset::class]]
+);
 echo Datatables::widget([
     'id' => 'tb-waiting',
     'buttons' => true,
@@ -287,6 +295,14 @@ echo Datatables::widget([
                 "className" => "dt-body-left dt-head-nowrap",
                 "title" => "บริการ",
                 "visible" => false,
+            ],
+            [
+                "data" => null,
+                "defaultContent" => "",
+                "className" => "text-center",
+                "render" => new JsExpression('function ( data, type, row, meta ) {
+                    return `<span style="font-size: 2.5rem;" id="waiting-${row.q_ids}"></span>`;
+                }')
             ],
             [
                 "data" => "actions",
@@ -991,6 +1007,38 @@ $js = <<<JS
     .on("hold", (res) => {
         dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
     })
+
+    var timerId = [];
+
+    dt_tbwaiting.on('xhr.dt', function ( e, settings, json, xhr ) {
+        for (let i = 0; i < timerId.length; i++) {
+            const timer = timerId[i];
+            window.clearInterval(timer);
+        }
+        setTimeout(() => {
+            dt_tbwaiting.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+                var data = this.data();
+                var tr = this.node();
+                var tId = countdown(
+                    moment(data.q_timestp),
+                    function(ts) {
+                        var now = moment();
+                        var then = moment(data.q_timestp);
+                        var minutes = now.diff(then, 'minutes')
+                        if(ts.hours > 0) {
+                            document.getElementById('waiting-' + data.q_ids).innerHTML = `\${ts.hours} ชม. \${ts.minutes} น.`;
+                        } else {
+                            document.getElementById('waiting-' + data.q_ids).innerHTML = `\${ts.minutes} น.`;
+                        }
+                        if(minutes >= parseInt(data.time_max)){
+                            $(tr).find('td').css('background-color','#ffc107')
+                        }
+                    },
+                    countdown.HOURS|countdown.MINUTES|countdown.SECONDS);
+                    timerId.push(tId)
+            } );
+        }, 1000);
+    });
 JS;
 $this->registerJs($js);
 ?>

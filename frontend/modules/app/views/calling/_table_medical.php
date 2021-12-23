@@ -25,6 +25,7 @@ use homer\widgets\Table;
                         ['content' => 'ชื่อ','options' => ['style' => 'text-align: center;']],
                         ['content' => 'ประเภท','options' => ['style' => 'text-align: center;']],
                         ['content' => 'สถานะ','options' => ['style' => 'text-align: center;']],
+                        ['content' => 'เวลารอ','options' => ['style' => 'text-align: center;']],
                         ['content' => 'ดำเนินการ','options' => ['style' => 'text-align: center;width: 35px;']],
                     ],
                     'options' => ['style' => 'background-color:cornsilk;'],

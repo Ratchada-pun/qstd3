@@ -33,7 +33,7 @@ if ($action == 'index') {
             "responsive" => true,
             "searchHighlight" => true,
             "order" => [[7, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -51,7 +51,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -83,7 +83,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -121,7 +121,7 @@ if ($action == 'index') {
             "searchHighlight" => true,
             "responsive" => true,
             "order" => [[8, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -140,7 +140,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -173,7 +173,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -210,7 +210,7 @@ if ($action == 'index') {
             "searchHighlight" => true,
             "responsive" => true,
             "order" => [[8, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 dtFnc.initResponsive( api );
@@ -230,7 +230,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initColumnIndex( api );
@@ -263,7 +263,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -303,7 +303,7 @@ if ($action == 'index') {
             //"searching" => false,
             "searchHighlight" => true,
             "responsive" => true,
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -348,14 +348,14 @@ if ($action == 'index') {
                     }
                 }
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
                 }
             '),
             'columns' => [
-                ["data" => null, "defaultContent" => "", "className" => "text-center", "render" => new JsExpression ('function ( data, type, row, meta ) {
+                ["data" => null, "defaultContent" => "", "className" => "text-center", "render" => new JsExpression('function ( data, type, row, meta ) {
                     return (meta.row + 1);
                 }')],
                 ["data" => "checkbox", "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
@@ -365,11 +365,20 @@ if ($action == 'index') {
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อ"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
+                //["data" => "q_timestp", "className" => "dt-body-center dt-head-nowrap", "title" => "เวลารอ"],
+                [
+                    "data" => null,
+                    "defaultContent" => "",
+                    "className" => "text-center",
+                    "render" => new JsExpression('function ( data, type, row, meta ) {
+                        return `<span id="waiting-${row.q_ids}"></span>`;
+                    }')
+                ],
                 ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"]
             ],
             "columnDefs" => [
                 [
-                    "targets" => [3,4,6,7],
+                    "targets" => [3, 4, 6, 7, 9],
                     "visible" => false
                 ]
             ],
@@ -380,7 +389,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -416,7 +425,7 @@ if ($action == 'index') {
             //"searching" => false,
             "searchHighlight" => true,
             "responsive" => true,
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -442,7 +451,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -462,7 +471,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2,3,5,7],
+                    "targets" => [2, 3, 5, 7],
                     "visible" => false
                 ]
             ],
@@ -473,7 +482,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -509,7 +518,7 @@ if ($action == 'index') {
             //"searching" => false,
             "searchHighlight" => true,
             "responsive" => true,
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -535,7 +544,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -555,7 +564,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2,3,5,7],
+                    "targets" => [2, 3, 5, 7],
                     "visible" => false
                 ]
             ],
@@ -566,7 +575,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -596,7 +605,7 @@ if ($action == 'index') {
             "lengthMenu" => [[10, 25, 50, 75, 100, -1], [10, 25, 50, 75, 100, 'All']],
             "autoWidth" => false,
             "deferRender" => true,
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -615,7 +624,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -625,7 +634,7 @@ if ($action == 'index') {
             'columns' => [
                 ["data" => null, "defaultContent" => "", "className" => "dt-center dt-head-nowrap", "title" => "#", "orderable" => false],
                 ["data" => "q_num", "className" => "dt-body-center dt-head-nowrap", "title" => "คิว"],
-                ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN","visible" => false],
+                ["data" => "q_hn", "className" => "dt-body-center dt-head-nowrap", "title" => "HN", "visible" => false],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ชื่อ-นามสกุล"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "counterservice_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ช่องบริการ"],
@@ -684,7 +693,7 @@ if ($action == 'index') {
             //         }
             //     } );
             // }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -698,16 +707,16 @@ if ($action == 'index') {
                 ["data" => "q_qn", "className" => "dt-body-center dt-head-nowrap", "title" => "QN"],
                 ["data" => "service_name", "className" => "dt-body-left dt-head-nowrap", "title" => "ประเภท"],
                 ["data" => "pt_name", "className" => "dt-body-left dt-head-nowrap", "title" => "<i class=\"fa fa-user\"></i> ชื่อ-นามสกุล"],
-                ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง","visible" => false],
+                ["data" => "checkin_date", "className" => "dt-body-center dt-head-nowrap", "title" => "<i class=\"fa fa-clock-o\"></i> เวลามาถึง", "visible" => false],
                 ["data" => "counterservice_name", "className" => "dt-body-center dt-head-nowrap", "title" => "จุดบริการ", "visible" => false],
-                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
-                ["data" => "service_prefix", "className" => "dt-body-center dt-head-nowrap", "title" => "prefix","visible" => false],
-               // ["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
+                ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
+                ["data" => "service_prefix", "className" => "dt-body-center dt-head-nowrap", "title" => "prefix", "visible" => false],
+                // ["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
                 ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ", "responsivePriority" => 1]
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2,3,4,6,7,8,9],
+                    "targets" => [2, 3, 4, 6, 7, 8, 9],
                     "visible" => false
                 ]
             ],
@@ -718,7 +727,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -755,7 +764,7 @@ if ($action == 'index') {
             "searchHighlight" => true,
             "responsive" => true,
             "order" => [[9, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -774,7 +783,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -793,11 +802,11 @@ if ($action == 'index') {
                 ["data" => "service_status_name", "className" => "dt-body-center dt-head-nowrap", "title" => "สถานะ"],
                 ["data" => "service_prefix", "className" => "dt-body-center dt-head-nowrap", "title" => "prefix"],
                 //["data" => "lab_confirm", "className" => "dt-center", "title" => "ผล Lab"],
-                ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ","responsivePriority" => 1]
+                ["data" => "actions", "className" => "dt-center dt-nowrap", "orderable" => false, "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ", "responsivePriority" => 1]
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2,3,6,7,8,9],
+                    "targets" => [2, 3, 6, 7, 8, 9],
                     "visible" => false
                 ]
             ],
@@ -808,7 +817,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -822,7 +831,7 @@ if ($action == 'index') {
         ]
     ]);
 
-    echo Datatables::widget([//พักคิว
+    echo Datatables::widget([ //พักคิว
         'id' => 'tb-hold',
         'buttons' => true,
         'clientOptions' => [
@@ -845,7 +854,7 @@ if ($action == 'index') {
             "searchHighlight" => true,
             "responsive" => true,
             "order" => [[9, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -864,7 +873,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -887,7 +896,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2,3,6,7,8,9],
+                    "targets" => [2, 3, 6, 7, 8, 9],
                     "visible" => false
                 ]
             ],
@@ -898,7 +907,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -936,7 +945,7 @@ if ($action == 'index') {
             "searchHighlight" => true,
             "responsive" => true,
             "order" => [[8, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -955,7 +964,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -978,7 +987,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 4,5, 7, 8, 9],
+                    "targets" => [2, 4, 5, 7, 8, 9],
                     "visible" => false
                 ]
             ],
@@ -989,7 +998,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -1026,7 +1035,7 @@ if ($action == 'index') {
             "searchHighlight" => true,
             "responsive" => true,
             "order" => [[8, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -1045,7 +1054,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -1079,7 +1088,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -1116,7 +1125,7 @@ if ($action == 'index') {
             "searchHighlight" => true,
             "responsive" => true,
             "order" => [[8, 'asc']],
-            "drawCallback" => new JsExpression ('function(settings) {
+            "drawCallback" => new JsExpression('function(settings) {
                 var api = this.api();
                 dtFnc.initConfirm(api);
                 var count  = api.data().count();
@@ -1135,7 +1144,7 @@ if ($action == 'index') {
                     }
                 } );
             }'),
-            'initComplete' => new JsExpression ('
+            'initComplete' => new JsExpression('
                 function () {
                     var api = this.api();
                     dtFnc.initResponsive( api );
@@ -1158,7 +1167,7 @@ if ($action == 'index') {
             ],
             "columnDefs" => [
                 [
-                    "targets" => [2, 4, 5,7, 8, 9],
+                    "targets" => [2, 4, 5, 7, 8, 9],
                     "visible" => false
                 ]
             ],
@@ -1169,7 +1178,7 @@ if ($action == 'index') {
                 ],
                 [
                     'text' => Icon::show('refresh', [], Icon::BSG),
-                    'action' => new JsExpression ('function ( e, dt, node, config ) {
+                    'action' => new JsExpression('function ( e, dt, node, config ) {
                         dt.ajax.reload();
                     }'),
                 ]
@@ -1183,4 +1192,3 @@ if ($action == 'index') {
         ]
     ]);
 }
-?>

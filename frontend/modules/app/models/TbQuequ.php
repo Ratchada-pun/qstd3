@@ -63,7 +63,7 @@ class TbQuequ extends \yii\db\ActiveRecord
     {
         return [
             [['q_timestp', 'created_at', 'updated_at'], 'safe'],
-            [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid','created_from','quickly'], 'integer'],
+            [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid','created_from','quickly','wating_time'], 'integer'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
             [['q_qn', 'rx_q'], 'string', 'max' => 10],
             [['doctor_id'], 'string', 'max' => 50],
@@ -106,6 +106,7 @@ class TbQuequ extends \yii\db\ActiveRecord
             'pt_sound' => 'ไฟล์เสียง path file',
             'quickly' => 'ความด่วนของคิว',
             'maininscl_name' => 'สิทธิ์',
+            'wating_time' => 'เวลารอคอยเฉลี่ย',
         ];
     }
 

@@ -313,6 +313,12 @@ CSS
                             ); ?>
                         </div>
 
+                        <?= Html::activeLabel($modelService, "[{$index}]average_time", ['class' => 'col-sm-1 control-label']) ?>
+                        <div class="col-sm-4">
+                        <?= $form->field($modelService, "[{$index}]average_time", ['showLabels' => false])->textInput([
+                                'placeholder' => 'เวลารอคอยโดยเฉลี่ย(นาที)',
+                            ]); ?>
+                        </div>
 
 
                     </div>
