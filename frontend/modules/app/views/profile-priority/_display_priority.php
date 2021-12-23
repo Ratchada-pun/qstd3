@@ -5,6 +5,7 @@ use frontend\modules\app\models\TbCounterservice;
 use frontend\modules\app\models\TbService;
 use homer\assets\DatatablesAsset;
 use homer\assets\SocketIOAsset;
+use homer\assets\SweetAlert2Asset;
 use homer\assets\ToastrAsset;
 use homer\widgets\Datatables;
 use kartik\depdrop\DepDrop;
@@ -267,6 +268,7 @@ $this->registerCss('
 
 
 <?php
+SweetAlert2Asset::register($this);
 DatatablesAsset::register($this);
 SocketIOAsset::register($this);
 ToastrAsset::register($this);
@@ -281,6 +283,12 @@ var \$form = $('#form-priority');
         data: data,
         success: function (data) {
             $.pjax.reload({container:"#pjax-form"});
+            swal({//alert completed!
+                    type: 'success',
+                    title: 'บันทึกสำเร็จ!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
         },
         error: function(jqXHR, errMsg) {
             alert(errMsg);
