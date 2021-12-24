@@ -47,8 +47,7 @@ echo $this->render('_tabs');
                 </div>
                 <div class="form-group">
                     <div class="col-sm-4" style="text-align: left;">
-                        <?= Html::a('Reset', ['duration-summary'], ['class' => 'btn btn-danger']) ?>
-                        <?= Html::submitButton('<i class="glyphicon glyphicon-import"></i> แสดงข้อมูล', ['class' => 'btn btn-primary']); ?>
+                        <?= Html::submitButton('<i class="glyphicon glyphicon-import"></i> แสดงข้อมูล', ['class' => 'btn btn-success']); ?>
                     </div>
                 </div>
             </div>
