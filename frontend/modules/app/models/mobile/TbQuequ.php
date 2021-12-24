@@ -112,7 +112,8 @@ class TbQuequ extends \yii\db\ActiveRecord
             'token' => 'รหัส token',
             'age' => 'อายุ',
             'countdrug' => 'มีรายการยา',
-            'qfinace' => 'มีจ่ายเงิน'
+            'qfinace' => 'มีจ่ายเงิน',
+            'end_queue' => 'เวลาจบคิว'
         ];
     }
 

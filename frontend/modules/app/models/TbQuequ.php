@@ -48,7 +48,7 @@ class TbQuequ extends \yii\db\ActiveRecord
             [
                 'class' => TimestampBehavior::className(),
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['q_timestp', 'created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['q_timestp', 'created_at', 'updated_at','end_queue'],
                     ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
                 ],
                 // if you're using datetime instead of UNIX timestamp:
@@ -62,7 +62,7 @@ class TbQuequ extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['q_timestp', 'created_at', 'updated_at'], 'safe'],
+            [['q_timestp', 'created_at', 'updated_at','end_queue', 'service_time'], 'safe'],
             [['q_arrive_time', 'q_appoint_time',  'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'serviceid', 'q_status_id', 'counterserviceid', 'tslotid','created_from','quickly','wating_time'], 'integer'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
             [['q_qn', 'rx_q'], 'string', 'max' => 10],
@@ -107,6 +107,8 @@ class TbQuequ extends \yii\db\ActiveRecord
             'quickly' => 'ความด่วนของคิว',
             'maininscl_name' => 'สิทธิ์',
             'wating_time' => 'เวลารอคอยเฉลี่ย',
+            'end_queue' => 'เวลาจบคิว',
+            'service_time' => 'เวลาจบคิว',
         ];
     }
 

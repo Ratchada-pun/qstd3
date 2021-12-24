@@ -391,13 +391,13 @@ class ReportController extends \yii\web\Controller
                 tb_quequ.q_timestp BETWEEN :startdate AND :enddate AND
                 tb_quequ.serviceid = :serviceid AND tb_service.service_type_id = :service_type_id';
 
-                foreach ($service_types as $key => $service_type) {
-                    $columns[] =  [
-                        'attribute' => 'service_type_id_' . $service_type['service_type_id'],
-                        'header' => $service_type['service_type_name'] . ' (นาที)',
-                        'hAlign' => 'center',
-                    ];
-                }
+            foreach ($service_types as $key => $service_type) {
+                $columns[] =  [
+                    'attribute' => 'service_type_id_' . $service_type['service_type_id'],
+                    'header' => $service_type['service_type_name'] . ' (นาที)',
+                    'hAlign' => 'center',
+                ];
+            }
 
 
             foreach ($services as $service) {
@@ -461,5 +461,123 @@ class ReportController extends \yii\web\Controller
         $d2 = new \DateTime($datetime2);
         $interval = $d1->diff($d2);
         return $interval->format($format);
+    }
+
+    private function convertToDatabase($date, $separator = '/'){
+        $result = '';
+        if(!empty($date)){
+            $arr = explode($separator, $date);
+            $y = $arr[2];
+            $m = $arr[1];
+            $d = $arr[0];
+            $result = "$y-$m-$d";
+        }
+        return $result;
+    }
+
+
+    public function actionServiceSummary()
+    {
+
+        $request = Yii::$app->request;
+        $post = $request->post();
+        $from_date = isset($post['from_date']) ? $this->convertToDatabase($post['from_date']) : null;
+        $to_date = isset($post['to_date']) ? $this->convertToDatabase($post['to_date']) : null;
+
+        $items = [];
+
+        if ($request->isPost) {
+            $services = TbService::find()->all();
+            foreach ($services as $key => $service) {
+                $rows = (new \yii\db\Query())
+                    ->select(['*'])
+                    ->from('tb_quequ')
+                    ->where(['between', 'created_at', $from_date . ' 00:00:00', $to_date . ' 23:59:59'])
+                    ->andWhere(['serviceid' => $service['serviceid']])
+                    ->all();
+                $count = count($rows);
+                $average_waiting = 0;
+                $wating_time_min = 0;
+                $wating_time_max = 0;
+                $average_service = 0;
+
+                if ($count > 0) {
+                    $wating_times = ArrayHelper::getColumn($rows, 'wating_time');
+                    $service_times = ArrayHelper::getColumn($rows, 'service_time');
+                    $wating_time_min = min($wating_times);
+                    $wating_time_max = max($wating_times);
+
+                    $wating_times = array_filter($wating_times);
+                    if (count($wating_times)) {
+                        $average_waiting = array_sum($wating_times) / count($wating_times);
+                    }
+
+                    $service_times = array_filter($service_times);
+                    if (count($service_times)) {
+                        $average_service = array_sum($service_times) / count($service_times);
+                    }
+                }
+
+                $items[] = [
+                    'service_name' => $service['service_name'],
+                    'summary_queue' => $count,
+                    'average_waiting' => $average_waiting,
+                    'wating_time_min' => $wating_time_min,
+                    'wating_time_max' => $wating_time_max,
+                    'average_service' => $average_service,
+                ];
+            }
+
+            // $serviceids = ArrayHelper::getColumn($rows, 'serviceid');
+        }
+
+        // $services =  (new \yii\db\Query()) //งานบริการ
+        //     ->select([
+        //         'tb_service.service_name',
+        //         'COUNT( tb_quequ.q_ids ) AS summary_queue'
+        //     ])
+        //     ->from('tb_quequ')
+        //     ->innerJoin('tb_qtrans', 'tb_quequ.q_ids = tb_qtrans.q_ids')
+        //     ->innerJoin('tb_service', 'tb_quequ.serviceid = tb_service.serviceid')
+        //     ->where('tb_service.service_status = 1')
+        //     ->groupBy('tb_service.serviceid')
+        //     ->all();
+
+        // $avg_waiting = ' SELECT
+        //        	tb_quequ.q_num,
+        //         tb_quequ.q_timestp,
+        //         tb_quequ.wating_time,
+        //         tb_quequ.end_queue,
+        //         tb_quequ.service_time,
+        //         tb_service.service_name,
+        //         tb_qtrans.ids,
+        //         tb_caller.caller_ids,
+        //         tb_caller.call_timestp,
+        //         tb_caller.call_status,
+        //         tb_service_profile.service_name,
+        //         MINUTE(TIMEDIFF(tb_quequ.q_timestp, tb_caller.call_timestp)) AS t_wait
+        //     FROM
+        //         tb_quequ
+        //         LEFT JOIN tb_qtrans ON tb_qtrans.q_ids = tb_quequ.q_ids
+        //         LEFT JOIN tb_caller ON tb_caller.qtran_ids = tb_qtrans.ids
+        //         LEFT JOIN tb_servicegroup ON tb_servicegroup.servicegroupid = tb_quequ.servicegroupid
+        //         LEFT JOIN tb_service ON tb_service.service_groupid = tb_servicegroup.servicegroupid
+        //         LEFT JOIN tb_counterservice ON tb_counterservice.counterserviceid = tb_caller.counter_service_id
+        //         LEFT JOIN tb_counterservice_type ON tb_counterservice.counterservice_type = tb_counterservice_type.counterservice_typeid
+        //     WHERE
+        //         tb_quequ.q_timestp BETWEEN :startdate AND :enddate AND
+        //         tb_quequ.serviceid = :serviceid AND tb_service.service_type_id = :service_type_id';
+
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $items,
+            'pagination' => [
+                'pageSize' => false,
+            ],
+        ]);
+
+        return $this->render('_service_summary', [
+            'dataProvider' => $dataProvider
+        ]);
     }
 }

@@ -324,7 +324,8 @@ class CallingController extends \yii\web\Controller
                         'tb_qtrans.service_status_id' => [1]
                     ])
                     ->andWhere('DATE(tb_quequ.q_timestp) = CURRENT_DATE')
-                    ->orderBy('tb_quequ.q_timestp ASC');
+                    ->orderBy('tb_quequ.q_timestp ASC')
+                    ->groupBy('tb_quequ.q_ids');
                 $data = ArrayHelper::merge($data, $query->all());
             }
                 // $services = isset($profileData['service_id']) ? explode(",", $profileData['service_id']) : null;
@@ -1028,6 +1029,7 @@ class CallingController extends \yii\web\Controller
             $model->call_status = TbCaller::STATUS_FINISHED;
 
             $modelQueue->q_status_id = 4;
+            $modelQueue->service_time = $this->diffDate($model['call_timestp'], Yii::$app->formatter->asDate('now', 'php:Y-m-d H:i:s'), '%I');
 
             if ($model->save() && $modelQtran->save() && $modelQueue->save()) {
                 // $modelQueue->sendMessage($modelQueue['serviceid']);
@@ -5412,5 +5414,13 @@ class CallingController extends \yii\web\Controller
             ->groupBy('tb_caller.caller_ids')
             ->one();
         return $query;
+    }
+
+    protected function diffDate($datetime1, $datetime2, $format = '%H ชม., %I น., %S วินาที')
+    {
+        $d1 = new \DateTime($datetime1);
+        $d2 = new \DateTime($datetime2);
+        $interval = $d1->diff($d2);
+        return $interval->format($format);
     }
 }
