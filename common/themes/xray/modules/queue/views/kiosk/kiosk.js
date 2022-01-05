@@ -269,7 +269,7 @@ var app = new Vue({
       //   }
       // });
       socket.on(SMARTCARD_EVENTS.READING_COMPLETE, (data) => {
-        if (_.get(data, "ipAddress") === _this.clientIP) {
+        if (_.get(data, "ipAddress") === _this.clientIP && _this.action === 'scan-idcard') {
           // console.log("READING_COMPLETE", data);
           _this.decryptData(_.get(data, "data.encrypted"));
         }
