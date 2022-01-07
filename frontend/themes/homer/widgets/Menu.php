@@ -92,7 +92,7 @@ class Menu extends BaseMenu{
 
             return strtr($template, [
                 '{url}' => Html::encode(Url::to($item['url'])),
-                '{label}' => $item['label'],
+                '{label}' => Yii::t('app.menu', $item['label']),
                 '{icon}' => isset($item['icon']) ? Icon::show($item['icon']) : '',
                 '{badge}' => isset($item['badge-label']) ? Html::tag('span',$item['badge-label'],ArrayHelper::getValue($item,'badgeOptions'),['class' => 'label label-success pull-right']) : '',
             ]);
@@ -101,7 +101,7 @@ class Menu extends BaseMenu{
         $template = ArrayHelper::getValue($item, 'template', $this->labelTemplate);
 
         return strtr($template, [
-            '{label}' => $item['label'],
+            '{label}' => Yii::t('app.menu', $item['label']),
             '{icon}' => isset($item['icon']) ? Icon::show($item['icon']) : '',
             '{badge}' => isset($item['badge-label']) ? Html::tag('span',$item['badge-label'],ArrayHelper::getValue($item,'badgeOptions'),['class' => 'label label-success pull-right']) : '',
         ]);

@@ -2,19 +2,18 @@
 
 use frontend\modules\app\models\TbCounterservice;
 use frontend\modules\app\models\TbServiceProfile;
+use homer\assets\SocketIOAsset;
+use homer\assets\SweetAlert2Asset;
+use homer\assets\ToastrAsset;
 use homer\widgets\Datatables;
 use homer\widgets\Table;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
+use yii\bootstrap\Tabs;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\helpers\Url;
 use yii\web\JsExpression;
-use homer\assets\SocketIOAsset;
-use homer\assets\SweetAlert2Asset;
-use homer\assets\ToastrAsset;
-use yii\bootstrap\Tabs;
-use yii\helpers\Json;
 use yii\web\View;
 
 SweetAlert2Asset::register($this);
@@ -94,7 +93,7 @@ $this->registerCss($css);
                                     'data' => ArrayHelper::map(TbServiceProfile::find()->where(['service_profile_status' => 1])->all(), 'service_profile_id', 'service_name'),
                                     'options' => ['placeholder' => 'เลือกช่องบริการ...'],
                                     'pluginOptions' => [
-                                        'allowClear' => true
+                                        'allowClear' => true,
                                     ],
                                     'theme' => Select2::THEME_BOOTSTRAP,
                                     'size' => Select2::LARGE,
@@ -107,7 +106,7 @@ $this->registerCss($css);
                                     'data' => $modelForm->dataCounter,
                                     'options' => ['placeholder' => 'เลือก...'],
                                     'pluginOptions' => [
-                                        'allowClear' => true
+                                        'allowClear' => true,
                                     ],
                                     'theme' => Select2::THEME_BOOTSTRAP,
                                     'size' => Select2::LARGE,
@@ -120,21 +119,21 @@ $this->registerCss($css);
                         echo Tabs::widget([
                             'items' => [
                                 [
-                                    'label' => 'คิวรอ (<span class="count-waiting">0</span>)',
+                                    'label' => Yii::t('app.frontend', 'คิวรอ', [], substr(Yii::$app->language, 0, 2)) . ' (<span class="count-waiting">0</span>)',
                                     'active' => true,
                                     'headerOptions' => [],
                                     'options' => ['id' => 'tab-1'],
                                     'linkOptions' => [
-                                        'style' => 'font-size: 3rem;color: #9b59b6'
-                                    ]
+                                        'style' => 'font-size: 3rem;color: #9b59b6',
+                                    ],
                                 ],
                                 [
-                                    'label' => 'คิวพัก (<span class="count-hold">0</span>)',
+                                    'label' => Yii::t('app.frontend', 'คิวพัก', [], substr(Yii::$app->language, 0, 2)) . ' (<span class="count-hold">0</span>)',
                                     'headerOptions' => [],
                                     'options' => ['id' => 'tab-2'],
                                     'linkOptions' => [
-                                        'style' => 'font-size: 3rem;color: #e74c3c'
-                                    ]
+                                        'style' => 'font-size: 3rem;color: #e74c3c',
+                                    ],
                                 ],
                             ],
                             'renderTabContent' => false,
@@ -153,14 +152,14 @@ $this->registerCss($css);
                                             'beforeHeader' => [
                                                 [
                                                     'columns' => [
-                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center; font-size: 20px;']],
-                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
-                                                        ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
-                                                        ['content' => 'เวลารอ', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
-                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
+                                                        ['content' => Yii::t('app.frontend', 'คิว', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center; font-size: 20px;']],
+                                                        ['content' => Yii::t('app.frontend', 'ชื่อ', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;font-size: 20px;']],
+                                                        ['content' => Yii::t('app.frontend', 'บริการ', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => Yii::t('app.frontend', 'เวลารอ', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;font-size: 20px;']],
+                                                        ['content' => Yii::t('app.frontend', 'ดำเนินการ', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;']],
                                                     ],
                                                     'options' => ['style' => 'background-color:cornsilk;'],
-                                                ]
+                                                ],
                                             ],
                                         ]);
                                         ?>
@@ -177,13 +176,13 @@ $this->registerCss($css);
                                             'beforeHeader' => [
                                                 [
                                                     'columns' => [
-                                                        ['content' => 'คิว', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
-                                                        ['content' => 'ชื่อ', 'options' => ['style' => 'text-align: center;font-size: 20px;']],
-                                                        ['content' => 'บริการ', 'options' => ['style' => 'text-align: center;']],
-                                                        ['content' => 'ดำเนินการ', 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;font-size: 20px;']],
+                                                        ['content' => Yii::t('app.frontend', 'คิว', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;font-size: 20px;']],
+                                                        ['content' => Yii::t('app.frontend', 'ชื่อ', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;font-size: 20px;']],
+                                                        ['content' => Yii::t('app.frontend', 'บริการ', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;']],
+                                                        ['content' => Yii::t('app.frontend', 'ดำเนินการ', [], substr(Yii::$app->language, 0, 2)), 'options' => ['style' => 'text-align: center;width: 35px;white-space: nowrap;font-size: 20px;']],
                                                     ],
                                                     'options' => ['style' => 'background-color:cornsilk;'],
-                                                ]
+                                                ],
                                             ],
                                         ]);
                                         ?>
@@ -198,16 +197,24 @@ $this->registerCss($css);
                             <div class="panel-body" style="padding: 10px;">
                                 <form method="get" class="form-horizontal">
                                     <div class="col-sm-12">
-                                        <input type="text" id="input_q_num" placeholder="เลขคิว" class="form-control input-lg m-b" style="border-color: #3f5872 !important;font-size: 4.5rem;font-weight: 600;">
+                                        <input type="text" id="input_q_num" placeholder="" class="form-control input-lg m-b" style="border-color: #3f5872 !important;font-size: 4.5rem;font-weight: 600;">
                                     </div>
                                     <p class="text-center">
-                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-warning activity-callnext" type="button"><i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i> <br>คิวถัดไป</button>
-                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-success btn-recall" type="button"><i class="fa fa-volume-up fa-2x" aria-hidden="true"></i> <br>เรียกคิว</button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-warning activity-callnext" type="button"><i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i> <br>
+                                            <?= Yii::t('app.frontend', 'คิวถัดไป', [], substr(Yii::$app->language, 0, 2)) ?>
+                                        </button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-success btn-recall" type="button"><i class="fa fa-volume-up fa-2x" aria-hidden="true"></i> <br>
+                                            <?= Yii::t('app.frontend', 'เรียกคิว', [], substr(Yii::$app->language, 0, 2)) ?>
+                                        </button>
 
                                     </p>
                                     <p class="text-center">
-                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-warning2 btn-hold" type="button"><i class="fa fa-hand-paper-o fa-2x" aria-hidden="true"></i> <br>พักคิว</button>
-                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-info btn-finish" type="button"><i class="fa fa-check-square-o fa-2x" aria-hidden="true"></i> <br>จบคิว</button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-warning2 btn-hold" type="button"><i class="fa fa-hand-paper-o fa-2x" aria-hidden="true"></i> <br>
+                                            <?= Yii::t('app.frontend', 'พักคิว', [], substr(Yii::$app->language, 0, 2)) ?>
+                                        </button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-info btn-finish" type="button"><i class="fa fa-check-square-o fa-2x" aria-hidden="true"></i> <br>
+                                            <?= Yii::t('app.frontend', 'จบคิว', [], substr(Yii::$app->language, 0, 2)) ?>
+                                        </button>
                                     </p>
                             </div>
                             </form>
@@ -238,14 +245,14 @@ echo Datatables::widget([
             'data' => ['modelForm' => $modelForm, 'modelProfile' => $modelProfile],
             "type" => "POST",
             "complete" => new JsExpression('function(jqXHR, textStatus){
-            
-            }')
+
+            }'),
         ],
         "dom" => "<'row'<'col-xs-6'f><'col-xs-6'l>> <'row'<'col-xs-12'tr>> <'row'<'col-xs-5'i><'col-xs-7'p>>",
         "language" => array_merge(Yii::$app->params['dtLanguage'], [
             "search" => "_INPUT_ ",
             "searchPlaceholder" => "ค้นหา...",
-            "lengthMenu" => "_MENU_"
+            "lengthMenu" => "_MENU_",
         ]),
         "pageLength" => -1,
         "lengthMenu" => [[10, 25, 50, 75, 100, -1], [10, 25, 50, 75, 100, 'All']],
@@ -283,17 +290,17 @@ echo Datatables::widget([
             [
                 "data" => "q_num",
                 "className" => "dt-body-center dt-head-nowrap",
-                "title" => "<i class=\"fa fa-money\"></i> คิว"
+                "title" => "<i class=\"fa fa-money\"></i> " . Yii::t('app.frontend', 'คิว', [], substr(Yii::$app->language, 0, 2))
             ],
             [
                 "data" => "pt_name",
                 "className" => "dt-body-left dt-head-nowrap",
-                "title" => "ชื่อ"
+                "title" => Yii::t('app.frontend', 'ชื่อ', [], substr(Yii::$app->language, 0, 2))
             ],
             [
                 "data" => "service_name",
                 "className" => "dt-body-left dt-head-nowrap",
-                "title" => "บริการ",
+                "title" => Yii::t('app.frontend', 'บริการ', [], substr(Yii::$app->language, 0, 2)),
                 "visible" => false,
             ],
             [
@@ -302,23 +309,23 @@ echo Datatables::widget([
                 "className" => "text-center",
                 "render" => new JsExpression('function ( data, type, row, meta ) {
                     return `<span style="font-size: 2.5rem;" id="waiting-${row.q_ids}"></span>`;
-                }')
+                }'),
             ],
             [
                 "data" => "actions",
                 "className" => "dt-center dt-nowrap",
                 "orderable" => false,
                 "visible" => false,
-                "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"
-            ]
+                "title" => "<i class=\"fa fa-cogs\"></i> " . Yii::t('app.frontend', 'ดำเนินการ', [], substr(Yii::$app->language, 0, 2))
+            ],
         ],
     ],
     'clientEvents' => [
         'error.dt' => 'function ( e, settings, techNote, message ){
             e.preventDefault();
             swal({title: \'Error...!\',html: \'<small>\'+message+\'</small>\',type: \'error\',});
-        }'
-    ]
+        }',
+    ],
 ]);
 
 echo Datatables::widget([
@@ -328,13 +335,13 @@ echo Datatables::widget([
         'ajax' => [
             'url' => Url::base(true) . '/app/calling/data-tbhold',
             'data' => ['modelForm' => $modelForm, 'modelProfile' => $modelProfile],
-            "type" => "POST"
+            "type" => "POST",
         ],
         "dom" => "<'row'<'col-xs-6'f><'col-xs-6'l>> <'row'<'col-xs-12'tr>> <'row'<'col-xs-5'i><'col-xs-7'p>>",
         "language" => array_merge(Yii::$app->params['dtLanguage'], [
             "search" => "_INPUT_ ",
             "searchPlaceholder" => "ค้นหา...",
-            "lengthMenu" => "_MENU_"
+            "lengthMenu" => "_MENU_",
         ]),
         "pageLength" => -1,
         "lengthMenu" => [[10, 25, 50, 75, 100, -1], [10, 25, 50, 75, 100, 'All']],
@@ -372,33 +379,33 @@ echo Datatables::widget([
             [
                 "data" => "q_num",
                 "className" => "dt-body-center dt-head-nowrap",
-                "title" => "<i class=\"fa fa-money\"></i> คิว"
+                "title" => "<i class=\"fa fa-money\"></i> " . Yii::t('app.frontend', 'คิว', [], substr(Yii::$app->language, 0, 2))
             ],
             [
                 "data" => "pt_name",
                 "className" => "dt-body-left dt-head-nowrap",
-                "title" => "ชื่อ"
+                "title" => Yii::t('app.frontend', 'ชื่อ', [], substr(Yii::$app->language, 0, 2))
             ],
             [
                 "data" => "service_name",
                 "className" => "dt-body-left dt-head-nowrap",
-                "title" => "บริการ",
+                "title" => Yii::t('app.frontend', 'บริการ', [], substr(Yii::$app->language, 0, 2)),
                 "visible" => false,
             ],
             [
                 "data" => "actions",
                 "className" => "dt-center dt-nowrap",
                 "orderable" => false,
-                "title" => "<i class=\"fa fa-cogs\"></i> ดำเนินการ"
-            ]
+                "title" => "<i class=\"fa fa-cogs\"></i> " . Yii::t('app.frontend', 'ดำเนินการ', [], substr(Yii::$app->language, 0, 2))
+            ],
         ],
     ],
     'clientEvents' => [
         'error.dt' => 'function ( e, settings, techNote, message ){
             e.preventDefault();
             swal({title: \'Error...!\',html: \'<small>\'+message+\'</small>\',type: \'error\',});
-        }'
-    ]
+        }',
+    ],
 ]);
 
 $js = <<<JS
@@ -687,7 +694,7 @@ $js = <<<JS
                 });
             },
         });
-        
+
     });
 
     $("button.btn-recall").on("click",  function(event) {
