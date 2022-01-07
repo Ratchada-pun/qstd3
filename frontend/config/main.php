@@ -142,6 +142,9 @@ return [
             'class' => 'xray\modules\queue\Module',
             'layout' => '@xray/views/layouts/main.php'
         ],
+        'translation' => [
+            'class' => 'common\modules\translation\Module',
+        ],
     ],
     'components' => [
         'request' => [

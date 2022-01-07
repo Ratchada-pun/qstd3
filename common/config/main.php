@@ -17,9 +17,10 @@ return [
     ],
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     # ตั้งค่าการใช้งานภาษาไทย (Language)
-    'language' => 'th', // ตั้งค่าภาษาไทย
+    'language' => 'th-TH', // ตั้งค่าภาษาไทย
     # ตั้งค่า TimeZone ประเทศไทย
     'timeZone' => 'Asia/Bangkok', // ตั้งค่า TimeZone
+    'sourceLanguage' => 'th-TH',
     'modules' => [
         'user' => [
             'class' => 'dektrium\user\Module',
@@ -56,23 +57,37 @@ return [
             'defaultTimeZone' => 'Asia/Bangkok',
             'timeZone' => 'Asia/Bangkok'
         ],
+        // 'i18n' => [
+        //     'translations' => [
+        //         'app*' => [
+        //             'class' => 'yii\i18n\PhpMessageSource',
+        //             //'basePath' => '@app/messages',
+        //             //'sourceLanguage' => 'en-US',
+        //             'fileMap' => [
+        //                 'app' => 'app.php',
+        //             ],
+        //         ],
+        //         'user*' => [
+        //             'class' => 'yii\i18n\PhpMessageSource',
+        //             'basePath' => '@dektrium/user/messages',
+        //             //'sourceLanguage' => 'en-US',
+        //         ],
+        //     ],
+        // ],
         'i18n' => [
             'translations' => [
-                'app*' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                    //'basePath' => '@app/messages',
-                    //'sourceLanguage' => 'en-US',
-                    'fileMap' => [
-                        'app' => 'app.php',
-                    ],
-                ],
-                'user*' => [
-                    'class' => 'yii\i18n\PhpMessageSource',
-                    'basePath' => '@dektrium/user/messages',
-                    //'sourceLanguage' => 'en-US',
+                '*' => [
+                    'class' => yii\i18n\DbMessageSource::class,
+                    'sourceMessageTable' => '{{%i18n_source_message}}',
+                    'messageTable' => '{{%i18n_message}}',
+                    'enableCaching' => YII_ENV_PROD,
+                    'cachingDuration' => 3600,
+                    'sourceLanguage' => 'en-US',
+                    'on missingTranslation' => [common\modules\translation\Module::class, 'missingTranslation']
                 ],
             ],
         ],
+
     ],
     'params' => [
         'icon-framework' => 'fa',  // Font Awesome Icon framework
@@ -91,5 +106,9 @@ return [
                 "sLast" => "หน้าสุดท้าย"
             ],
         ],
+    ],
+    'as locale' => [
+        'class' => common\behaviors\LocaleBehavior::class,
+        'enablePreferredLanguage' => true
     ],
 ];

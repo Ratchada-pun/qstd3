@@ -81,7 +81,7 @@ CSS;
              <div class="caption clock">
                <h4 class="mb-0 line-height text-white time">
                  <span id="kiosk-date">
-                   <?= $formatter->asDate('now', 'php:lที่ d F ') . ($formatter->asDate('now', 'php:Y') + 543) ?>
+                   <?= $formatter->asDate('now', 'php:l d F ') . ($formatter->asDate('now', 'php:Y') + 543) ?>
                  </span>
                </h4>
                <h5 class="mb-0 line-height text-white time text-right">

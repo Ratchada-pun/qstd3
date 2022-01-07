@@ -24,8 +24,20 @@ class KioskController extends Controller
     public function actionIndex()
     {
         $news_ticker = TbNewsTicker::findOne(['news_ticker_status' => 1]);
-        return $this->render('index',[
-            'news_ticker' => $news_ticker
+        $rows = (new \yii\db\Query())
+            ->select(['i18n_source_message.*', 'i18n_message.language', 'i18n_message.translation'])
+            ->from('i18n_message')
+            ->leftJoin('i18n_source_message', 'i18n_source_message.id = i18n_message.id')
+            ->where(['i18n_source_message.category' => 'app.frontend'])
+            ->all();
+        $groups = ArrayHelper::index($rows, null, 'language');
+        $messages = [];
+        foreach ($groups as $key => $items) {
+            $messages[$key] = ArrayHelper::map($items, 'message', 'translation');
+        }
+        return $this->render('index', [
+            'news_ticker' => $news_ticker,
+            'messages' => $messages
         ]);
     }
 
@@ -87,6 +99,4 @@ class KioskController extends Controller
             'service' => $service,
         ]);
     }
-
-    
 }
