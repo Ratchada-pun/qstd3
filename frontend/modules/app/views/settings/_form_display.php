@@ -287,6 +287,70 @@ $model->lab_display = $model->isNewRecord ? 0 : $model['lab_display'];
 		); ?>
 	</div>
 </div>
+<div class="form-group">
+	<?= Html::activeLabel($model, 'show_last_q', ['class' => 'col-sm-2 control-label']) ?>
+	<div class="col-sm-4">
+
+		<?= $form->field($model, 'show_last_q', ['showLabels' => false])->RadioList(
+			[1 => 'แสดง', 0 => 'ไม่แสดง'],
+			[
+				'inline' => true,
+				'item' => function ($index, $label, $name, $checked, $value) {
+
+					$return = '<div class="radio"><label style="font-size: 1em">';
+					$return .= Html::radio($name, $checked, ['value' => $value]);
+					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+					$return .= '</label></div>';
+
+					return $return;
+				}
+			]
+		); ?>
+	</div>
+</div>
+<div class="form-group">
+	<?= Html::activeLabel($model, 'show_advertise', ['class' => 'col-sm-2 control-label']) ?>
+	<div class="col-sm-4">
+
+		<?= $form->field($model, 'show_advertise', ['showLabels' => false])->RadioList(
+			[1 => 'แสดง', 0 => 'ไม่แสดง'],
+			[
+				'inline' => true,
+				'item' => function ($index, $label, $name, $checked, $value) {
+
+					$return = '<div class="radio"><label style="font-size: 1em">';
+					$return .= Html::radio($name, $checked, ['value' => $value]);
+					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+					$return .= '</label></div>';
+
+					return $return;
+				}
+			]
+		); ?>
+	</div>
+</div>
+
+<div class="form-group">
+	<?= Html::activeLabel($model, 'show_last_call', ['class' => 'col-sm-2 control-label']) ?>
+	<div class="col-sm-4">
+
+		<?= $form->field($model, 'show_last_call', ['showLabels' => false])->RadioList(
+			[1 => 'แสดง', 0 => 'ไม่แสดง'],
+			[
+				'inline' => true,
+				'item' => function ($index, $label, $name, $checked, $value) {
+
+					$return = '<div class="radio"><label style="font-size: 1em">';
+					$return .= Html::radio($name, $checked, ['value' => $value]);
+					$return .= '<span class="cr"><i class="cr-icon cr-icon glyphicon glyphicon-ok"></i></span>' . ucwords($label);
+					$return .= '</label></div>';
+
+					return $return;
+				}
+			]
+		); ?>
+	</div>
+</div>
 
 <div class="form-group">
 	<div class="col-sm-12" style="text-align: right;">

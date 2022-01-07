@@ -202,7 +202,7 @@ $this->registerCss($css);
                                     </div>
                                     <p class="text-center">
                                         <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-warning activity-callnext" type="button"><i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i> <br>คิวถัดไป</button>
-                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-success btn-recall" type="button"><i class="fa fa-volume-up fa-2x" aria-hidden="true"></i> <br>เรียกคิว</button>
+                                        <button style="width: 48%;text-transform: uppercase;font-size: 3rem;" class="btn btn-success btn-recall" type="button"><i class="fa fa-volume-up fa-2x" aria-hidden="true"></i> <br>เรียกซ้ำ</button>
 
                                     </p>
                                     <p class="text-center">
@@ -449,6 +449,9 @@ $js = <<<JS
                 cancelButtonText: "ยกเลิก",
                 allowOutsideClick: false,
                 showLoaderOnConfirm: true,
+                onOpen: () => {
+                    swal.clickConfirm()
+                },
                 preConfirm: function(value) {
                     return new Promise(function(resolve, reject) {
                         $.ajax({
@@ -530,6 +533,9 @@ $js = <<<JS
                 cancelButtonText: "ยกเลิก",
                 allowOutsideClick: false,
                 showLoaderOnConfirm: true,
+                onOpen: () => {
+                    swal.clickConfirm()
+                },
                 preConfirm: function () {
                     return new Promise(function (resolve, reject) {
                         $.ajax({
@@ -584,6 +590,7 @@ $js = <<<JS
 
     $("button.activity-callnext").on("click", function (e) {
         e.preventDefault();
+        // 
         $.ajax({
             method: "POST",
             url: '/app/calling/last-queue',
@@ -594,11 +601,103 @@ $js = <<<JS
             },
             success: function (res) {
                 if(res){
-                    swal({
-                        type: "warning",
-                        title: "ไม่สามารถเรียกคิวถัดไปได้ กรุณากดจบคิวก่อนหน้า",
-                        showConfirmButton: true,
+                    var countername = $("#callingform-counter_service").select2("data")[0]["text"] || "";
+                    $.ajax({
+                        method: "POST",
+                        url: '/app/calling/last-queue',
+                        dataType: "json",
+                        data: {
+                            modelForm: modelForm, //Data Model CallingForm
+                            modelProfile: modelProfile,
+                        },
+                        success: function (data) {
+                            if(data){
+                                swal({
+                                    title: "ยืนยัน END คิว " + data.q_num + " ?",
+                                    text: data.pt_name,
+                                    html:
+                                        '<small class="text-danger" style="font-size: 13px;">กด Enter เพื่อยืนยัน / กด Esc เพื่อยกเลิก</small>' +
+                                        '<p><i class="fa fa-user"></i>' +
+                                        data.pt_name +
+                                        "</p>" +
+                                        countername +
+                                        "</p>",
+                                    type: "question",
+                                    showCancelButton: true,
+                                    confirmButtonText: "ยืนยัน",
+                                    cancelButtonText: "ยกเลิก",
+                                    allowOutsideClick: false,
+                                    showLoaderOnConfirm: true,
+                                    onOpen: () => {
+                                        swal.clickConfirm()
+                                    },
+                                    preConfirm: function () {
+                                        return new Promise(function (resolve, reject) {
+                                            $.ajax({
+                                                method: "POST",
+                                                url: '/app/calling/end?id=' + data.caller_ids,
+                                                dataType: "json",
+                                                data: {
+                                                    data: data, //Data in column Datatable
+                                                    modelForm: modelForm, //Data Model CallingForm
+                                                    modelProfile: modelProfile,
+                                                },
+                                                success: function (res) {
+                                                    if (res.status == "200") {
+                                                        $("button.activity-callnext").click( );
+                                                        $('#input_q_num').val('')
+                                                        dt_tbwaiting.ajax.reload(); //โหลดข้อมูลคิวรอ
+                                                        dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
+                                                        toastr.success("END " + data.q_num, "Success!", {
+                                                            timeOut: 3000,
+                                                            positionClass: "toast-top-right",
+                                                            progressBar: true,
+                                                            closeButton: true,
+                                                        });
+                                                        socket.emit("finish", res); //sending data
+                                                        resolve();
+                                                    } else {
+                                                        swal({
+                                                            type: "error",
+                                                            title: "เกิดข้อผิดพลาด!!",
+                                                            showConfirmButton: false,
+                                                            timer: 2000,
+                                                        });
+                                                    }
+                                                },
+                                                error: function (jqXHR, textStatus, errorThrown) {
+                                                    swal({
+                                                        type: "error",
+                                                        title: errorThrown,
+                                                        showConfirmButton: false,
+                                                        timer: 1500,
+                                                    });
+                                                },
+                                            });
+                                        });
+                                    },
+                                }).then((result) => {
+                                    if (result.value) {
+                                        //Confirm
+                                        swal.close();
+                                    }
+                                });
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            swal({
+                                type: "error",
+                                title: errorThrown,
+                                showConfirmButton: false,
+                                timer: 1500,
+                            });
+                        },
                     });
+                    // swal({
+                    //     type: "warning",
+                    //     title: "ไม่สามารถเรียกคิวถัดไปได้ กรุณากดจบคิวก่อนหน้า",
+                    //     showConfirmButton: true,
+                    // });
                 } else {
                     var data = dt_tbwaiting.rows(0).data(),
                         url = $(this).attr("data-url");
@@ -618,6 +717,9 @@ $js = <<<JS
                                 confirmButtonText: "เรียกคิว",
                                 cancelButtonText: "ยกเลิก",
                                 showLoaderOnConfirm: true,
+                                onOpen: () => {
+                                    swal.clickConfirm()
+                                },
                                 preConfirm: function (value) {
                                     return new Promise(function (resolve, reject) {
                                         $.ajax({
@@ -631,9 +733,9 @@ $js = <<<JS
                                             },
                                             success: function (res) {
                                                 if (res.status == 200) {
-                                                    $('#input_q_num').val(data.q_num)
+                                                    $('#input_q_num').val(data[0].qnumber)
                                                     dt_tbwaiting.ajax.reload(); //โหลดข้อมูลคิวรอ
-                                                    toastr.success("CALL " + data.qnumber, "Success!", {
+                                                    toastr.success("CALL " + data[0].qnumber, "Success!", {
                                                         timeOut: 3000,
                                                         positionClass: "toast-top-right",
                                                         progressBar: true,
@@ -716,6 +818,9 @@ $js = <<<JS
                         cancelButtonText: "ยกเลิก",
                         allowOutsideClick: false,
                         showLoaderOnConfirm: true,
+                        onOpen: () => {
+                            swal.clickConfirm()
+                        },
                         preConfirm: function () {
                             return new Promise(function (resolve, reject) {
                                 $.ajax({
@@ -805,6 +910,9 @@ $js = <<<JS
                         cancelButtonText: "ยกเลิก",
                         allowOutsideClick: false,
                         showLoaderOnConfirm: true,
+                        onOpen: () => {
+                            swal.clickConfirm()
+                        },
                         preConfirm: function () {
                             return new Promise(function (resolve, reject) {
                                 $.ajax({
@@ -896,6 +1004,9 @@ $js = <<<JS
                         cancelButtonText: "ยกเลิก",
                         allowOutsideClick: false,
                         showLoaderOnConfirm: true,
+                        onOpen: () => {
+                            swal.clickConfirm()
+                        },
                         preConfirm: function () {
                             return new Promise(function (resolve, reject) {
                                 $.ajax({
