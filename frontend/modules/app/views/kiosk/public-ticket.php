@@ -77,6 +77,14 @@ ToastrAsset::register($this);
     bottom: 0;
     width: 100%;
 }
+p {
+  margin:0px !important;
+}
+@media print {
+  p {
+    margin:0px !important;
+  }
+}
 </style>
 <div class="row">
     <div class="col-md-8 col-md-offset-2 content-kiosk">

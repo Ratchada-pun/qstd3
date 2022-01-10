@@ -30,6 +30,14 @@ div#qrcode img {
     margin-bottom: 0px !important;
     text-align: center !important;
 }
+p {
+    margin:0px !important;
+  }
+  @media print {
+    p {
+      margin:0px !important;
+    }
+  }
 ");
 
 $y = date('Y') + 543;
