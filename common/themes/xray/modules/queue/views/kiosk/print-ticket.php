@@ -35,11 +35,11 @@ div#qrcode img {
     text-align: center !important;
 }
 p {
-  margin:0;
+  margin:0px !important;
 }
 @media print {
   p {
-    margin:0;
+    margin:0px !important;
   }
 }
 ");
