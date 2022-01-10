@@ -141,14 +141,14 @@ var app = new Vue({
         return years;
       } else if (this.action === "hn-or-idcard" && this.right) {
         const y = parseInt(this.right.birthdate.substr(0, 4)) - 543;
-        const m = this.right.birthdate.substr(4, 2);
-        const d = this.right.birthdate.substr(6);
-        const a = moment();
-        const b = moment(`${parseInt(y)}-${m}-${d}`, "YYYY-MM-DD");
+        // const m = this.right.birthdate.substr(4, 2);
+        // const d = this.right.birthdate.substr(6);
+        // const a = moment();
+        // const b = moment(`${parseInt(y)}-${m}-${d}`, "YYYY-MM-DD");
 
-        const years = a.diff(b, "year");
-        b.add(years, "years");
-        return years;
+        // const years = a.diff(b, "year");
+        // b.add(years, "years");
+        return parseInt(moment().format("YYYY")) - y;
       }
       return 0;
     },
@@ -545,7 +545,7 @@ var app = new Vue({
                 _this.service_id = "38";
               }
               Swal.close();
-              _this.onCreateQueue();
+               _this.onCreateQueue();
             } else if (
               _this.right.hmain !== "15049" &&
               (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")

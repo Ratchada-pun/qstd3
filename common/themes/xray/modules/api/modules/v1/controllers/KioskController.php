@@ -158,14 +158,23 @@ class KioskController extends ActiveController
           ->one();
         if ($oldModel) {
           $model = $oldModel;
+          $queue_no = $model['q_num'];
+        } else {
+          $queue_no = $model->generateQueueNumber([
+            'serviceid' => $service['serviceid'],
+            'service_prefix' => $service['service_prefix'],
+            'service_numdigit' => $service['service_numdigit'],
+          ]);
         }
+      } else {
+        $queue_no = $model->generateQueueNumber([
+          'serviceid' => $service['serviceid'],
+          'service_prefix' => $service['service_prefix'],
+          'service_numdigit' => $service['service_numdigit'],
+        ]);
       }
 
-      $queue_no = $model->generateQueueNumber([
-        'serviceid' => $service['serviceid'],
-        'service_prefix' => $service['service_prefix'],
-        'service_numdigit' => $service['service_numdigit'],
-      ]);
+
 
       $right = ArrayHelper::getValue($params, 'right', null);
 
