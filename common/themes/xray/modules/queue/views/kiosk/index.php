@@ -1,5 +1,6 @@
 <?php
 
+use kartik\switchinput\SwitchInput;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\helpers\Url;
@@ -110,13 +111,129 @@ CSS;
 $this->registerCss($css);
 
 $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
+$this->registerCssFile("https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css", [
+    'depends' => [\yii\bootstrap\BootstrapAsset::class],
+]);
+$this->registerJsFile(
+    'https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js',
+    ['depends' => [\yii\web\JqueryAsset::class]]
+);
 ?>
-
+<?php /*
+<div class="row">
+    <div class="col-md-6 col-lg-8">
+    </div>
+    <div class="col-md-6 col-lg-4" style="padding-top: 45px;text-align: center;">
+        <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
+            <?php
+            echo '<label class="control-label" style="font-size:16pt;">เลือก ภาษา/Select language</label>';
+            echo SwitchInput::widget([
+                'name' => 'locale',
+                'value' => substr(Yii::$app->language, 0, 2) == 'th',
+                'pluginOptions' => [
+                    'size' => 'large',
+                    'onColor' => 'success',
+                    'offColor' => 'danger',
+                    'onText' => 'ภาษาไทย',
+                    'offText' => 'English',
+                ],
+                'pluginEvents' => [
+                    "switchChange.bootstrapSwitch" => "function() {
+                    if($(this).is(':checked')) {
+                        app.\$i18n.locale = 'th';
+                    } else {
+                        app.\$i18n.locale = 'en';
+                    }
+                }",
+                ]
+            ]);
+            ?>
+        </div>
+    </div>
+</div>
+*/ ?>
 <div id="app" class="kiosk-container">
+
     <!-- begin:: Section Home -->
     <section v-if="!action" class="section-home">
+
         <!-- begin: Title -->
+        <div class="row" style="padding-top: 20%;">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <div class="sawatdee text-center" style="padding-top: 46px;">
+                    <h1 class="text-center">
+                        {{ $t("แผนกเวชระเบียน ยินดีให้บริการค่ะ") }}
+                    </h1>
+                    <div class="sawatdee-img">
+                        <?= Html::img($themeAsset . '/images/kiosk/sawatdee.gif', ['style' => 'margin-left: 10rem;']) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end: Title -->
         <div class="row">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <section>
+                    <h1 class="text-center">
+                        {{ $t("Select language") }}
+                    </h1>
+                </section>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
+                <a href="#" class="button-effect" @click.prevent="onSelectLanguage('th')">
+                    <div class="iq-card card-section-1">
+                        <div class="iq-card-body">
+                            <div class="d-flex">
+                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
+                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
+                                        <h4>{{ $t("ภาษาไทย") }}</h4>
+                                    </span>
+                                </div>
+                                <div>
+                                    <?= Html::img('/img/th.svg', ['width' => '65px']) ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
+                <a href="#" class="button-effect" @click.prevent="onSelectLanguage('en')">
+                    <div class="iq-card card-section-1">
+                        <div class="iq-card-body">
+                            <div class="d-flex">
+                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
+                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
+                                        <h4>{{ $t("English") }} </h4>
+                                    </span>
+                                </div>
+                                <div>
+                                    <?= Html::img('/img/us.svg', ['width' => '65px']) ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <marquee direction="left" scrollamount="5" style="font-size: 40px; color: #a579ed;">
+                    <?php echo $news_ticker['news_ticker_detail'] ?>
+                </marquee>
+            </div>
+        </div>
+    </section>
+    <section v-if="action === 'select-language'" class="section-home">
+
+        <!-- begin: Title -->
+        <div class="row" style="padding-top: 20%;">
             <div class="col-md-12 col-lg-12 col-sm-12">
                 <div class="sawatdee text-center" style="padding-top: 46px;">
                     <h1 class="text-center">
@@ -201,11 +318,26 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
             </div>
         </div>
 
+        <br>
         <div class="row">
-            <div class="col-md-12 col-lg-12 col-sm-12">
-                <marquee direction="left" scrollamount="5" style="font-size: 40px; color: #a579ed;">
-                    <?php echo $news_ticker['news_ticker_detail'] ?>
-                </marquee>
+            <div class="col-md-3 col-lg-3 col-sm-12">
+            </div>
+            <div class="col-md-6 col-lg-6 col-sm-12" style="padding-top: 120px">
+                <a href="#" class="button-effect" @click.prevent="onCancelAction()">
+                    <div class="iq-card card-section-2" style="background: #dc3545;">
+                        <div class="iq-card-body" style="padding: 10px;">
+                            <div class="d-flex">
+                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
+                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option text-center">
+                                        <h4 class="text-white"><i class="fas fa-arrow-left"></i> {{ $t("Cancel") }}</h4>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-2 col-lg-2 col-sm-12">
             </div>
         </div>
     </section>
@@ -342,6 +474,42 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
                                 <h4>{{ $t("Age") }} {{ age }} {{ $t("Year") }}</h4>
                                 </p>
                             </div>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center" style="width: 50%;">
+                                            <h4 class="text-primary">{{ $t("เลขบัตรประจำตัวประชาชน") }}</h4>
+                                            <h5>{{ cidFormat }}<span></span></h5>
+                                        </td>
+                                        <td class="text-center" style="width: 50%;">
+                                            <h4 class="text-primary">{{ $t("สิทธิการรักษา") }}</h4>
+                                            <h5>{{ rightName }}<span></span></h5>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center" style="width: 50%;">
+                                            <h4 class="text-primary">{{ $t("หน่วยบริการประจำ") }}</h4>
+                                            <h5>
+                                                {{ getRight('hmain_op_name', '-') }}
+                                                <span></span>
+                                            </h5>
+                                        </td>
+                                        <td class="text-center" style="width: 50%;">
+                                            <h4 class="text-primary">{{ $t("หน่วยบริการปฐมภูมิ") }}</h4>
+                                            <h5>{{ getRight('hsub_name', '-') }}<span></span></h5>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center" style="width: 50%;">
+                                            <h4 class="text-primary" style="margin-left:8%">{{ $t("หน่วยบริการรับส่งต่อ") }}</h4>
+                                            <h5 style="margin-left:15%">{{ getRight('hmain_name', '-') }}<span></span></h5>
+                                        </td>
+                                        <td class="text-center">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <?php /*
                             <ul class="doctoe-sedual d-flex align-items-center justify-content-between p-0 mt-4 mb-0">
                                 <!--  <li class="text-center">
                   <h4 class="text-primary">HN</h4>
@@ -375,6 +543,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
                                     <h5 style="margin-left:15%">{{ getRight('hmain_name', '-') }}<span></span></h5>
                                 </li>
                             </ul>
+                            */ ?>
                         </div>
                     </div>
                 </div>
@@ -399,7 +568,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
                                         <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
                                             <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
                                                 <h4 :class="{ 'text-white': service_id !== item.serviceid, 'text-success': service_id === item.serviceid }">
-                                                    {{ item.btn_kiosk_name }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
+                                                    {{ $t(item.btn_kiosk_name) }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
                                                 </h4>
                                             </span>
                                         </div>
@@ -432,7 +601,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
             </div>
             <div class="col-md-4 col-lg-4 col-sm-12"></div>
             <div class="col-md-4 col-lg-4 col-sm-12">
-                <a href="#" class="button-effect" @click.prevent="onCreateQueue()" :style="disabledStyle">
+                <!-- <a href="#" class="button-effect" @click.prevent="onCreateQueue()" :style="disabledStyle">
                     <div class="iq-card card-section-2" :style="{ background: '#28a745', opacity: opacity }">
                         <div class="iq-card-body" style="padding: 10px;">
                             <div class="d-flex">
@@ -444,7 +613,7 @@ $themeAsset = Yii::$app->assetManager->getPublishedUrl('@xray/assets/dist');
                             </div>
                         </div>
                     </div>
-                </a>
+                </a> -->
             </div>
         </div>
 

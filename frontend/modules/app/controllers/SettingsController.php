@@ -480,11 +480,7 @@ class SettingsController extends \yii\web\Controller
         if ($request->isAjax) {
             $query = (new \yii\db\Query())
                 ->select([
-                    'tb_sound.sound_id',
-                    'tb_sound.sound_name',
-                    'tb_sound.sound_path_name',
-                    'tb_sound.sound_th',
-                    'tb_sound.sound_type'
+                    'tb_sound.*'
                 ])
                 ->from('tb_sound');
 
@@ -511,6 +507,9 @@ class SettingsController extends \yii\web\Controller
                     ],
                     [
                         'attribute' => 'sound_th',
+                    ],
+                    [
+                        'attribute' => 'language',
                     ],
                     [
                         'attribute' => 'sound_type',

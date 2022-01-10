@@ -9,22 +9,49 @@ use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
- * This is the model class for table "tb_queqe".
+ * This is the model class for table "tb_quequ".
  *
  * @property int $q_ids running
- * @property string $queue_no หมายเลขคิว
- * @property string $queue_time เวลาที่ออกคิว
- * @property string $queue_date วันที่ออกคิว
- * @property string|null $cid รหัสประชาชนผู้ป่วย
- * @property string|null $pt_name ชื่อผู้ป่วย
- * @property int|null $age อายุ
+ * @property string $q_num หมายเลขคิว
+ * @property string $q_timestp วันที่ออกคิว
+ * @property int $q_arrive_time เวลามาถึง
+ * @property int $q_appoint_time เวลานัดหมาย
+ * @property string $cid รหัสประชาชนผู้ป่วย
+ * @property string $q_vn Visit number ของผู้ป่วย
+ * @property string $q_hn หมายเลข HN ผู้ป่วย
+ * @property string $q_qn QN
+ * @property string $rx_q
+ * @property string $pt_name ชื่อผู้ป่วย
+ * @property int $pt_visit_type_id ประเภท walkin/ไม่ walkin
+ * @property int $appoint_id แผนกที่นัดหมาย
  * @property int $servicegroupid กลุ่มบริการ
+ * @property int $quickly ความด่วนของคิว
  * @property int $serviceid ประเภทบริการ
- * @property int $q_status_id สถานะคิว
- * @property int|null $tslotid รหัสช่วงเวลา
- * @property string|null $maininscl_name สิทธิการรักษา
- * @property string|null $created_at วันที่บันทึก
- * @property string|null $updated_at วันที่แก้ไข
+ * @property int $created_from คิวสร้างจาก 1 kiosk 2 mobile
+ * @property int $q_status_id สถานะ
+ * @property string $doctor_id รหัสแพทย์
+ * @property string $doctor_name แพทย์ที่นัด
+ * @property int $counterserviceid เลขที่ช่องบริการ
+ * @property int $tslotid รหัสช่วงเวลา
+ * @property string $created_at วันที่บันทึก
+ * @property string $updated_at วันที่แก้ไข
+ * @property string $pt_pic ไฟล์ภาพ path file
+ * @property string $pt_sound ไฟล์เสียง path file
+ * @property string $maininscl_name สิทธิ์
+ * @property string $u_id รหัสผู้ใช้งาน mobile
+ * @property string $token รหัสแจ้งเตือนคิว
+ * @property string $age อายุ
+ * @property int $countdrug 0 = ไม่มียา , 1 = มียา
+ * @property int $qfinace 0 = ไม่ต้องจ่ายเงิน, 1 = จ่ายงิน
+ * @property string $purchaseprovince_name จังหวัดที่ลงทะเบียนรักษา
+ * @property string $hsub_name ชื่อหน่วยบริกการปฐมภูมิ
+ * @property string $hmain_name ชื่อหน่วยบริกำรที่รับกำรส่งต่อ
+ * @property int $paid_model รูปแบบกำรให้บริกำรเพื่อรับกำรจัดสรรเงิน(model)
+ * @property string $hmain_op_name ชื่อหน่วยบริการประจำ
+ * @property int $wating_time เวลารอคอยเฉลี่ย
+ * @property string $end_queue เวลาจบคิว
+ * @property int $service_time เวลาบริการ
+ * @property string $locale ภาษาที่เลือก
  */
 class TbQueue extends \yii\db\ActiveRecord
 {
@@ -59,8 +86,8 @@ class TbQueue extends \yii\db\ActiveRecord
     {
         return [
             [['q_num', 'servicegroupid', 'serviceid', 'q_status_id'], 'required'],
-            [['q_timestp', 'created_at', 'updated_at'], 'safe'],
-            [['q_arrive_time', 'q_appoint_time', 'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'quickly', 'serviceid', 'created_from', 'q_status_id', 'counterserviceid', 'tslotid', 'countdrug', 'qfinace', 'paid_model','wating_time'], 'integer'],
+            [['q_timestp', 'created_at', 'updated_at', 'end_queue'], 'safe'],
+            [['q_arrive_time', 'q_appoint_time', 'pt_visit_type_id', 'appoint_id', 'servicegroupid', 'quickly', 'serviceid', 'created_from', 'q_status_id', 'counterserviceid', 'tslotid', 'countdrug', 'qfinace', 'paid_model', 'wating_time', 'service_time'], 'integer'],
             [['u_id', 'token', 'hmain_op_name'], 'string'],
             [['q_num', 'q_vn', 'q_hn'], 'string', 'max' => 20],
             [['cid'], 'string', 'max' => 13],
@@ -70,6 +97,7 @@ class TbQueue extends \yii\db\ActiveRecord
             [['doctor_name'], 'string', 'max' => 250],
             [['pt_pic', 'pt_sound', 'maininscl_name', 'purchaseprovince_name', 'hsub_name', 'hmain_name'], 'string', 'max' => 255],
             [['age'], 'string', 'max' => 11],
+            [['locale'], 'string', 'max' => 100],
         ];
     }
 
@@ -82,7 +110,7 @@ class TbQueue extends \yii\db\ActiveRecord
         return [
             'q_ids' => 'running',
             'q_num' => 'หมายเลขคิว',
-            'q_timestp' => 'เวลาที่ออกคิว',
+            'q_timestp' => 'วันที่ออกคิว',
             'q_arrive_time' => 'เวลามาถึง',
             'q_appoint_time' => 'เวลานัดหมาย',
             'cid' => 'รหัสประชาชนผู้ป่วย',
@@ -118,6 +146,9 @@ class TbQueue extends \yii\db\ActiveRecord
             'paid_model' => 'รูปแบบกำรให้บริกำรเพื่อรับกำรจัดสรรเงิน(model)',
             'hmain_op_name' => 'ชื่อหน่วยบริการประจำ',
             'wating_time' => 'เวลารอคอยเฉลี่ย',
+            'end_queue' => 'เวลาจบคิว',
+            'service_time' => 'เวลาบริการ',
+            'locale' => 'ภาษาที่เลือก',
         ];
     }
 

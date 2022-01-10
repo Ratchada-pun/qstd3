@@ -142,172 +142,338 @@ $this->registerCss('
             opacity: 0;
         }
     }
+
+    #kiosk-date,
+    .time>span.time__hours,
+    .time>span.time__min,
+    .time>span.time__sec,
+    .time {
+    color: #ffffff;
+    }
+    .time>span.time__hours:not(:last-child):after,
+    .time>span.time__min:not(:last-child):after,
+    .time>span.time__sec:not(:last-child):after {
+    content: \':\';
+    width: 10px;
+    text-align: center;
+    display: inline-block;
+    position: relative;
+    top: -1px;
+    right: -1px;
+    }
 ');
 $this->registerJs('var counter = ' . Json::encode($counter) . '; ', View::POS_HEAD);
 $this->registerJs('var config = ' . Json::encode($config) . '; ', View::POS_HEAD);
+
+$formatter = Yii::$app->formatter;
 ?>
 <div id="app" class="container">
-    <div class="row">
-        <div class="col-xs-8 col-sm-8 col-md-8 border-right" style="text-align: center;">
-            <h1 class="text-success" style=" font-size: 50px; color: <?= $config['title_left_color']; ?>">
-                <?= $config['title_left'] ?>
-            </h1>
-        </div>
-        <?php /*
-	    <div class="col-xs-4 col-sm-4 col-md-4 border-right" style="text-align: center;">
-	        <h1 class="text-success" style="color: <?= $config['title_right_color']; ?>"><?= $config['title_right'] ?></h1>
-	    </div>
-	    */ ?>
-        <div class="col-xs-4 col-sm-4 col-md-4" style="text-align: center;">
-            <h1 class="text-success" style="font-size: 50px; color: <?= $config['title_latest_color']; ?>"><?= $config['title_latest'] ?></h1>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-8 col-sm-8 col-md-8">
-            <table class="table table-display" id="table-display" width="100%">
-                <thead>
-                    <tr>
-                        <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
-                            <div style="display: flex;">
-                                <div style="width: 50%"><?= $config['table_title_left'] ?></div>
-                                <div style="width: 50%"><?= $config['table_title_right'] ?></div>
+    <table class="table table-display" width="100%">
+        <thead>
+            <tr>
+                <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
+                    <div style="display: flex;">
+                        <div style="width: 50%;text-align: left;">
+                            โรงพยาบาลสิรินธร
+                            <h3>
+                                Sirindhorn Hospital
+                            </h3>
+                        </div>
+                        <div style="width: 50%">
+                            <div class="caption clock">
+                                <h2 class="mb-0 line-height text-cyan time" style="text-align: right;">
+                                    <span id="kiosk-date">
+                                        <?= $formatter->asDate('now', 'php:lที่ d F ') . ($formatter->asDate('now', 'php:Y') + 543) ?>
+                                    </span>
+                                </h2>
+                                <h3 class="mb-0 line-height text-cyan time text-right">
+                                    เวลา <span class="time__hours"><?= $formatter->asDate('now', 'php:H') ?></span><span class="time__min"><?= $formatter->asDate('now', 'php:i') ?></span><span class="time__sec"><?= $formatter->asDate('now', 'php:s') ?></span> น.
+                                </h3>
                             </div>
-                        </th>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+    </table>
+    <?php if ($config['show_last_q']) { ?>
+        <div class="row">
 
-                        <?php /*
+            <div class="col-xs-8 col-sm-8 col-md-8">
+                <table class="table table-display" id="table-display" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
+                                <div style="display: flex;">
+                                    <div style="width: 50%"><?= $config['table_title_left'] ?></div>
+                                    <div style="width: 50%"><?= $config['table_title_right'] ?></div>
+                                </div>
+                            </th>
+
+                            <?php /*
                         <th style="width: 50%;color: <?= $config['table_title_left_color']; ?>" class="th-left"><?= $config['table_title_left'] ?></th>
                         
                         <th style="width: 50%;color: <?= $config['table_title_right_color']; ?>" class="th-right"><?= $config['table_title_right'] ?></th>
                    */ ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
-                        <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
-                            <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
-                                <tbody>
-                                    <tr style="border:0px;">
-                                        <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
-                                            <div style="margin: auto;">
-                                                <img :src="item.pt_pic" alt="" style="width:140px">
-                                            </div>
-                                        </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
+                            <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
+                                <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
+                                            <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
+                                                <div style="margin: auto;">
+                                                    <img :src="item.pt_pic" alt="" style="width:140px">
+                                                </div>
+                                            </td>
 
-                                        <td  style="border-top:0px; width: 60%">
-                                            <span :class="item.q_num">
-                                                {{ item.q_num }}
-                                            </span>
-                                        </td>
+                                            <td style="border-top:0px; width: 60%">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
 
-                                        <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                            <span :class="item.q_num">
-                                                {{ item.counterservice_callnumber }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr style="border:0px;">
-                                        <td style="border-top:0px; text-align:center;width:60%">
-                                            <span :class="item.q_num">
-                                                {{ item.pt_name }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
-                                <tbody>
-                                    <tr style="border:0px;">
-                                        <td style="border-top:0px; width: 80%">
-                                            <span :class="item.q_num">
-                                                {{ item.q_num }}
-                                            </span>
-                                        </td>
+                                            <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border:0px;">
+                                            <td style="border-top:0px; text-align:center;width:60%">
+                                                <span :class="item.q_num">
+                                                    {{ item.pt_name }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
+                                            <td style="border-top:0px; width: 80%">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
 
-                                        <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                            <span :class="item.q_num">
-                                                {{ item.counterservice_callnumber }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr style="border:0px;">
-                                        <td style="border-top:0px; text-align:center;width:80%">
-                                            <span :class="item.q_num">
-                                                {{ item.pt_name }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
-                                <tbody>
-                                    <tr style="border:0px;">
-                                        <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
-                                            <div style="margin: auto;">
-                                                <img :src="item.pt_pic" alt="" style="width:140px">
-                                            </div>
-                                        </td>
+                                            <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border:0px;">
+                                            <td style="border-top:0px; text-align:center;width:80%">
+                                                <span :class="item.q_num">
+                                                    {{ item.pt_name }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
+                                            <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
+                                                <div style="margin: auto;">
+                                                    <img :src="item.pt_pic" alt="" style="width:140px">
+                                                </div>
+                                            </td>
 
-                                        <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
-                                            <span :class="item.q_num">
-                                                {{ item.q_num }}
-                                            </span>
-                                        </td>
+                                            <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
 
-                                        <td style="border-top:0px; width: 40%;vertical-align: middle;">
-                                            <span :class="item.q_num">
-                                                {{ item.counterservice_callnumber }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
-                                <tbody>
-                                    <tr style="border:0px;">
+                                            <td style="border-top:0px; width: 40%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
 
-                                        <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                            <span :class="item.q_num">
-                                                {{ item.q_num }}
-                                            </span>
-                                        </td>
+                                            <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
 
-                                        <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                            <span :class="item.q_num">
-                                                {{ item.counterservice_callnumber }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                            <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4">
+                <table class="table table-display2" id="table-display2" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;color: <?= $config['title_latest_right_color']; ?>" class="th-left">#</th>
+                            <th style="width: 50%;color: <?= $config['title_latest_right_color']; ?>" class="th-right"><?= $config['title_latest_right']; ?></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
-        <div class="col-xs-4 col-sm-4 col-md-4">
-            <table class="table table-display2" id="table-display2" width="100%">
-                <thead>
-                    <tr>
-                        <th style="width: 50%;color: <?= $config['title_latest_right_color']; ?>" class="th-left">#</th>
-                        <th style="width: 50%;color: <?= $config['title_latest_right_color']; ?>" class="th-right"><?= $config['title_latest_right']; ?></th>
-                    </tr>
-                </thead>
-            </table>
+    <?php } ?>
+
+    <!-- ไม่แสดงคิวล่าสุด -->
+    <?php if (!$config['show_last_q']) { ?>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <table class="table table-display" id="table-display" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
+                                <div style="display: flex;">
+                                    <div style="width: 50%"><?= $config['table_title_left'] ?></div>
+                                    <div style="width: 50%"><?= $config['table_title_right'] ?></div>
+                                </div>
+                            </th>
+
+                            <?php /*
+                        <th style="width: 50%;color: <?= $config['table_title_left_color']; ?>" class="th-left"><?= $config['table_title_left'] ?></th>
+                        
+                        <th style="width: 50%;color: <?= $config['table_title_right_color']; ?>" class="th-right"><?= $config['table_title_right'] ?></th>
+                   */ ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
+                            <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
+                                <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
+                                            <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
+                                                <div style="margin: auto;">
+                                                    <img :src="item.pt_pic" alt="" style="width:140px">
+                                                </div>
+                                            </td>
+
+                                            <td style="border-top:0px; width: 60%">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
+
+                                            <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border:0px;">
+                                            <td style="border-top:0px; text-align:center;width:60%">
+                                                <span :class="item.q_num">
+                                                    {{ item.pt_name }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
+                                            <td style="border-top:0px; width: 80%">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
+
+                                            <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border:0px;">
+                                            <td style="border-top:0px; text-align:center;width:80%">
+                                                <span :class="item.q_num">
+                                                    {{ item.pt_name }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
+                                            <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
+                                                <div style="margin: auto;">
+                                                    <img :src="item.pt_pic" alt="" style="width:140px">
+                                                </div>
+                                            </td>
+
+                                            <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
+
+                                            <td style="border-top:0px; width: 40%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                    <tbody>
+                                        <tr style="border:0px;">
+
+                                            <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.q_num }}
+                                                </span>
+                                            </td>
+
+                                            <td style="border-top:0px; width: 50%;vertical-align: middle;">
+                                                <span :class="item.q_num">
+                                                    {{ item.counterservice_callnumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <table class="table table-hold" id="table-hold" width="100%">
-                <tbody>
-                    <tr>
-                        <td class="td-hold-left"><?= $config['hold_label'] ?></td>
-                        <td class="td-hold-right"></td>
-                    </tr>
-                </tbody>
-            </table>
+    <?php } ?>
+    <?php if (!empty($config['hold_label']) && $config['show_last_call']) : ?>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <table class="table table-hold" id="table-hold" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="td-hold-left"><?= $config['hold_label'] ?></td>
+                            <td class="td-hold-right"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <?php if (!empty($config['text_marquee'])) : ?>
+    <?php endif; ?>
+    <?php if (!empty($config['text_marquee']) && $config['show_advertise']) : ?>
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <marquee id="marquee" style="color: <?= $config['font_marquee_color'] ?>;" direction="left"><?= $config['text_marquee'] ?></marquee>
@@ -817,6 +983,23 @@ var app = new Vue({
         }
   },
 })
+
+if ($(".clock")[0]) {
+  var e = new Date()
+  e.setDate(e.getDate()),
+  setInterval(function () {
+    var e = new Date().getSeconds()
+    $(".time__sec").html((e < 10 ? "0" : "") + e)
+  }, 1e3),
+  setInterval(function () {
+    var e = new Date().getMinutes()
+    $(".time__min").html((e < 10 ? "0" : "") + e)
+  }, 1e3),
+  setInterval(function () {
+    var e = new Date().getHours()
+    $(".time__hours").html((e < 10 ? "0" : "") + e)
+  }, 1e3)
+}
 JS
 );
 ?>

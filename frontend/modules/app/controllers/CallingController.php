@@ -38,6 +38,7 @@ use yii\httpclient\Client;
 use frontend\modules\app\models\TbService;
 use frontend\modules\app\models\TbDrugDispensing;
 use frontend\modules\app\models\TbProfilePriority;
+use frontend\modules\app\models\TbSound;
 
 class CallingController extends \yii\web\Controller
 {
@@ -868,7 +869,7 @@ class CallingController extends \yii\web\Controller
                     return [
                         'status' => '200',
                         'message' => 'success',
-                        'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id']),
+                        'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id'], $modelQueue['locale']),
                         'data' => $data,
                         'modelCaller' => $model,
                         'modelQueue' => $modelQueue,
@@ -920,7 +921,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id'], $modelQueue['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQueue,
@@ -2662,7 +2663,7 @@ class CallingController extends \yii\web\Controller
                     return [
                         'status' => '200',
                         'message' => 'success',
-                        'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                        'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id'], $modelQ['locale']),
                         'data' => $data,
                         'modelCaller' => $model,
                         'modelQueue' => $modelQ,
@@ -2774,7 +2775,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id'], $modelQ['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQ,
@@ -2863,7 +2864,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id'], $modelQ['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQ,
@@ -3019,14 +3020,20 @@ class CallingController extends \yii\web\Controller
         }
     }
 
-    public function getMediaSound($qnum, $id)
+    public function getMediaSound($qnum, $id, $language = 'th')
     {
         $qnum = str_split($qnum);
         $counter = $this->findModelCounterservice($id);
-        $modelSound = $counter->tbSound;
+        $modelSound = TbSound::findOne(['sound_id' => $counter['sound_id'], 'language' => $language]);
+        if (!$modelSound) {
+            throw new HttpException(404, 'sound_id ' . $counter['sound_id'] . ' not found.');
+        }
         //$counterType = $counter->counterserviceType;
         //$counterSound = $counterType->tbSound;
-        $servicesound = $counter->soundService;
+        $servicesound = TbSound::findOne(['sound_id' => $counter['sound_service_id'], 'language' => $language]);
+        if (!$servicesound) {
+            throw new HttpException(404, 'sound_service_id ' . $counter['sound_service_id'] . ' not found.');
+        }
         $basePath = "/media/" . $modelSound['sound_path_name'];
         $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข
         $end = [
@@ -3147,7 +3154,7 @@ class CallingController extends \yii\web\Controller
                     return [
                         'status' => '200',
                         'message' => 'success',
-                        'sound' => $this->getMediaSound($modelQ['q_num'], $request->post('value')),
+                        'sound' => $this->getMediaSound($modelQ['q_num'], $request->post('value'), $modelQ['locale']),
                         'data' => $data,
                         'modelCaller' => $model,
                         'modelQueue' => $modelQ,
@@ -3210,7 +3217,7 @@ class CallingController extends \yii\web\Controller
                     return [
                         'status' => '200',
                         'message' => 'success',
-                        'sound' => $this->getMediaSound($modelQ['q_num'], $request->post('value')),
+                        'sound' => $this->getMediaSound($modelQ['q_num'], $request->post('value'), $modelQ['locale']),
                         'data' => $data,
                         'modelCaller' => $model,
                         'modelQueue' => $modelQ,
@@ -3287,7 +3294,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id'], $modelQ['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQ,
@@ -3420,7 +3427,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQueue['q_num'], $model['counter_service_id'], $modelQueue['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQueue,
@@ -3555,7 +3562,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id'], $modelQ['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQ,
@@ -3650,7 +3657,7 @@ class CallingController extends \yii\web\Controller
                     return [
                         'status' => '200',
                         'message' => 'success',
-                        'sound' => $this->getMediaSound($modelQ['q_num'], $request->post('value')),
+                        'sound' => $this->getMediaSound($modelQ['q_num'], $request->post('value'), $modelQ['locale']),
                         'data' => $data,
                         'modelCaller' => $model,
                         'modelQueue' => $modelQ,
@@ -3699,7 +3706,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id'], $modelQ['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQ,
@@ -3825,7 +3832,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id']),
+                    'sound' => $this->getMediaSound($modelQ['q_num'], $model['counter_service_id'], $modelQ['locale']),
                     'data' => $data,
                     'modelCaller' => $model,
                     'modelQueue' => $modelQ,
@@ -3900,7 +3907,8 @@ class CallingController extends \yii\web\Controller
                     'tb_caller.*',
                     'tb_qtrans.ids',
                     'tb_quequ.q_num',
-                    'tb_counterservice.*'
+                    'tb_counterservice.*',
+                    'tb_quequ.locale',
                 ])
                 ->from('tb_caller')
                 ->where(['tb_caller.call_status' => TbCaller::STATUS_CALLING, 'tb_caller.counter_service_id' => $counters])
@@ -3913,7 +3921,7 @@ class CallingController extends \yii\web\Controller
             $data = [];
             foreach ($rows as $row) {
                 $data[] = [
-                    'sound' => $this->getMediaSound($row['q_num'], $row['counter_service_id']),
+                    'sound' => $this->getMediaSound($row['q_num'], $row['counter_service_id'], $row['locale']),
                     'model' => $row,
                     'modelCaller' => $row,
                     'modelQueue' => $row,
@@ -4303,7 +4311,7 @@ class CallingController extends \yii\web\Controller
                         $call_result[] = [
                             'status' => '200',
                             'message' => 'success',
-                            'sound' => $this->getMediaSound($modelQ['q_num'], $modelCaller['counter_service_id']),
+                            'sound' => $this->getMediaSound($modelQ['q_num'], $modelCaller['counter_service_id'], $modelQ['locale']),
                             'data' => $data,
                             'modelCaller' => $modelCaller,
                             'modelQueue' => $modelQ,
@@ -4547,7 +4555,7 @@ class CallingController extends \yii\web\Controller
                 return [
                     'status' => '200',
                     'message' => 'success',
-                    'sound' => $this->getMediaSound($modelQueue['q_num'], $counter['counterserviceid']),
+                    'sound' => $this->getMediaSound($modelQueue['q_num'], $counter['counterserviceid'], $modelQueue['locale']),
                     'modelCaller' => $modelCaller,
                     'modelQTrans' => $modelQTrans,
                     'modelQueue' => $modelQueue,

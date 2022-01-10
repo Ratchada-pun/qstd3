@@ -195,7 +195,8 @@ class KioskController extends ActiveController
         'hmain_name' => ArrayHelper::getValue($right, 'hmain_name', null),
         'paid_model' => ArrayHelper::getValue($right, 'paid_model', null),
         'hmain_op_name' => ArrayHelper::getValue($right, 'hmain_op_name', null),
-        'wating_time' => $count != 0 && !empty($service['average_time']) ? number_format($count * $service['average_time']) : 0
+        'wating_time' => $count != 0 && !empty($service['average_time']) ? number_format($count * $service['average_time']) : 0,
+        'locale' => ArrayHelper::getValue($params, 'locale', Yii::$app->language),
       ]);
       if (!empty($picture) && !empty($cid)) {
         $pt_pic = $this->uploadPicture($picture, Yii::$app->security->generateRandomString());

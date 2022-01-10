@@ -82,7 +82,25 @@ class KioskController extends Controller
             $attr['{' . $value . '}'] = $model->{$value};
         }
 
-        $template = strtr($ticket->template, ArrayHelper::merge([
+        $template = '';
+
+        if ($model['locale'] == 'th') {
+            $template = $ticket->template_th;
+        }
+        if ($model['locale'] == 'en') {
+            $template = $ticket->template_en;
+        }
+        // บัตรคิวฟอร์มเล็ก 
+        if (empty($model['cid'])) {
+            if ($model['locale'] == 'th') {
+                $template = $ticket->template_th_small;
+            }
+            if ($model['locale'] == 'en') {
+                $template = $ticket->template_en_small;
+            }
+        }
+
+        $template = strtr($template, ArrayHelper::merge([
             '{hos_name_th}' => $ticket->hos_name_th,
             '{pt_name}' => $model->pt_name,
             '{q_num}' => $model->q_num,
@@ -92,6 +110,7 @@ class KioskController extends Controller
             '{qwaiting}' => $count,
             '/img/logo/logo.jpg' => $ticket->logo_path ? $ticket->logo_base_url . '/' . $ticket->logo_path : '/img/logo/logo.jpg',
         ], $attr));
+
         return $this->renderAjax('print-ticket', [
             'model' => $model,
             'ticket' => $ticket,

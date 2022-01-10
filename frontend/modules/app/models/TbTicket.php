@@ -17,6 +17,8 @@ use trntv\filekit\behaviors\UploadBehavior;
  * @property string $logo_base_url
  * @property string $barcode_type รหัสโค้ด
  * @property int $status สถานะการใช้งาน
+ * @property string $template_th แบบบัตรคิว
+ * @property string $template_en แบบบัตรคิว
  */
 class TbTicket extends \yii\db\ActiveRecord
 {
@@ -42,16 +44,14 @@ class TbTicket extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['hos_name_th', 'status'], 'unique', 'targetAttribute' => ['hos_name_th', 'status']],
             [['hos_name_th', 'barcode_type'], 'required'],
-            [['template', 'default_template'], 'string'],
+            [['template', 'default_template', 'template_th', 'template_en', 'template_th_small', 'template_en_small'], 'string'],
             [['status'], 'integer'],
-            [['logo'], 'safe'],
             [['hos_name_th', 'hos_name_en', 'logo_path', 'logo_base_url', 'barcode_type'], 'string', 'max' => 255],
         ];
     }
@@ -71,6 +71,10 @@ class TbTicket extends \yii\db\ActiveRecord
             'logo_base_url' => 'Logo Base Url',
             'barcode_type' => 'รหัสโค้ด',
             'status' => 'สถานะการใช้งาน',
+            'template_th' => 'แบบบัตรคิวภาษาไทย',
+            'template_en' => 'แบบบัตรคิวภาษาอังกฤษ',
+            'template_th_small' => 'แบบบัตรคิวภาษาไทย(บัตรเล็ก)',
+            'template_en_small' => 'แบบบัตรคิวภาษาอังกฤษ(บัตรเล็ก)',
         ];
     }
 
@@ -178,7 +182,7 @@ class TbTicket extends \yii\db\ActiveRecord
                             <img src="/img/logo/logo.jpg" alt="" class="center-block" style="width: 100px">
                         </div>
                         <div class="col-xs-12" style="padding: 0;">
-                            <h4 class="color" style="margin-top: 0px;margin-bottom: 0px;text-align: center;"><b style="font-weight: bold;">โรงพยาบาลชัยนาทนเรนทร</b></h4>
+                            <h4 class="color" style="margin-top: 0px;margin-bottom: 0px;text-align: center;"><b style="font-weight: bold;">โรงพยาบาลสิรินธร</b></h4>
                             <h6 class="color" style="margin-top: 4px;margin-bottom: 0px;text-align: center;"><b>งานบริการผู้ป่วยนอก</b></h6>
                         </div>
                         <div class="col-xs-12" style="padding: 3px 0px 10px 0px;;text-align: left;">

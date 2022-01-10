@@ -277,6 +277,7 @@ $this->registerCssFile("@web/css/80mm.css", [
 </div>
 
 <div class="form-group">
+    <?php /*
     <?= Html::activeLabel($model, 'barcode_type', ['label' => 'รหัสบาร์โค้ด', 'class' => 'col-sm-2 control-label']) ?>
     <div class="col-sm-4">
         <?= $form->field($model, 'barcode_type')->widget(Select2::classname(), [
@@ -300,6 +301,7 @@ $this->registerCssFile("@web/css/80mm.css", [
             'theme' => Select2::THEME_BOOTSTRAP,
         ])->hint('<span class="text-danger">แนะนำให้ใช้โค้ด code128 </span>') ?>
     </div>
+    */ ?>
 
     <?= Html::activeLabel($model, 'status', ['label' => 'สถานะการใช้งาน', 'class' => 'col-sm-2 control-label']) ?>
     <div class="col-sm-4">
@@ -309,6 +311,7 @@ $this->registerCssFile("@web/css/80mm.css", [
     </div>
 </div>
 
+<?php /*
 <div class="form-group">
     <?= Html::activeLabel($model, 'template', ['label' => 'บัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
     <div class="col-sm-4">
@@ -323,6 +326,69 @@ $this->registerCssFile("@web/css/80mm.css", [
         </div>
     </div>
 </div>
+*/ ?>
+
+<div class="form-group">
+    <?= Html::activeLabel($model, 'template_th', ['class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'template_th')->textarea([
+            'value' => $model->isNewRecord || empty($model['template_th']) ? $model->defaultTemplate : $model['template_th'],
+        ])->hint('<span class="text-danger">หมายเหตุ. ห้าม!!! เปลี่ยนข้อความที่มีเครื่องหมาย {} </span>') ?>
+    </div>
+    <?= Html::activeLabel($model, 'template_th', ['label' => 'ตัวอย่างบัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <div id="editor-previewth">
+            <?= $model->isNewRecord || empty($model['template_th']) ? $model->exampleTemplate : $model['template_th']; ?>
+        </div>
+    </div>
+</div>
+
+
+<div class="form-group">
+    <?= Html::activeLabel($model, 'template_en', ['class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'template_en')->textarea([
+            'value' => $model->isNewRecord || empty($model['template_en']) ? $model->defaultTemplate : $model['template_en'],
+        ])->hint('<span class="text-danger">หมายเหตุ. ห้าม!!! เปลี่ยนข้อความที่มีเครื่องหมาย {} </span>') ?>
+    </div>
+    <?= Html::activeLabel($model, 'template_en', ['label' => 'ตัวอย่างบัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <div id="editor-previewen">
+            <?= $model->isNewRecord || empty($model['template_en']) ? $model->exampleTemplate : $model['template_en']; ?>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <?= Html::activeLabel($model, 'template_th_small', ['class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'template_th_small')->textarea([
+            'value' => $model->isNewRecord || empty($model['template_th_small']) ? $model->defaultTemplate : $model['template_th_small'],
+        ])->hint('<span class="text-danger">หมายเหตุ. ห้าม!!! เปลี่ยนข้อความที่มีเครื่องหมาย {} </span>') ?>
+    </div>
+    <?= Html::activeLabel($model, 'template_th_small', ['label' => 'ตัวอย่างบัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <div id="editor-previewth-small">
+            <?= $model->isNewRecord || empty($model['template_th_small']) ? $model->exampleTemplate : $model['template_th_small']; ?>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <?= Html::activeLabel($model, 'template_en_small', ['class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'template_en_small')->textarea([
+            'value' => $model->isNewRecord || empty($model['template_en_small']) ? $model->defaultTemplate : $model['template_en_small'],
+        ])->hint('<span class="text-danger">หมายเหตุ. ห้าม!!! เปลี่ยนข้อความที่มีเครื่องหมาย {} </span>') ?>
+    </div>
+    <?= Html::activeLabel($model, 'template_en_small', ['label' => 'ตัวอย่างบัตรคิว', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <div id="editor-previewen-small">
+            <?= $model->isNewRecord || empty($model['template_en_small']) ? $model->exampleTemplate : $model['template_en_small']; ?>
+        </div>
+    </div>
+</div>
+
 
 <div class="form-group">
     <div class="col-md-12">
@@ -365,15 +431,40 @@ $this->registerJs(
 var d = new Date();
 var y = d.getFullYear() + 543;
 moment.locale('th');
-var editor  = CKEDITOR.inline( 'tbticket-template',{
+// var editor  = CKEDITOR.inline( 'tbticket-template',{
+//     contenteditable: true,
+//     language: 'th',
+//     extraPlugins: 'sourcedialog',
+//     uiColor: '#f1f3f6'
+// });
+
+// editor.on('change',function(){
+//     var data = editor.getData()
+//     .replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+//     .replace('{q_hn}','0008962222')
+//     .replace('{pt_name}','ชื่อ-นามสกุล')
+//     .replace('{q_num}','A0012561')
+//     .replace('{pt_visit_type}','ผู้ป่วยนัดหมาย')
+//     .replace('{service_name}','แผนกห้องยา')
+//     .replace('{maininscl_name}','ชื่อสิทธิการรักษา')
+//     .replace('{qwaiting}','0')
+//     .replace('{age}','-')
+//     .replace('{time}',moment().format("D MMM ") + (y.toString()).substr(2))
+//     .replace('{user_print}','Admin Hospital');
+//     data.replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+//     $('#editor-preview').html(data);
+//     editor.updateElement();
+// });
+
+var editor1  = CKEDITOR.inline( 'tbticket-template_th',{
     contenteditable: true,
     language: 'th',
     extraPlugins: 'sourcedialog',
     uiColor: '#f1f3f6'
 });
 
-editor.on('change',function(){
-    var data = editor.getData()
+editor1.on('change',function(){
+    var data = editor1.getData()
     .replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
     .replace('{q_hn}','0008962222')
     .replace('{pt_name}','ชื่อ-นามสกุล')
@@ -386,8 +477,85 @@ editor.on('change',function(){
     .replace('{time}',moment().format("D MMM ") + (y.toString()).substr(2))
     .replace('{user_print}','Admin Hospital');
     data.replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
-    $('#editor-preview').html(data);
-    editor.updateElement();
+    $('#editor-previewth').html(data);
+    editor1.updateElement();
+});
+
+
+var editor2  = CKEDITOR.inline( 'tbticket-template_en',{
+    contenteditable: true,
+    language: 'th',
+    extraPlugins: 'sourcedialog',
+    uiColor: '#f1f3f6'
+});
+
+editor2.on('change',function(){
+    var data = editor2.getData()
+    .replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+    .replace('{q_hn}','0008962222')
+    .replace('{pt_name}','ชื่อ-นามสกุล')
+    .replace('{q_num}','A0012561')
+    .replace('{pt_visit_type}','ผู้ป่วยนัดหมาย')
+    .replace('{service_name}','แผนกห้องยา')
+    .replace('{maininscl_name}','ชื่อสิทธิการรักษา')
+    .replace('{qwaiting}','0')
+    .replace('{age}','-')
+    .replace('{time}',moment().format("D MMM ") + (y.toString()).substr(2))
+    .replace('{user_print}','Admin Hospital');
+    data.replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+    $('#editor-previewen').html(data);
+    editor2.updateElement();
+});
+
+var editor3  = CKEDITOR.inline( 'tbticket-template_th_small',{
+    contenteditable: true,
+    language: 'th',
+    extraPlugins: 'sourcedialog',
+    uiColor: '#f1f3f6'
+});
+
+editor3.on('change',function(){
+    var data = editor3.getData()
+    .replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+    .replace('{q_hn}','0008962222')
+    .replace('{pt_name}','ชื่อ-นามสกุล')
+    .replace('{q_num}','A0012561')
+    .replace('{pt_visit_type}','ผู้ป่วยนัดหมาย')
+    .replace('{service_name}','แผนกห้องยา')
+    .replace('{maininscl_name}','ชื่อสิทธิการรักษา')
+    .replace('{qwaiting}','0')
+    .replace('{age}','-')
+    .replace('{time}',moment().format("D MMM ") + (y.toString()).substr(2))
+    .replace('{user_print}','Admin Hospital');
+    data.replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+    $('#editor-previewth-small').html(data);
+    editor3.updateElement();
+});
+
+
+var editor4  = CKEDITOR.inline( 'tbticket-template_en_small',{
+    contenteditable: true,
+    language: 'th',
+    extraPlugins: 'sourcedialog',
+    uiColor: '#f1f3f6'
+});
+
+editor4.on('change',function(){
+    var data = editor4.getData()
+    .replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+    .replace('{q_hn}','0008962222')
+    .replace('{pt_name}','ชื่อ-นามสกุล')
+    .replace('{q_num}','A0012561')
+    .replace('{pt_visit_type}','ผู้ป่วยนัดหมาย')
+    .replace('{service_name}','แผนกห้องยา')
+    .replace('{maininscl_name}','ชื่อสิทธิการรักษา')
+    .replace('{qwaiting}','0')
+    .replace('{age}','-')
+    .replace('{time}',moment().format("D MMM ") + (y.toString()).substr(2))
+    .replace('{user_print}','Admin Hospital');
+    data.replace('{hos_name_th}', $('#tbticket-hos_name_th').val())
+    $('#editor-previewen-small').html(data);
+    editor4.updateElement();
 });
 
 var table = $('#tb-ticket').DataTable();

@@ -12,6 +12,7 @@ use Yii;
  * @property string $sound_path_name โฟรเดอร์ไฟล์
  * @property string $sound_th เสียงเรียก
  * @property int $sound_type ประเภทเสียง
+ * @property string $language ภาษา
  */
 class TbSound extends \yii\db\ActiveRecord
 {
@@ -29,12 +30,12 @@ class TbSound extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['sound_name', 'sound_path_name'], 'required'],
+            [['sound_name', 'sound_path_name','language'], 'required'],
             [['sound_type'], 'integer'],
             [['sound_name', 'sound_path_name', 'sound_th'], 'string', 'max' => 255],
+            [['language'], 'string', 'max' => 50],
         ];
     }
-
     /**
      * @inheritdoc
      */
@@ -46,6 +47,7 @@ class TbSound extends \yii\db\ActiveRecord
             'sound_path_name' => 'โฟรเดอร์ไฟล์',
             'sound_th' => 'เสียงเรียก',
             'sound_type' => 'ประเภทเสียง',
+            'language' => 'ภาษา',
         ];
     }
 
