@@ -176,7 +176,7 @@ var app = new Vue({
     this.$nextTick(function() {
       this.fetchDataServices();
     });
-    
+
     // if (jQuery("#w0").data("bootstrapSwitch")) {
     //   jQuery("#w0").bootstrapSwitch("destroy");
     // }
@@ -323,7 +323,7 @@ var app = new Vue({
     },
     onSelectLanguage: function(locale) {
       this.$i18n.locale = locale;
-      this.action = 'select-language';
+      this.action = "select-language";
     },
     onCancelAction: function() {
       this.action = "";
@@ -349,21 +349,21 @@ var app = new Vue({
         _this.setLoading(false);
         _this.setLoadingMessage("กรุณาเสียบบัตรประชาชน");
         if (_this.right) {
-          // //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
-          // if(_this.age >= 60 && _this.age <= 79) {
-
-          // } else 
-          // // สิทธิผู้สูงอายุ ๘๐ ขึ้นไป
-          // if(_this.age >= 80) {
-
-          // }
           // UCS = สิทธิหลักประกันสุขภาพแห่งชาติ
           // WEL = สิทธิหลักประกันสุขภาพแห่งชาติ (ยกเว้นการร่วมจ่ายค่าบริการ 30 บาท)
           // hmain 15049 = รพ.สิรินธร
           if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
-            _this.service_id = "38";
+            //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
+            if (_this.age >= 60 && _this.age <= 79) {
+              _this.service_id = "39";
+            } else if (_this.age >= 80) {
+              // สิทธิผู้สูงอายุ ๘๐ ขึ้นไป
+              _this.service_id = "42";
+            } else {
+              _this.service_id = "38";
+            }
             Swal.close();
-            // _this.onCreateQueue(autoConfirm);
+            _this.onCreateQueue();
           } else if (
             _this.right.hmain !== "15049" &&
             (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")
@@ -412,7 +412,41 @@ var app = new Vue({
                 _this.onCreateQueue();
               }
             });
+          } else if (_this.right.hmain === "15049" && _this.right.maininscl === "SSS") {
+            //สิทธิประกันสังคมโรงพยาบาลสิรินธร
+            Swal.fire({
+              icon: "warning",
+              title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
+              confirmButtonText: "ปิด",
+              width: "60%",
+              didOpen: () => {
+                $(Swal.getTitle()).css("fontSize", "5rem");
+                $(Swal.getTitle()).css("padding", "0 1em 0");
+                $(Swal.getConfirmButton()).css("fontSize", "3rem");
+                $(Swal.getConfirmButton()).css("width", "200px");
+                $(Swal.getIcon()).css("fontSize", "2rem");
+              },
+            });
+          } else {
+            //สิทธิอื่นๆ ชำระเงินเอง / รัฐวิสาหกิจ / ประกันสุขภาพโรงพยาบาลอื่นๆ (ยกเว้น สิทธิหลักประกันสุขภาพแห่งชาติและสิทธิประกันสังคมโรงพยาบาลสิรินธร)
+            Swal.close();
+            _this.service_id = "40";
+            _this.onCreateQueue();
           }
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: _this.$t("ไม่พบข้อมูลสิทธิการรักษา"),
+            confirmButtonText: "ปิด",
+            width: "60%",
+            didOpen: () => {
+              $(Swal.getTitle()).css("fontSize", "5rem");
+              $(Swal.getTitle()).css("padding", "0 1em 0");
+              $(Swal.getConfirmButton()).css("fontSize", "3rem");
+              $(Swal.getConfirmButton()).css("width", "200px");
+              $(Swal.getIcon()).css("fontSize", "2rem");
+            },
+          });
         }
         _this.loading2 = false;
       } catch (error) {
@@ -501,9 +535,17 @@ var app = new Vue({
             // WEL = สิทธิหลักประกันสุขภาพแห่งชาติ (ยกเว้นการร่วมจ่ายค่าบริการ 30 บาท)
             // hmain 15049 = รพ.สิรินธร
             if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
-              _this.service_id = "38";
+              //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
+              if (_this.age >= 60 && _this.age <= 79) {
+                _this.service_id = "39";
+              } else if (_this.age >= 80) {
+                // สิทธิผู้สูงอายุ ๘๐ ขึ้นไป
+                _this.service_id = "42";
+              } else {
+                _this.service_id = "38";
+              }
               Swal.close();
-              // _this.onCreateQueue(autoConfirm);
+              _this.onCreateQueue();
             } else if (
               _this.right.hmain !== "15049" &&
               (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")
@@ -549,12 +591,44 @@ var app = new Vue({
                   _this.onCancelAction();
                 } else {
                   _this.service_id = "40";
+                  _this.onCreateQueue();
                 }
               });
+            } else if (_this.right.hmain === "15049" && _this.right.maininscl === "SSS") {
+              //สิทธิประกันสังคมโรงพยาบาลสิรินธร
+              Swal.fire({
+                icon: "warning",
+                title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
+                confirmButtonText: "ปิด",
+                width: "60%",
+                didOpen: () => {
+                  $(Swal.getTitle()).css("fontSize", "5rem");
+                  $(Swal.getTitle()).css("padding", "0 1em 0");
+                  $(Swal.getConfirmButton()).css("fontSize", "3rem");
+                  $(Swal.getConfirmButton()).css("width", "200px");
+                  $(Swal.getIcon()).css("fontSize", "2rem");
+                },
+              });
             } else {
+              //สิทธิอื่นๆ ชำระเงินเอง / รัฐวิสาหกิจ / ประกันสุขภาพโรงพยาบาลอื่นๆ (ยกเว้น สิทธิหลักประกันสุขภาพแห่งชาติและสิทธิประกันสังคมโรงพยาบาลสิรินธร)
               Swal.close();
+              _this.service_id = "40";
+              _this.onCreateQueue();
             }
-            //
+          } else {
+            Swal.fire({
+              icon: "warning",
+              title: _this.$t("ไม่พบข้อมูลสิทธิการรักษา"),
+              confirmButtonText: "ปิด",
+              width: "60%",
+              didOpen: () => {
+                $(Swal.getTitle()).css("fontSize", "5rem");
+                $(Swal.getTitle()).css("padding", "0 1em 0");
+                $(Swal.getConfirmButton()).css("fontSize", "3rem");
+                $(Swal.getConfirmButton()).css("width", "200px");
+                $(Swal.getIcon()).css("fontSize", "2rem");
+              },
+            });
           }
         } catch (error) {
           Swal.fire({
@@ -568,7 +642,7 @@ var app = new Vue({
 
     onSelectService: function(serviceId) {
       this.service_id = serviceId;
-      this.onCreateQueue()
+      this.onCreateQueue();
     },
 
     onCreateQueue: async function(autoConfirm = false) {
@@ -589,7 +663,7 @@ var app = new Vue({
             allowOutsideClick: false,
             didOpen: () => {
               Swal.showLoading();
-              Swal.clickConfirm()
+              Swal.clickConfirm();
             },
           });
           const body = {
@@ -600,7 +674,7 @@ var app = new Vue({
             maininscl_name: _this.rightName,
             picture: _.get(_this.patient, "photo"),
             right: _this.right,
-            locale: _this.$i18n.locale
+            locale: _this.$i18n.locale,
           };
           const created = await http.post(`/api/queue/create-queue`, body, _this.httpConfig);
           socket.emit("register", created);
