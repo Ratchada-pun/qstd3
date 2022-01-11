@@ -269,6 +269,7 @@ $this->registerJs(
 var jPlayerid = "#jquery_jplayer_N";
 var jp_container = "#jp_container";
 var i = 0;
+var removeIndex = 0
 var myPlayer = $(jPlayerid),
     myPlayerData,
     fixFlash_mp4, // Flag: The m4a and m4v Flash player gives some old currentTime values when changed.
@@ -311,8 +312,9 @@ var myPlaylist = new jPlayerPlaylist({
     },
     playing: function (event) {
         var current = myPlaylist.current;
+        removeIndex = current
         var data = myPlaylist.playlist[current];
-        if(data.wav.indexOf("please.wav") >= 0){
+        if(data.wav.indexOf("please.wav") >= 0 || data.wav.indexOf("Prompt3_number.wav") >= 0){
             var query = yii.getQueryParams(window.location.search)
             app.caller_ids = parseInt(data.artist.modelCaller.caller_ids)
             //dt_tabledisplay.ajax.url( '/app/display/data-display?id='+ query.id + '&q_ids='+data.artist.modelQueue.q_ids).load();
@@ -336,6 +338,10 @@ var myPlaylist = new jPlayerPlaylist({
         //console.log(myPlaylist.playlist);
     },
     ended: function (event) {
+        var data = myPlaylist.playlist[removeIndex]
+        if(data) {
+            Queue.updateStatus(data.artist.modelCaller.caller_ids);
+        }
     },
     error: function (event) {
         console.log(event);
