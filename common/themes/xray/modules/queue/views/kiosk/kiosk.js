@@ -385,14 +385,18 @@ var app = new Vue({
               });
             } else if (_this.age >= 60 && _this.age <= 79) {
               _this.service_id = "39";
+              Swal.close();
+              _this.onCreateQueue();
             } else if (_this.age >= 80) {
               // สิทธิผู้สูงอายุ ๘๐ ขึ้นไป
               _this.service_id = "42";
+              Swal.close();
+              _this.onCreateQueue();
             } else {
               _this.service_id = "38";
+              Swal.close();
+              _this.onCreateQueue();
             }
-            Swal.close();
-            _this.onCreateQueue();
           } else if (
             _this.right.hmain !== "15049" &&
             (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")
@@ -470,7 +474,7 @@ var app = new Vue({
           } else if (["OFC", "LGO", "OFL"].includes(_this.right.maininscl)) {
             //สิทธิข้าราชการ
             Swal.close();
-          } else if (["VOF","PVT","VOG"].includes(_this.right.maininscl)) {
+          } else if (["VOF", "PVT", "VOG"].includes(_this.right.maininscl)) {
             //สิทธิทหารผ่านศึก/สิทธิข้าราชการ/สิทธิหน่วยงานรัฐ
             Swal.close();
             _this.service_id = "40";
@@ -590,6 +594,7 @@ var app = new Vue({
             // hmain 15049 = รพ.สิรินธร
             if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
               if (_this.right.paid_model === "5") {
+                //เป็น model 5
                 Swal.fire({
                   icon: "warning",
                   title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
@@ -612,14 +617,18 @@ var app = new Vue({
               } else if (_this.age >= 60 && _this.age <= 79) {
                 //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
                 _this.service_id = "39";
+                Swal.close();
+                _this.onCreateQueue();
               } else if (_this.age >= 80) {
                 // สิทธิผู้สูงอายุ ๘๐ ขึ้นไป
                 _this.service_id = "42";
+                Swal.close();
+                _this.onCreateQueue();
               } else {
                 _this.service_id = "38";
+                Swal.close();
+                _this.onCreateQueue();
               }
-              Swal.close();
-              _this.onCreateQueue();
             } else if (
               _this.right.hmain !== "15049" &&
               (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")
@@ -697,7 +706,7 @@ var app = new Vue({
             } else if (["OFC", "LGO", "OFL"].includes(_this.right.maininscl)) {
               //สิทธิข้าราชการ
               Swal.close();
-            } else if (["VOF","PVT","VOG"].includes(_this.right.maininscl)) {
+            } else if (["VOF", "PVT", "VOG"].includes(_this.right.maininscl)) {
               //สิทธิทหารผ่านศึก/สิทธิข้าราชการ/สิทธิหน่วยงานรัฐ
               Swal.close();
               _this.service_id = "40";
