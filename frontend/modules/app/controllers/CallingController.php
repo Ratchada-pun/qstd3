@@ -3912,6 +3912,7 @@ class CallingController extends \yii\web\Controller
                 ])
                 ->from('tb_caller')
                 ->where(['tb_caller.call_status' => TbCaller::STATUS_CALLING, 'tb_caller.counter_service_id' => $counters])
+                ->andWhere('DATE(tb_quequ.q_timestp) = DATE(NOW())')
                 ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
                 ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
                 ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')

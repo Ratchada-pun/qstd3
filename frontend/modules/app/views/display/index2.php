@@ -181,14 +181,14 @@ $formatter = Yii::$app->formatter;
                         </div>
                         <div style="width: 50%">
                             <div class="caption clock">
-                                <h2 class="mb-0 line-height text-cyan time" style="text-align: right;">
+                                <h1 class="mb-0 line-height text-cyan time" style="text-align: right;">
                                     <span id="kiosk-date">
                                         <?= $formatter->asDate('now', 'php:lที่ d F ') . ($formatter->asDate('now', 'php:Y') + 543) ?>
                                     </span>
-                                </h2>
-                                <h3 class="mb-0 line-height text-cyan time text-right">
+                                </h1>
+                                <h1 class="mb-0 line-height text-cyan time text-right">
                                     เวลา <span class="time__hours"><?= $formatter->asDate('now', 'php:H') ?></span><span class="time__min"><?= $formatter->asDate('now', 'php:i') ?></span><span class="time__sec"><?= $formatter->asDate('now', 'php:s') ?></span> น.
-                                </h3>
+                                </h1>
                             </div>
                         </div>
                     </div>
@@ -205,8 +205,8 @@ $formatter = Yii::$app->formatter;
                         <tr>
                             <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
                                 <div style="display: flex;">
-                                    <div style="width: 50%"><?= $config['table_title_left'] ?></div>
-                                    <div style="width: 50%"><?= $config['table_title_right'] ?></div>
+                                    <div style="width: 50%;font-size: 7rem;"><?= $config['table_title_left'] ?></div>
+                                    <div style="width: 50%;font-size: 7rem;"><?= $config['table_title_right'] ?></div>
                                 </div>
                             </th>
 
@@ -230,20 +230,20 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
@@ -254,20 +254,20 @@ $formatter = Yii::$app->formatter;
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; width: 80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
@@ -284,13 +284,13 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
@@ -302,13 +302,13 @@ $formatter = Yii::$app->formatter;
                                         <tr style="border:0px;">
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
@@ -342,8 +342,8 @@ $formatter = Yii::$app->formatter;
                         <tr>
                             <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
                                 <div style="display: flex;">
-                                    <div style="width: 50%"><?= $config['table_title_left'] ?></div>
-                                    <div style="width: 50%"><?= $config['table_title_right'] ?></div>
+                                    <div style="width: 50%;font-size: 7rem;"><?= $config['table_title_left'] ?></div>
+                                    <div style="width: 50%;font-size: 7rem;"><?= $config['table_title_right'] ?></div>
                                 </div>
                             </th>
 
@@ -367,20 +367,20 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
@@ -391,20 +391,20 @@ $formatter = Yii::$app->formatter;
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; width: 80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
@@ -421,13 +421,13 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
@@ -439,13 +439,13 @@ $formatter = Yii::$app->formatter;
                                         <tr style="border:0px;">
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 7rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
