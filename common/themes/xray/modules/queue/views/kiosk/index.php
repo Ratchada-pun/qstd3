@@ -564,6 +564,14 @@ $this->registerJsFile(
     </section>
     <!-- end:: Section Home -->
 
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12">
+            <marquee direction="left" scrollamount="5" style="font-size: 40px; color: #a579ed;">
+                <?php echo $news_ticker['news_ticker_detail'] ?>
+            </marquee>
+        </div>
+    </div>
+
 </div>
 
 

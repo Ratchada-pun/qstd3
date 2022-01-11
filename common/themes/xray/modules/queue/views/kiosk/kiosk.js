@@ -66,12 +66,12 @@ const SMARTCARD_EVENTS = {
   READING_FAIL: "READING_FAIL",
 };
 
-$('#btn-th').on('click',function(){
-  app.$i18n.locale = 'th';
-})
-$('#btn-en').on('click',function(){
-  app.$i18n.locale = 'en';
-})
+$("#btn-th").on("click", function() {
+  app.$i18n.locale = "th";
+});
+$("#btn-en").on("click", function() {
+  app.$i18n.locale = "en";
+});
 
 // Ready translated locale messages
 
@@ -341,7 +341,7 @@ var app = new Vue({
       this.service_id = null;
       this.setRight(null);
       this.setProfile(null);
-      this.$i18n.locale = 'th';
+      this.$i18n.locale = "th";
     },
 
     decryptData: async function(encrypted) {
@@ -360,9 +360,30 @@ var app = new Vue({
           // UCS = สิทธิหลักประกันสุขภาพแห่งชาติ
           // WEL = สิทธิหลักประกันสุขภาพแห่งชาติ (ยกเว้นการร่วมจ่ายค่าบริการ 30 บาท)
           // hmain 15049 = รพ.สิรินธร
-          if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) { //เป็นสิทธิบัตรทองโรงพยาบาลสิรินท
+          if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
+            //เป็นสิทธิบัตรทองโรงพยาบาลสิรินท
             //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
-            if (_this.age >= 60 && _this.age <= 79) {
+            if (_this.right.paid_model === "5") {
+              Swal.fire({
+                icon: "warning",
+                title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
+                confirmButtonText: "ปิด",
+                width: "60%",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                didOpen: () => {
+                  $(Swal.getTitle()).css("fontSize", "5rem");
+                  $(Swal.getTitle()).css("padding", "0 1em 0");
+                  $(Swal.getConfirmButton()).css("fontSize", "3rem");
+                  $(Swal.getConfirmButton()).css("width", "200px");
+                  $(Swal.getIcon()).css("fontSize", "2rem");
+                },
+                willClose: () => {
+                  _this.onCancelAction();
+                },
+              });
+            } else if (_this.age >= 60 && _this.age <= 79) {
               _this.service_id = "39";
             } else if (_this.age >= 80) {
               // สิทธิผู้สูงอายุ ๘๐ ขึ้นไป
@@ -446,6 +467,14 @@ var app = new Vue({
                 _this.onCancelAction();
               },
             });
+          } else if (["OFC", "LGO", "OFL"].includes(_this.right.maininscl)) {
+            //สิทธิข้าราชการ
+            Swal.close();
+          } else if (["VOF"].includes(_this.right.maininscl)) {
+            //สิทธิทหารผ่านศึก/สิทธิข้าราชการ/สิทธิหน่วยงานรัฐ
+            Swal.close();
+            _this.service_id = "40";
+            _this.onCreateQueue();
           } else {
             //สิทธิอื่นๆ ชำระเงินเอง / รัฐวิสาหกิจ / ประกันสุขภาพโรงพยาบาลอื่นๆ (ยกเว้น สิทธิหลักประกันสุขภาพแห่งชาติและสิทธิประกันสังคมโรงพยาบาลสิรินธร)
             Swal.close();
@@ -560,8 +589,28 @@ var app = new Vue({
             // WEL = สิทธิหลักประกันสุขภาพแห่งชาติ (ยกเว้นการร่วมจ่ายค่าบริการ 30 บาท)
             // hmain 15049 = รพ.สิรินธร
             if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
-              //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
-              if (_this.age >= 60 && _this.age <= 79) {
+              if (_this.right.paid_model === "5") {
+                Swal.fire({
+                  icon: "warning",
+                  title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
+                  confirmButtonText: "ปิด",
+                  width: "60%",
+                  timer: 3000,
+                  timerProgressBar: true,
+                  showConfirmButton: false,
+                  didOpen: () => {
+                    $(Swal.getTitle()).css("fontSize", "5rem");
+                    $(Swal.getTitle()).css("padding", "0 1em 0");
+                    $(Swal.getConfirmButton()).css("fontSize", "3rem");
+                    $(Swal.getConfirmButton()).css("width", "200px");
+                    $(Swal.getIcon()).css("fontSize", "2rem");
+                  },
+                  willClose: () => {
+                    _this.onCancelAction();
+                  },
+                });
+              } else if (_this.age >= 60 && _this.age <= 79) {
+                //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
                 _this.service_id = "39";
               } else if (_this.age >= 80) {
                 // สิทธิผู้สูงอายุ ๘๐ ขึ้นไป
@@ -645,6 +694,14 @@ var app = new Vue({
                   _this.onCancelAction();
                 },
               });
+            } else if (["OFC", "LGO", "OFL"].includes(_this.right.maininscl)) {
+              //สิทธิข้าราชการ
+              Swal.close();
+            } else if (["VOF"].includes(_this.right.maininscl)) {
+              //สิทธิทหารผ่านศึก/สิทธิข้าราชการ/สิทธิหน่วยงานรัฐ
+              Swal.close();
+              _this.service_id = "40";
+              _this.onCreateQueue();
             } else {
               //สิทธิอื่นๆ ชำระเงินเอง / รัฐวิสาหกิจ / ประกันสุขภาพโรงพยาบาลอื่นๆ (ยกเว้น สิทธิหลักประกันสุขภาพแห่งชาติและสิทธิประกันสังคมโรงพยาบาลสิรินธร)
               Swal.close();
