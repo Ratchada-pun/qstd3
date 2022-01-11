@@ -3026,7 +3026,7 @@ class CallingController extends \yii\web\Controller
         $counter = $this->findModelCounterservice($id);
         $sound_id = $counter['sound_id'];
         $sound_service_id = $counter['sound_service_id'];
-        if($language == 'en'){
+        if ($language == 'en') {
             $sound_id = $counter['sound_en_id'];
             $sound_service_id = $counter['sound_service_en_id'];
         }
@@ -3041,12 +3041,24 @@ class CallingController extends \yii\web\Controller
             throw new HttpException(404, 'sound_service_id ' . $sound_service_id . ' not found.');
         }
         $basePath = "/media/" . $modelSound['sound_path_name'];
-        $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข
-        $end = [
-            "/media/" . $servicesound['sound_path_name'] . '/' . $servicesound['sound_name'],
-            $basePath . '/' . $modelSound['sound_name'],
-            $basePath . '/' . $modelSound['sound_path_name'] . '_Sir.wav',
-        ];
+       
+        if ($language == 'th') {
+            $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข
+            $end = [
+                "/media/" . $servicesound['sound_path_name'] . '/' . $servicesound['sound_name'],
+                $basePath . '/' . $modelSound['sound_name'],
+                $basePath . '/' . $modelSound['sound_path_name'] . '_Sir.wav',
+            ];
+        } else {
+            $begin = [
+                $basePath . "/Prompt3_number.wav"
+            ]; //เชิญหมายเลข
+            $end = [
+                $basePath . "/Prompt3_please_contact_to_counter.wav",
+                // "/media/" . $servicesound['sound_path_name'] . '/' . $servicesound['sound_name'],
+                $basePath . '/' . $modelSound['sound_name'],
+            ];
+        }
 
         $sound = array_map(function ($num) use ($basePath, $modelSound) {
             return $basePath . '/' . $modelSound['sound_path_name'] . '_' . $num . '.wav';
