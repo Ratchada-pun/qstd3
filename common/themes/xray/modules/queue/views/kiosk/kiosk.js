@@ -470,7 +470,7 @@ var app = new Vue({
           } else if (["OFC", "LGO", "OFL"].includes(_this.right.maininscl)) {
             //สิทธิข้าราชการ
             Swal.close();
-          } else if (["VOF"].includes(_this.right.maininscl)) {
+          } else if (["VOF","PVT","VOG"].includes(_this.right.maininscl)) {
             //สิทธิทหารผ่านศึก/สิทธิข้าราชการ/สิทธิหน่วยงานรัฐ
             Swal.close();
             _this.service_id = "40";
@@ -697,7 +697,7 @@ var app = new Vue({
             } else if (["OFC", "LGO", "OFL"].includes(_this.right.maininscl)) {
               //สิทธิข้าราชการ
               Swal.close();
-            } else if (["VOF"].includes(_this.right.maininscl)) {
+            } else if (["VOF","PVT","VOG"].includes(_this.right.maininscl)) {
               //สิทธิทหารผ่านศึก/สิทธิข้าราชการ/สิทธิหน่วยงานรัฐ
               Swal.close();
               _this.service_id = "40";
