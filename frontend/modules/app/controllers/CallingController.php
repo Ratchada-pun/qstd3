@@ -3024,15 +3024,21 @@ class CallingController extends \yii\web\Controller
     {
         $qnum = str_split($qnum);
         $counter = $this->findModelCounterservice($id);
-        $modelSound = TbSound::findOne(['sound_id' => $counter['sound_id'], 'language' => $language]);
+        $sound_id = $counter['sound_id'];
+        $sound_service_id = $counter['sound_service_id'];
+        if($language == 'en'){
+            $sound_id = $counter['sound_en_id'];
+            $sound_service_id = $counter['sound_service_en_id'];
+        }
+        $modelSound = TbSound::findOne(['sound_id' => $sound_id, 'language' => $language]);
         if (!$modelSound) {
-            throw new HttpException(404, 'sound_id ' . $counter['sound_id'] . ' not found.');
+            throw new HttpException(404, 'sound_id ' . $sound_id . ' not found.');
         }
         //$counterType = $counter->counterserviceType;
         //$counterSound = $counterType->tbSound;
-        $servicesound = TbSound::findOne(['sound_id' => $counter['sound_service_id'], 'language' => $language]);
+        $servicesound = TbSound::findOne(['sound_id' => $sound_service_id, 'language' => $language]);
         if (!$servicesound) {
-            throw new HttpException(404, 'sound_service_id ' . $counter['sound_service_id'] . ' not found.');
+            throw new HttpException(404, 'sound_service_id ' . $sound_service_id . ' not found.');
         }
         $basePath = "/media/" . $modelSound['sound_path_name'];
         $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข

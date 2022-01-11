@@ -455,7 +455,7 @@ $this->registerJsFile(
     </section>
     <!-- end:: ข้อมูลผู้ป่วย -->
 
-    <section v-if="!patient && !right && action !== 'hn-or-idcard'">
+    <section v-if="(patient || right) || action !== 'hn-or-idcard'">
         <div v-cloak class="row pt-5">
             <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 15px;">
                 <div class="service-title">
@@ -488,7 +488,7 @@ $this->registerJsFile(
         <br>
         <div class="row">
             <div class="col-md-4 col-lg-4 col-sm-12">
-                <!-- <a href="#" class="button-effect" @click.prevent="onCancelAction()">
+                <a v-if="(patient || right) && !service_id" href="#" class="button-effect" @click.prevent="onCancelAction()">
                     <div class="iq-card card-section-2" style="background: #dc3545;">
                         <div class="iq-card-body" style="padding: 10px;">
                             <div class="d-flex">
@@ -500,11 +500,11 @@ $this->registerJsFile(
                             </div>
                         </div>
                     </div>
-                </a> -->
+                </a>
             </div>
             <div class="col-md-4 col-lg-4 col-sm-12"></div>
             <div class="col-md-4 col-lg-4 col-sm-12">
-                <!-- <a href="#" class="button-effect" @click.prevent="onCreateQueue()" :style="disabledStyle">
+                <!-- <a  href="#" class="button-effect" @click.prevent="onCreateQueue()" :style="disabledStyle">
                     <div class="iq-card card-section-2" :style="{ background: '#28a745', opacity: opacity }">
                         <div class="iq-card-body" style="padding: 10px;">
                             <div class="d-flex">
