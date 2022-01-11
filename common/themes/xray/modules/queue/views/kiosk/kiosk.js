@@ -66,6 +66,13 @@ const SMARTCARD_EVENTS = {
   READING_FAIL: "READING_FAIL",
 };
 
+$('#btn-th').on('click',function(){
+  app.$i18n.locale = 'th';
+})
+$('#btn-en').on('click',function(){
+  app.$i18n.locale = 'en';
+})
+
 // Ready translated locale messages
 
 // Create VueI18n instance with options
@@ -80,7 +87,7 @@ var app = new Vue({
     action: "",
     loading: false,
     loading2: false,
-    loadingMsg: "กรุณาเสียบบัตรประชาชน",
+    loadingMsg: "เสียบบัตรประชาชน",
     crsfToken: "",
     clientIP: "0.0.0.0",
     search: "",
@@ -95,9 +102,9 @@ var app = new Vue({
   },
   computed: {
     patientName: function() {
-      if (this.action === "scan-idcard" && this.patient) {
+      if (this.patient) {
         return _.get(this.patient, "fullname", "ชื่อ-นามสกุล");
-      } else if (this.action === "hn-or-idcard" && this.right) {
+      } else if (this.right) {
         const title = _.get(this.right, "title_name", "");
         const fname = _.get(this.right, "fname", "");
         const lname = _.get(this.right, "lname", "");
@@ -109,17 +116,17 @@ var app = new Vue({
       return _.get(this.patient, "hn", "-");
     },
     cid: function() {
-      if (this.action === "scan-idcard" && this.patient) {
+      if (this.patient) {
         return _.get(this.patient, "citizenId", "");
-      } else if (this.action === "hn-or-idcard" && this.right) {
+      } else if (this.right) {
         return _.get(this.right, "person_id", "");
       }
       return "";
     },
     cidFormat: function() {
-      if (this.action === "scan-idcard" && this.patient) {
+      if (this.patient) {
         return String(_.get(this.patient, "citizenId", "")).substr(0, 9) + "XXXX";
-      } else if (this.action === "hn-or-idcard" && this.right) {
+      } else if (this.right) {
         return String(_.get(this.right, "person_id", "")).substr(0, 9) + "XXXX";
       }
       return "-";
@@ -131,7 +138,7 @@ var app = new Vue({
       return _.get(this.patient, "photo", window.patientPicture);
     },
     age: function() {
-      if (this.action === "scan-idcard" && this.patient) {
+      if (this.patient) {
         const [year, month, day] = String(this.patient.birthday).split("-");
         const a = moment();
         const b = moment(`${parseInt(year)}-${month}-${day}`, "YYYY-MM-DD");
@@ -139,7 +146,7 @@ var app = new Vue({
         const years = a.diff(b, "year");
         b.add(years, "years");
         return years;
-      } else if (this.action === "hn-or-idcard" && this.right) {
+      } else if (this.right) {
         const y = parseInt(this.right.birthdate.substr(0, 4)) - 543;
         // const m = this.right.birthdate.substr(4, 2);
         // const d = this.right.birthdate.substr(6);
@@ -249,7 +256,7 @@ var app = new Vue({
           _this.setProfile(null);
           _this.setLoadingMessage("อุปกรณ์กำลังเชื่อมต่อ...");
           setTimeout(() => {
-            _this.setLoadingMessage("กรุณาเสียบบัตรประชาชน");
+            _this.setLoadingMessage("เสียบบัตรประชาชน");
           }, 1500);
         }
       });
@@ -272,7 +279,7 @@ var app = new Vue({
           _this.setRight(null);
           _this.setProfile(null);
           _this.setLoading(false);
-          _this.setLoadingMessage("กรุณาเสียบบัตรประชาชน");
+          _this.setLoadingMessage("เสียบบัตรประชาชน");
         }
       });
       socket.on(SMARTCARD_EVENTS.READING_START, (data) => {
@@ -291,7 +298,7 @@ var app = new Vue({
       //   }
       // });
       socket.on(SMARTCARD_EVENTS.READING_COMPLETE, (data) => {
-        if (_.get(data, "ipAddress") === _this.clientIP && _this.action === "scan-idcard") {
+        if (_.get(data, "ipAddress") === _this.clientIP) {
           // console.log("READING_COMPLETE", data);
           _this.decryptData(_.get(data, "data.encrypted"));
         }
@@ -302,7 +309,7 @@ var app = new Vue({
           _this.setRight(null);
           _this.setProfile(null);
           _this.setLoading(false);
-          _this.setLoadingMessage("กรุณาเสียบบัตรประชาชน");
+          _this.setLoadingMessage("เสียบบัตรประชาชน");
         }
       });
     },
@@ -330,7 +337,7 @@ var app = new Vue({
       this.search = "";
       this.loading = false;
       this.loading2 = false;
-      this.loadingMsg = "กรุณาเสียบบัตรประชาชน";
+      this.loadingMsg = "เสียบบัตรประชาชน";
       this.service_id = null;
       this.setRight(null);
       this.setProfile(null);
@@ -347,12 +354,12 @@ var app = new Vue({
         await _this.fetchPatientRight(profile.citizenId);
         _this.setProfile(profile);
         _this.setLoading(false);
-        _this.setLoadingMessage("กรุณาเสียบบัตรประชาชน");
+        _this.setLoadingMessage("เสียบบัตรประชาชน");
         if (_this.right) {
           // UCS = สิทธิหลักประกันสุขภาพแห่งชาติ
           // WEL = สิทธิหลักประกันสุขภาพแห่งชาติ (ยกเว้นการร่วมจ่ายค่าบริการ 30 บาท)
           // hmain 15049 = รพ.สิรินธร
-          if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) {
+          if (_this.right.hmain === "15049" && (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")) { //เป็นสิทธิบัตรทองโรงพยาบาลสิรินท
             //  เป็นสิทธิ ผู้สูงอายุ ๖๐-๗๙
             if (_this.age >= 60 && _this.age <= 79) {
               _this.service_id = "39";
@@ -398,6 +405,9 @@ var app = new Vue({
                   title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
                   confirmButtonText: "ปิด",
                   width: "60%",
+                  timer: 3000,
+                  timerProgressBar: true,
+                  showConfirmButton: false,
                   didOpen: () => {
                     $(Swal.getTitle()).css("fontSize", "5rem");
                     $(Swal.getTitle()).css("padding", "0 1em 0");
@@ -405,8 +415,10 @@ var app = new Vue({
                     $(Swal.getConfirmButton()).css("width", "200px");
                     $(Swal.getIcon()).css("fontSize", "2rem");
                   },
+                  willClose: () => {
+                    _this.onCancelAction();
+                  },
                 });
-                _this.onCancelAction();
               } else {
                 _this.service_id = "40";
                 _this.onCreateQueue();
@@ -419,12 +431,18 @@ var app = new Vue({
               title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
               confirmButtonText: "ปิด",
               width: "60%",
+              timer: 3000,
+              timerProgressBar: true,
+              showConfirmButton: false,
               didOpen: () => {
                 $(Swal.getTitle()).css("fontSize", "5rem");
                 $(Swal.getTitle()).css("padding", "0 1em 0");
                 $(Swal.getConfirmButton()).css("fontSize", "3rem");
                 $(Swal.getConfirmButton()).css("width", "200px");
                 $(Swal.getIcon()).css("fontSize", "2rem");
+              },
+              willClose: () => {
+                _this.onCancelAction();
               },
             });
           } else {
@@ -439,6 +457,9 @@ var app = new Vue({
             title: _this.$t("ไม่พบข้อมูลสิทธิการรักษา"),
             confirmButtonText: "ปิด",
             width: "60%",
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
             didOpen: () => {
               $(Swal.getTitle()).css("fontSize", "5rem");
               $(Swal.getTitle()).css("padding", "0 1em 0");
@@ -446,13 +467,16 @@ var app = new Vue({
               $(Swal.getConfirmButton()).css("width", "200px");
               $(Swal.getIcon()).css("fontSize", "2rem");
             },
+            willClose: () => {
+              _this.onCancelAction();
+            },
           });
         }
         _this.loading2 = false;
       } catch (error) {
         _this.loading2 = false;
         _this.setLoading(false);
-        _this.setLoadingMessage("กรุณาเสียบบัตรประชาชน");
+        _this.setLoadingMessage("เสียบบัตรประชาชน");
         Swal.fire({
           icon: "error",
           title: "Oops...",
@@ -545,7 +569,7 @@ var app = new Vue({
                 _this.service_id = "38";
               }
               Swal.close();
-               _this.onCreateQueue();
+              _this.onCreateQueue();
             } else if (
               _this.right.hmain !== "15049" &&
               (_this.right.maininscl === "WEL" || _this.right.maininscl === "UCS")
@@ -580,6 +604,9 @@ var app = new Vue({
                     title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
                     confirmButtonText: "ปิด",
                     width: "60%",
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
                     didOpen: () => {
                       $(Swal.getTitle()).css("fontSize", "5rem");
                       $(Swal.getTitle()).css("padding", "0 1em 0");
@@ -587,8 +614,10 @@ var app = new Vue({
                       $(Swal.getConfirmButton()).css("width", "200px");
                       $(Swal.getIcon()).css("fontSize", "2rem");
                     },
+                    willClose: () => {
+                      _this.onCancelAction();
+                    },
                   });
-                  _this.onCancelAction();
                 } else {
                   _this.service_id = "40";
                   _this.onCreateQueue();
@@ -601,12 +630,18 @@ var app = new Vue({
                 title: _this.$t("กรุณาติดต่อห้องเบอร์ 1"),
                 confirmButtonText: "ปิด",
                 width: "60%",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
                 didOpen: () => {
                   $(Swal.getTitle()).css("fontSize", "5rem");
                   $(Swal.getTitle()).css("padding", "0 1em 0");
                   $(Swal.getConfirmButton()).css("fontSize", "3rem");
                   $(Swal.getConfirmButton()).css("width", "200px");
                   $(Swal.getIcon()).css("fontSize", "2rem");
+                },
+                willClose: () => {
+                  _this.onCancelAction();
                 },
               });
             } else {
@@ -621,12 +656,18 @@ var app = new Vue({
               title: _this.$t("ไม่พบข้อมูลสิทธิการรักษา"),
               confirmButtonText: "ปิด",
               width: "60%",
+              timer: 3000,
+              timerProgressBar: true,
+              showConfirmButton: false,
               didOpen: () => {
                 $(Swal.getTitle()).css("fontSize", "5rem");
                 $(Swal.getTitle()).css("padding", "0 1em 0");
                 $(Swal.getConfirmButton()).css("fontSize", "3rem");
                 $(Swal.getConfirmButton()).css("width", "200px");
                 $(Swal.getIcon()).css("fontSize", "2rem");
+              },
+              willClose: () => {
+                _this.onCancelAction();
               },
             });
           }
@@ -669,7 +710,7 @@ var app = new Vue({
           const body = {
             service_id: _this.service_id,
             cid: _this.cid,
-            patient_name: _this.getPatientname(),
+            patient_name: _this.patientName,
             age: String(_this.age),
             maininscl_name: _this.rightName,
             picture: _.get(_this.patient, "photo"),
@@ -685,8 +726,8 @@ var app = new Vue({
             timer: 3000,
             showConfirmButton: false,
           });
-          _this.onCancelAction();
           window.open(`/queue/kiosk/print-ticket?id=${created.modelQueue.q_ids}`, "myPrint", "width=800, height=600");
+          _this.onCancelAction();
         } catch (error) {
           Swal.fire({
             icon: "error",
