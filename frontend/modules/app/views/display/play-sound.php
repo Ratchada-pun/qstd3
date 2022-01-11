@@ -330,6 +330,9 @@ var myPlaylist = new jPlayerPlaylist({
         if(data.wav.indexOf("Prompt1_Sir.wav") >= 0 || data.wav.indexOf("Prompt2_Sir.wav") >= 0){
             Queue.updateStatus(data.artist.modelCaller.caller_ids);//update tb_caller status = callend
         }
+        if(data.wav.indexOf(data.artist.sound[data.artist.sound.length-1]) >= 0){
+            Queue.updateStatus(data.artist.modelCaller.caller_ids);//update tb_caller status = callend
+        }
         if((current + 1) === myPlaylist.playlist.length){
             myPlaylist.remove();//reset q
         }
@@ -338,10 +341,10 @@ var myPlaylist = new jPlayerPlaylist({
         //console.log(myPlaylist.playlist);
     },
     ended: function (event) {
-        var data = myPlaylist.playlist[removeIndex]
-        if(data) {
-            Queue.updateStatus(data.artist.modelCaller.caller_ids);
-        }
+        // var data = myPlaylist.playlist[removeIndex]
+        // if(data) {
+        //     Queue.updateStatus(data.artist.modelCaller.caller_ids);
+        // }
     },
     error: function (event) {
         console.log(event);
