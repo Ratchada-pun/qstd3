@@ -341,6 +341,7 @@ var app = new Vue({
       this.service_id = null;
       this.setRight(null);
       this.setProfile(null);
+      this.$i18n.locale = 'th';
     },
 
     decryptData: async function(encrypted) {
