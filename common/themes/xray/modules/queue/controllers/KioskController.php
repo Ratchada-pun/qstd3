@@ -104,7 +104,7 @@ class KioskController extends Controller
             '{hos_name_th}' => $ticket->hos_name_th,
             '{pt_name}' => $model->pt_name,
             '{q_num}' => $model->q_num,
-            '{service_name}' => Yii::t('app.frontend', $service['service_name']),
+            '{service_name}' => Yii::t('app.frontend', $service['service_name'], [], $model['locale']),
             '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i'),
             '{user_print}' => Yii::$app->user->isGuest ? 'Kiosk' : Yii::$app->user->identity->profile->name,
             '{qwaiting}' => $count,
