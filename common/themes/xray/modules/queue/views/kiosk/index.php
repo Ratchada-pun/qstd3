@@ -471,7 +471,7 @@ $this->registerJsFile(
                                         <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
                                             <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
                                                 <h4 :class="{ 'text-white': service_id !== item.serviceid, 'text-success': service_id === item.serviceid }">
-                                                    {{ index + 1 }}. {{ $t(item.btn_kiosk_name) }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
+                                                    {{ index + 2 }}. {{ $t(item.btn_kiosk_name) }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
                                                 </h4>
                                             </span>
                                         </div>
