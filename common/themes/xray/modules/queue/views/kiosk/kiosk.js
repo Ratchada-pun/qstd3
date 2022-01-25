@@ -340,6 +340,7 @@ var app = new Vue({
       this.loading2 = false;
       this.loadingMsg = "เสียบบัตรประชาชน";
       this.service_id = null;
+      this.age = 0
       this.setRight(null);
       this.setProfile(null);
       this.$i18n.locale = "th";
