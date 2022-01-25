@@ -801,6 +801,7 @@ var app = new Vue({
           };
           const created = await http.post(`/api/queue/create-queue`, body, _this.httpConfig);
           socket.emit("register", created);
+          window.open(`/queue/kiosk/print-ticket?id=${created.modelQueue.q_ids}`, "myPrint", "width=800, height=600");
           Swal.fire({
             icon: "success",
             title: _this.$t("กรุณารอรับบัตรคิว"),
@@ -808,7 +809,7 @@ var app = new Vue({
             timer: 3000,
             showConfirmButton: false,
           });
-          window.open(`/queue/kiosk/print-ticket?id=${created.modelQueue.q_ids}`, "myPrint", "width=800, height=600");
+          
           _this.onCancelAction();
         } catch (error) {
           Swal.fire({
