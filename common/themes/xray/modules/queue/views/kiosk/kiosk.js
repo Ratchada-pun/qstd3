@@ -99,6 +99,7 @@ var app = new Vue({
 
     service_id: null,
     services: [],
+    age: 0,
   },
   computed: {
     patientName: function() {
@@ -137,28 +138,28 @@ var app = new Vue({
     avatar: function() {
       return _.get(this.patient, "photo", window.patientPicture);
     },
-    age: function() {
-      if (this.patient) {
-        const [year, month, day] = String(this.patient.birthday).split("-");
-        const a = moment();
-        const b = moment(`${parseInt(year)}-${month}-${day}`, "YYYY-MM-DD");
+    // age: function() {
+    //   if (this.patient) {
+    //     // const [year, month, day] = String(this.patient.birthday).split("-");
+    //     // const a = moment();
+    //     // const b = moment(`${parseInt(year)}-${month}-${day}`, "YYYY-MM-DD");
 
-        const years = a.diff(b, "year");
-        b.add(years, "years");
-        return years;
-      } else if (this.right) {
-        const y = parseInt(this.right.birthdate.substr(0, 4)) - 543;
-        // const m = this.right.birthdate.substr(4, 2);
-        // const d = this.right.birthdate.substr(6);
-        // const a = moment();
-        // const b = moment(`${parseInt(y)}-${m}-${d}`, "YYYY-MM-DD");
+    //     // const years = a.diff(b, "year");
+    //     // b.add(years, "years");
+    //     return _.get(this.patient, "age", 0);
+    //   } else if (this.right) {
+    //     const y = parseInt(this.right.birthdate.substr(0, 4)) - 543;
+    //     // const m = this.right.birthdate.substr(4, 2);
+    //     // const d = this.right.birthdate.substr(6);
+    //     // const a = moment();
+    //     // const b = moment(`${parseInt(y)}-${m}-${d}`, "YYYY-MM-DD");
 
-        // const years = a.diff(b, "year");
-        // b.add(years, "years");
-        return parseInt(moment().format("YYYY")) - y;
-      }
-      return 0;
-    },
+    //     // const years = a.diff(b, "year");
+    //     // b.add(years, "years");
+    //     return parseInt(moment().format("YYYY")) - y;
+    //   }
+    //   return 0;
+    // },
     disabledStyle: function() {
       if (!this.service_id) {
         return {
@@ -351,6 +352,7 @@ var app = new Vue({
         _this.loading2 = true;
         const body = { encrypted: encrypted };
         const profile = await http.post("/api/queue/decrypt-data", body, _this.httpConfig);
+        _this.age = _.get(profile, "age", 0);
         // get right
         await _this.fetchPatientRight(profile.citizenId);
         _this.setProfile(profile);
@@ -526,6 +528,18 @@ var app = new Vue({
           baseURL: window.nodeBaseURLLocal,
         });
         this.setRight(_.get(right, "data"));
+        if (_.get(right, "data")) {
+          const response = await http.post(
+            `/api/queue/calculate-age`,
+            {
+              birthdate: _.get(right, "data.birthdate"),
+            },
+            {
+              baseURL: window.nodeBaseURLLocal,
+            }
+          );
+          _this.age = _.get(response, "age", 0)
+        }
         return right;
       } catch (error) {
         Swal.fire({

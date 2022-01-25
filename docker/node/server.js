@@ -25,8 +25,9 @@ const axios = require("axios");
 const multiparty = require("multiparty");
 const httpConfig = {
   baseURL: "https://qstd3.andamandev.com",
-  //baseURL: "http://queue-standard-3.local",
+  // baseURL: "http://queue-standard-3.local",
 };
+const moment = require("moment");
 const port = process.env.PORT || 3000;
 const ioclient = require("socket.io-client");
 //const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
@@ -37,16 +38,17 @@ const httpAssert = require("http-assert");
 const throwError = (...args) => {
   throw createError(...args);
 };
+moment.locale("th");
 
-const knex = require('knex')({
-  client: 'mysql',
+const knex = require("knex")({
+  client: "mysql",
   connection: {
-    host : process.env.DB_HOST,
-    user : process.env.DB_USERNAME,
-    password : process.env.DB_PASSWORD,
-    database : process.env.DB_DATABASE,
-    port: process.env.DB_PORT
-  }
+    host: process.env.DB_HOST,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT,
+  },
 });
 
 const publicKey = `-----BEGIN PUBLIC KEY-----
@@ -78,7 +80,6 @@ socketclient
 
 // require the module
 
-
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -88,7 +89,7 @@ app.get("/", function(req, res) {
   res.sendFile(__dirname + "/index.html");
 });
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   // res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
   res.header(
@@ -105,7 +106,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   res.success = (data = "", statusCode = 200) => {
     res.status(statusCode || 200).send({
       statusCode: statusCode,
@@ -137,7 +138,21 @@ app.use(morgan("combined"));
 app.post("/api/queue/decrypt-data", (req, res) => {
   const decryptedString = key.decrypt(req.body.encrypted, "utf8");
   const decrypedData = JSON.parse(decryptedString);
-  res.send(decrypedData);
+  const [year, month, day] = String(decrypedData.birthday).split("-");
+  const a = moment();
+  const b = moment(`${parseInt(year)}-${month}-${day}`, "YYYY-MM-DD");
+
+  const years = a.diff(b, "year");
+  res.send(
+    _.merge(decrypedData, {
+      age: years,
+    })
+  );
+});
+
+app.post("/api/queue/calculate-age", (req, res) => {
+  const y = parseInt(req.body.birthdate.substr(0, 4)) - 543;
+  res.send({ age: parseInt(moment().format("YYYY")) - y });
 });
 
 app.get("/api/queue/patient-right/:cid", async (req, res) => {
@@ -150,7 +165,11 @@ app.get("/api/queue/patient-right/:cid", async (req, res) => {
   // }
   try {
     // const UserServiceModel = new UserService();
-    const token = await knex.select('*').from('tb_token_nhso').orderBy('crearedat', 'desc').first()
+    const token = await knex
+      .select("*")
+      .from("tb_token_nhso")
+      .orderBy("crearedat", "desc")
+      .first();
     req.assert(token, 400, "invalid token");
     const args = {
       user_person_id: token.user_person_id,
@@ -191,7 +210,7 @@ app.post("/api/queue/create-queue", async (req, res) => {
     req.io.emit("register", response.data);
     res.send(response.data);
   } catch (error) {
-    res.status(_.get(error, 'response.status', 500)).send(error.response.data);
+    res.status(_.get(error, "response.status", 500)).send(error.response.data);
   }
 });
 
