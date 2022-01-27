@@ -42,7 +42,7 @@ $this->registerCss('
         line-height: 0.5!important;
     }
     table tbody tr td span {
-        font-size: 15rem!important;
+        font-size: 25rem!important;
     }
     table.table-display thead tr {
         width: 50%;
