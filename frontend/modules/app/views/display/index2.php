@@ -34,12 +34,12 @@ $this->registerCss('
     
     table tbody tr td span {
         margin: 0 !important;
-        line-height: 0.5!important;
+        line-height: 0.7!important;
     }
     table tbody tr {
         padding: 0 !important;
         margin: 0 !important;
-        line-height: 0.5!important;
+        line-height: 0.7!important;
     }
     table tbody tr td span {
         font-size: 25rem!important;
@@ -192,22 +192,22 @@ $formatter = Yii::$app->formatter;
     <table class="table table-display" width="100%">
         <thead>
             <tr>
-                <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>; font-size: 10rem;" class="th-left">
+                <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>; font-size: 8rem;" class="th-left">
                     <div style="display: flex;">
                         <div style="width: 50%;text-align: left;">
                             โรงพยาบาลสิรินธร
-                            <h3>
+                            <h3 style="font-size: 8rem;">
                                 Sirindhorn Hospital
                             </h3>
                         </div>
-                        <div style="width: 50%"></div>
+                        <div style="width: 50%">
                             <div class="caption clock">
-                                <h1 class="mb-0 line-height text-cyan time" style="text-align: right;font-size: 8rem;">
+                                <h1 class="mb-0 line-height text-cyan time" style="text-align: right;font-size: 6rem;">
                                     <span id="kiosk-date">
                                         <?= $formatter->asDate('now', 'php:lที่ d F ') . ($formatter->asDate('now', 'php:Y') + 543) ?>
                                     </span>
                                 </h1>
-                                <h1 class="mb-0 line-height text-cyan time text-right;font-size: 8rem;">
+                                <h1 class="mb-0 line-height text-cyan time text-right;font-size: 6rem;">
                                     เวลา <span class="time__hours"><?= $formatter->asDate('now', 'php:H') ?></span><span class="time__min"><?= $formatter->asDate('now', 'php:i') ?></span><span class="time__sec"><?= $formatter->asDate('now', 'php:s') ?></span> น.
                                 </h1>
                             </div>
