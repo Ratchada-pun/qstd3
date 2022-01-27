@@ -192,7 +192,7 @@ $formatter = Yii::$app->formatter;
     <table class="table table-display" width="100%">
         <thead>
             <tr>
-                <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
+                <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>; font-size: 15rem;" class="th-left">
                     <div style="display: flex;">
                         <div style="width: 50%;text-align: left;">
                             โรงพยาบาลสิรินธร
@@ -202,12 +202,12 @@ $formatter = Yii::$app->formatter;
                         </div>
                         <div style="width: 50%">
                             <div class="caption clock">
-                                <h1 class="mb-0 line-height text-cyan time" style="text-align: right;">
+                                <h1 class="mb-0 line-height text-cyan time" style="text-align: right;font-size: 13rem;">
                                     <span id="kiosk-date">
                                         <?= $formatter->asDate('now', 'php:lที่ d F ') . ($formatter->asDate('now', 'php:Y') + 543) ?>
                                     </span>
                                 </h1>
-                                <h1 class="mb-0 line-height text-cyan time text-right">
+                                <h1 class="mb-0 line-height text-cyan time text-right;font-size: 13rem;">
                                     เวลา <span class="time__hours"><?= $formatter->asDate('now', 'php:H') ?></span><span class="time__min"><?= $formatter->asDate('now', 'php:i') ?></span><span class="time__sec"><?= $formatter->asDate('now', 'php:s') ?></span> น.
                                 </h1>
                             </div>
