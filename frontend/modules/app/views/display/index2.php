@@ -23,6 +23,27 @@ $this->registerCss('
     body {
         background-color: ' . $config['background_color'] . ';
     }
+    .table {
+        margin-bottom: 0px;
+    }
+    table thead tr th  {
+        margin: 0 !important;
+        line-height: 1!important;
+    }
+    table tbody tr td,
+    
+    table tbody tr td span {
+        margin: 0 !important;
+        line-height: 0.5!important;
+    }
+    table tbody tr {
+        padding: 0 !important;
+        margin: 0 !important;
+        line-height: 0.5!important;
+    }
+    table tbody tr td span {
+        font-size: 15rem!important;
+    }
     table.table-display thead tr {
         width: 50%;
         border-radius: 15px;
@@ -200,7 +221,7 @@ $formatter = Yii::$app->formatter;
         <div class="row">
 
             <div class="col-xs-8 col-sm-8 col-md-8">
-                <table class="table table-display" id="table-display" width="100%">
+                <table  class="table table-display" id="table-display" width="100%">
                     <thead>
                         <tr>
                             <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
@@ -220,7 +241,7 @@ $formatter = Yii::$app->formatter;
                     <tbody>
                         <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
                             <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
-                                <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -250,7 +271,7 @@ $formatter = Yii::$app->formatter;
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; width: 80%">
@@ -274,7 +295,7 @@ $formatter = Yii::$app->formatter;
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -297,7 +318,7 @@ $formatter = Yii::$app->formatter;
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
 
@@ -321,7 +342,7 @@ $formatter = Yii::$app->formatter;
                 </table>
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
-                <table class="table table-display2" id="table-display2" width="100%">
+                <table  class="table table-display2" id="table-display2" width="100%">
                     <thead>
                         <tr>
                             <th style="width: 50%;color: <?= $config['title_latest_right_color']; ?>" class="th-left">#</th>
@@ -357,7 +378,7 @@ $formatter = Yii::$app->formatter;
                     <tbody>
                         <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
                             <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
-                                <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -387,7 +408,7 @@ $formatter = Yii::$app->formatter;
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; width: 80%">
@@ -411,7 +432,7 @@ $formatter = Yii::$app->formatter;
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table   v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -434,7 +455,7 @@ $formatter = Yii::$app->formatter;
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
 
