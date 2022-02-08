@@ -2,10 +2,10 @@ var express = require("express")
 var qs = require("qs")
 var router = express.Router()
 const axios = require("axios")
-axios.defaults.baseURL = "http://192.168.100.253"
+axios.defaults.baseURL = "http://nginx"
 //axios.defaults.baseURL = "http://queue-chainat.local";
 const config = {
-	baseURL: "http://192.168.100.253",
+	baseURL: "http://nginx",
 	// baseURL: "http://queue-chainat.local"
 }
 

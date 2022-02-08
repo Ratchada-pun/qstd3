@@ -3,7 +3,7 @@ var qs = require("qs");
 var router = express.Router();
 const axios = require("axios");
 const config = {
-  baseURL: "http://192.168.100.253",
+  baseURL: "http://nginx",
 };
 
 router.post("/create-queue", async function(req, res) {

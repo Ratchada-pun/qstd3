@@ -24,14 +24,14 @@ const _ = require("lodash");
 const axios = require("axios");
 const multiparty = require("multiparty");
 const httpConfig = {
-  baseURL: "http://192.168.100.253",
+  baseURL: "http://nginx",
   //baseURL: "http://queue-standard-3.local",
 };
 const moment = require("moment");
 const port = process.env.PORT || 3000;
 const ioclient = require("socket.io-client");
-//const socketclient = ioclient("http://localhost:3000", { path: "/socket.io" });
-const socketclient = ioclient("http://qstd3node:3003", { path: "/node/socket.io" });
+const socketclient = ioclient("http://node:3003", { path: "/socket.io" });
+// const socketclient = ioclient("http://node:3003", { path: "/socket.io" });
 const createError = require("http-errors");
 const httpAssert = require("http-assert");
 // error
