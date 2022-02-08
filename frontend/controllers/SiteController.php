@@ -143,12 +143,12 @@ class SiteController extends Controller
         foreach ($services as $service) {
             $count = TbQuequ::find()
                 ->where(['serviceid' => $service['serviceid']])
-                ->andWhere('DATE(created_at) = CURRENT_DATE')
+                ->andWhere('DATE(tb_quequ.created_at) = CURRENT_DATE')
                 //->andWhere(['between', 'created_at',$day.' 00:00:00', $day.' 23:59:59'])
                 ->count();
             $wait = TbQtrans::find()
                 ->where(['serviceid' => $service['serviceid'], 'service_status_id' => [1]])
-                ->andWhere('DATE(created_at) = CURRENT_DATE')
+                ->andWhere('DATE(tb_quequ.created_at) = CURRENT_DATE')
                 //->andWhere(['between', 'created_at',$day.' 00:00:00', $day.' 23:59:59'])
                 ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
                 ->count();
@@ -156,7 +156,7 @@ class SiteController extends Controller
                 ->where(['serviceid' => $service['serviceid'], 'service_status_id' => [4]])
                 //->andWhere(['between', 'created_at',$day.' 00:00:00', $day.' 23:59:59'])
                 ->andWhere(['not', ['counter_service_id' => null]])
-                ->andWhere('DATE(created_at) = CURRENT_DATE')
+                ->andWhere('DATE(tb_quequ.created_at) = CURRENT_DATE')
                 ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
                 ->count();
             $wait = $wait + $waitEx;
