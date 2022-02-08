@@ -645,12 +645,12 @@ $this->registerJsFile(
     ['depends' => [\yii\web\JqueryAsset::class]]
 );
 
-$baseURL = YII_ENV_DEV ? Url::base(true) : "https://qstd3.andamandev.com";
-$socketBaseURL = YII_ENV_DEV ? 'http://localhost:3000' : "https://qstd3.andamandev.com";
+$baseURL = YII_ENV_DEV ? Url::base(true) : "http://192.168.100.253";
+$socketBaseURL = YII_ENV_DEV ? 'http://localhost:3000' : "http://192.168.100.253";
 $socketPath = YII_ENV_DEV ? '/socket.io' : "/node/socket.io";
-$nodeBaseURL = YII_ENV_DEV ? 'http://localhost:3000' : "https://qstd3.andamandev.com/node";
+$nodeBaseURL = YII_ENV_DEV ? 'http://localhost:3000' : "http://192.168.100.253/node";
 $patientPicture = $themeAsset . "/images/kiosk/patient.png";
-$nodeBaseURLLocal = 'http://localhost:3000';
+$nodeBaseURLLocal = 'http://192.168.100.253';
 $locale = substr(Yii::$app->language, 0, 2);
 $messages = Json::encode($messages);
 $js = <<<JS

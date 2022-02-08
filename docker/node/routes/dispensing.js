@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const axios = require('axios');
-axios.defaults.baseURL = 'https://qstd3.andamandev.com';
+axios.defaults.baseURL = 'http://192.168.100.253';
 
 router.post('/create', async function(req, res) {
     try {

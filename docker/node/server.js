@@ -24,7 +24,7 @@ const _ = require("lodash");
 const axios = require("axios");
 const multiparty = require("multiparty");
 const httpConfig = {
-  baseURL: "https://qstd3.andamandev.com",
+  baseURL: "http://192.168.100.253",
   //baseURL: "http://queue-standard-3.local",
 };
 const port = process.env.PORT || 3000;
