@@ -1,4 +1,4 @@
-var host = 'https://' + window.location.hostname;
+var host = 'http://' + window.location.hostname;
 var socket = io(host, {path: '/socket.io'});
 $(function() {
     socket.on('connect', () => {
