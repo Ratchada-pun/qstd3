@@ -531,7 +531,7 @@ var app = new Vue({
         this.setRight(_.get(right, "data"));
         if (_.get(right, "data")) {
           const response = await http.post(
-            `/api/queue/calculate-age`,
+            `/node/api/queue/calculate-age`,
             {
               birthdate: _.get(right, "data.birthdate"),
             },
