@@ -3024,23 +3024,41 @@ class CallingController extends \yii\web\Controller
     {
         $qnum = str_split($qnum);
         $counter = $this->findModelCounterservice($id);
-        $modelSound = TbSound::findOne(['sound_id' => $counter['sound_id'], 'language' => $language]);
+        $sound_id = $counter['sound_id'];
+        $sound_service_id = $counter['sound_service_id'];
+        if ($language == 'en') {
+            $sound_id = $counter['sound_en_id'];
+            $sound_service_id = $counter['sound_service_en_id'];
+        }
+        $modelSound = TbSound::findOne(['sound_id' => $sound_id, 'language' => $language]);
         if (!$modelSound) {
-            throw new HttpException(404, 'sound_id ' . $counter['sound_id'] . ' not found.');
+            throw new HttpException(404, 'sound_id ' . $sound_id . ' not found.');
         }
         //$counterType = $counter->counterserviceType;
         //$counterSound = $counterType->tbSound;
-        $servicesound = TbSound::findOne(['sound_id' => $counter['sound_service_id'], 'language' => $language]);
+        $servicesound = TbSound::findOne(['sound_id' => $sound_service_id, 'language' => $language]);
         if (!$servicesound) {
-            throw new HttpException(404, 'sound_service_id ' . $counter['sound_service_id'] . ' not found.');
+            throw new HttpException(404, 'sound_service_id ' . $sound_service_id . ' not found.');
         }
         $basePath = "/media/" . $modelSound['sound_path_name'];
-        $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข
-        $end = [
-            "/media/" . $servicesound['sound_path_name'] . '/' . $servicesound['sound_name'],
-            $basePath . '/' . $modelSound['sound_name'],
-            $basePath . '/' . $modelSound['sound_path_name'] . '_Sir.wav',
-        ];
+       
+        if ($language == 'th') {
+            $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข
+            $end = [
+                "/media/" . $servicesound['sound_path_name'] . '/' . $servicesound['sound_name'],
+                $basePath . '/' . $modelSound['sound_name'],
+                $basePath . '/' . $modelSound['sound_path_name'] . '_Sir.wav',
+            ];
+        } else {
+            $begin = [
+                $basePath . "/Prompt3_number.wav"
+            ]; //เชิญหมายเลข
+            $end = [
+                $basePath . "/Prompt3_please_contact_to_counter.wav",
+                // "/media/" . $servicesound['sound_path_name'] . '/' . $servicesound['sound_name'],
+                $basePath . '/' . $modelSound['sound_name'],
+            ];
+        }
 
         $sound = array_map(function ($num) use ($basePath, $modelSound) {
             return $basePath . '/' . $modelSound['sound_path_name'] . '_' . $num . '.wav';
@@ -3912,6 +3930,7 @@ class CallingController extends \yii\web\Controller
                 ])
                 ->from('tb_caller')
                 ->where(['tb_caller.call_status' => TbCaller::STATUS_CALLING, 'tb_caller.counter_service_id' => $counters])
+                ->andWhere('DATE(tb_quequ.q_timestp) = DATE(NOW())')
                 ->innerJoin('tb_qtrans', 'tb_qtrans.ids = tb_caller.qtran_ids')
                 ->innerJoin('tb_quequ', 'tb_quequ.q_ids = tb_qtrans.q_ids')
                 ->innerJoin('tb_counterservice', 'tb_counterservice.counterserviceid = tb_caller.counter_service_id')

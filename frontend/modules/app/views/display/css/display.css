@@ -79,7 +79,7 @@
 	@media (min-width: 992px) {
 		table.table-display thead tr th {
 			text-align: center;
-			font-size: 40px;
+			font-size: 50px;
 		}
 
 		table.table-display tbody tr td {
@@ -89,7 +89,7 @@
         
         table.table-display2 thead tr th {
 			text-align: center;
-			font-size: 40px;
+			font-size: 50px;
 		}
 
 		table.table-display2 tbody tr td {

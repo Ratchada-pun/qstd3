@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use kartik\form\ActiveForm;
 use homer\widgets\dynamicform\DynamicFormWidget;
@@ -9,7 +10,8 @@ use kartik\widgets\DepDrop;
 use frontend\modules\app\models\TbSound;
 use yii\helpers\Url;
 
-$this->registerCss(<<<CSS
+$this->registerCss(
+    <<<CSS
 .modal-dialog{
     width: 90%;
 }
@@ -17,18 +19,18 @@ CSS
 );
 ?>
 <?php $form = ActiveForm::begin([
-    'id' => 'form-counter', 
-    'type' => ActiveForm::TYPE_HORIZONTAL, 
+    'id' => 'form-counter',
+    'type' => ActiveForm::TYPE_HORIZONTAL,
     'formConfig' => ['showLabels' => false],
-]);?>
-    <div class="form-group">
-        <?= Html::activeLabel($model, 'counterservice_type', ['label' => 'ชื่อประเภท','class'=>'col-sm-2 control-label']) ?>
-        <div class="col-sm-4">
-            <?= $form->field($model, 'counterservice_type',['showLabels'=>false])->textInput([
-                'placeholder' => 'ชื่อประเภท'
-            ]); ?>
-        </div>
-        <?php /*
+]); ?>
+<div class="form-group">
+    <?= Html::activeLabel($model, 'counterservice_type', ['label' => 'ชื่อประเภท', 'class' => 'col-sm-2 control-label']) ?>
+    <div class="col-sm-4">
+        <?= $form->field($model, 'counterservice_type', ['showLabels' => false])->textInput([
+            'placeholder' => 'ชื่อประเภท'
+        ]); ?>
+    </div>
+    <?php /*
         <?= Html::activeLabel($model, 'sound_id', ['label' => 'ไฟล์เสียง','class'=>'col-sm-1 control-label']) ?>
         <div class="col-sm-4">
             <?= $form->field($model, 'sound_id',['showLabels'=>false])->widget(Select2::classname(), [
@@ -44,116 +46,121 @@ CSS
                 'theme' => Select2::THEME_BOOTSTRAP,
             ]); ?>
         </div>
-        */?>
-    </div>
-    <?php DynamicFormWidget::begin([
-        'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
-        'widgetBody' => '.container-items', // required: css class selector
-        'widgetItem' => '.item', // required: css class
-        'limit' => \Yii::$app->keyStorage->get('dynamic-limit', 20), // the maximum times, an element can be cloned (default 999)
-        'min' => 0, // 0 or 1 (default 1)
-        'insertButton' => '.add-item', // css class
-        'deleteButton' => '.remove-item', // css class
-        'model' => $modelCounterservices[0],
-        'formId' => 'form-counter',
-        'formFields' => [
-            'counterserviceid',
-            'counterservice_name',
-            'counterservice_callnumber',
-            'counterservice_type',
-            'servicegroupid',
-            'userid',
-            'serviceid',
-            'sound_stationid',
-            'sound_id',
-            'counterservice_status'
-        ],
-        'clientEvents' => [
-            'afterInsert' => 'function(e, item) {
+        */ ?>
+</div>
+<?php DynamicFormWidget::begin([
+    'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
+    'widgetBody' => '.container-items', // required: css class selector
+    'widgetItem' => '.item', // required: css class
+    'limit' => \Yii::$app->keyStorage->get('dynamic-limit', 20), // the maximum times, an element can be cloned (default 999)
+    'min' => 0, // 0 or 1 (default 1)
+    'insertButton' => '.add-item', // css class
+    'deleteButton' => '.remove-item', // css class
+    'model' => $modelCounterservices[0],
+    'formId' => 'form-counter',
+    'formFields' => [
+        'counterserviceid',
+        'counterservice_name',
+        'counterservice_callnumber',
+        'counterservice_type',
+        'servicegroupid',
+        'userid',
+        'serviceid',
+        'sound_stationid',
+        'sound_id',
+        'counterservice_status'
+    ],
+    'clientEvents' => [
+        'afterInsert' => 'function(e, item) {
                 jQuery(".dynamicform_wrapper .panel-title").each(function(index) {
                     jQuery(this).html("รายการที่ : " + (index + 1));
                 });
             }',
-            'afterDelete' => 'function(e, item) {
+        'afterDelete' => 'function(e, item) {
                 jQuery(".dynamicform_wrapper .panel-title").each(function(index) {
                     jQuery(this).html("รายการที่ : " + (index + 1));
                 });
             }'
-        ],
-    ]); ?>
+    ],
+]); ?>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <?= Icon::show('edit').'ช่องบริการย่อย'; ?>
-            <?= Html::button(Icon::show('plus').'เพิ่มรายการ',['class' => 'pull-right add-item btn btn-success btn-xs']); ?>
-            <div class="clearfix"></div>
-        </div>
-        <div class="panel-body container-items"><!-- widgetContainer -->
-            <?php foreach ($modelCounterservices as $index => $modelCounterservice): ?>
-                <div class="item panel panel-default"><!-- widgetBody -->
-                    <div class="panel-heading">
-                        <?= Html::tag('span','รายการที่ : '.($index + 1),['class' => 'panel-title']); ?>
-                        <div style="float: right;">
-                            <?= Html::button(Icon::show('minus'),['class' => 'remove-item btn btn-danger btn-xs']); ?>
-                            <?= Html::button(Icon::show('plus'),['class' => 'add-item btn btn-success btn-xs']); ?>
-                        </div>
-                        <div class="clearfix"></div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <?= Icon::show('edit') . 'ช่องบริการย่อย'; ?>
+        <?= Html::button(Icon::show('plus') . 'เพิ่มรายการ', ['class' => 'pull-right add-item btn btn-success btn-xs']); ?>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-body container-items">
+        <!-- widgetContainer -->
+        <?php foreach ($modelCounterservices as $index => $modelCounterservice) : ?>
+            <div class="item panel panel-default">
+                <!-- widgetBody -->
+                <div class="panel-heading">
+                    <?= Html::tag('span', 'รายการที่ : ' . ($index + 1), ['class' => 'panel-title']); ?>
+                    <div style="float: right;">
+                        <?= Html::button(Icon::show('minus'), ['class' => 'remove-item btn btn-danger btn-xs']); ?>
+                        <?= Html::button(Icon::show('plus'), ['class' => 'add-item btn btn-success btn-xs']); ?>
                     </div>
-                    <div class="panel-body">
-                        <?php
-                            if (! $modelCounterservice->isNewRecord) {
-                                echo Html::activeHiddenInput($modelCounterservice, "[{$index}]counterserviceid");
-                            }
-                        ?>
-                        <div class="form-group">
-                            <?= Html::activeLabel($modelCounterservice, "[{$index}]counterservice_name", ['label' => 'ชื่อช่องบริการ','class'=>'col-sm-2 control-label']) ?>
-                            <div class="col-sm-4">
-                                <?= $form->field($modelCounterservice, "[{$index}]counterservice_name",['showLabels'=>false])->textInput([
-                                    'placeholder' => 'ชื่อช่องบริการ'
-                                ]); ?>
-                            </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-body">
+                    <?php
+                    if (!$modelCounterservice->isNewRecord) {
+                        echo Html::activeHiddenInput($modelCounterservice, "[{$index}]counterserviceid");
+                    }
+                    ?>
+                    <div class="form-group">
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]counterservice_name", ['label' => 'ชื่อช่องบริการ', 'class' => 'col-sm-2 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]counterservice_name", ['showLabels' => false])->textInput([
+                                'placeholder' => 'ชื่อช่องบริการ'
+                            ]); ?>
+                        </div>
 
-                            <?= Html::activeLabel($modelCounterservice, "[{$index}]counterservice_callnumber", ['label' => 'หมายเลข','class'=>'col-sm-1 control-label']) ?>
-                            <div class="col-sm-4">
-                                <?= $form->field($modelCounterservice, "[{$index}]counterservice_callnumber",['showLabels'=>false])->textInput([
-                                    'placeholder' => 'หมายเลข',
-                                ]); ?>
-                            </div>
-                        </div><!-- End FormGroup /-->
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]counterservice_callnumber", ['label' => 'หมายเลข', 'class' => 'col-sm-1 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]counterservice_callnumber", ['showLabels' => false])->textInput([
+                                'placeholder' => 'หมายเลข',
+                            ]); ?>
+                        </div>
+                    </div><!-- End FormGroup /-->
 
-                        <div class="form-group">
-                            <?= Html::activeLabel($modelCounterservice, "[{$index}]servicegroupid", ['label' => 'กลุ่มบริการ','class'=>'col-sm-2 control-label']) ?>
-                            <div class="col-sm-4">
-                                <?= $form->field($modelCounterservice, "[{$index}]servicegroupid",['showLabels'=>false])->widget(Select2::classname(), [
-                                    'data' => ArrayHelper::map((new \yii\db\Query())
-                                        ->select(['tb_servicegroup.servicegroupid', 'tb_servicegroup.servicegroup_name'])
-                                        ->from('tb_servicegroup')
-                                        ->all(),'servicegroupid','servicegroup_name'),
-                                    'options' => ['placeholder' => 'เลือกกลุ่มบริการ...'],
-                                    'pluginOptions' => [
-                                        'allowClear' => true
-                                    ],
-                                    'theme' => Select2::THEME_BOOTSTRAP,
-                                ]) ?>
-                            </div>
+                    <div class="form-group">
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]servicegroupid", ['label' => 'กลุ่มบริการ', 'class' => 'col-sm-2 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]servicegroupid", ['showLabels' => false])->widget(Select2::classname(), [
+                                'data' => ArrayHelper::map((new \yii\db\Query())
+                                    ->select(['tb_servicegroup.servicegroupid', 'tb_servicegroup.servicegroup_name'])
+                                    ->from('tb_servicegroup')
+                                    ->all(), 'servicegroupid', 'servicegroup_name'),
+                                'options' => ['placeholder' => 'เลือกกลุ่มบริการ...'],
+                                'pluginOptions' => [
+                                    'allowClear' => true
+                                ],
+                                'theme' => Select2::THEME_BOOTSTRAP,
+                            ]) ?>
+                        </div>
 
-                            <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_service_id", ['label' => 'เสียงบริการ','class'=>'col-sm-1 control-label']) ?>
-                            <div class="col-sm-4">
-                                <?= $form->field($modelCounterservice, "[{$index}]sound_service_id",['showLabels'=>false])->widget(Select2::classname(), [
-                                    'data' => ArrayHelper::map(
-                                        (new \yii\db\Query())
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_service_id", ['label' => 'เสียงบริการ', 'class' => 'col-sm-1 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]sound_service_id", ['showLabels' => false])->widget(Select2::classname(), [
+                                'data' => ArrayHelper::map(
+                                    (new \yii\db\Query())
                                         ->select(['CONCAT(tb_sound.sound_name,\' \',\'(\',tb_sound.sound_th,\')\') AS sound_name', 'tb_sound.sound_id'])
                                         ->from('tb_sound')
                                         ->where('sound_name LIKE :query')
-                                        ->addParams([':query'=>'%Service%'])
-                                        ->all(),'sound_id','sound_name'),
-                                    'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
-                                    'pluginOptions' => [
-                                        'allowClear' => true
-                                    ],
-                                    'theme' => Select2::THEME_BOOTSTRAP,
-                                ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
-                            </div>
+                                        ->addParams([':query' => '%Service%'])
+                                        ->all(),
+                                    'sound_id',
+                                    'sound_name'
+                                ),
+                                'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
+                                'pluginOptions' => [
+                                    'allowClear' => true
+                                ],
+                                'theme' => Select2::THEME_BOOTSTRAP,
+                            ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
+                        </div>
                         <?php /*
                             <?= Html::activeLabel($modelCounterservice, "[{$index}]serviceid", ['label' => 'กลุ่มบริการย่อย','class'=>'col-sm-1 control-label']) ?>
                             <div class="col-sm-4">
@@ -180,76 +187,125 @@ CSS
                                 ]); ?>
                                
                             </div>
-                             */?>
-                        </div><!-- End FormGroup /-->
+                             */ ?>
+                    </div><!-- End FormGroup /-->
 
-                        <div class="form-group">
-                          <?php /*
+                    <div class="form-group">
+                        <?php /*
                             <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_stationid", ['label' => 'เครื่องเล่นเสียงที่','class'=>'col-sm-2 control-label']) ?>
                             <div class="col-sm-4">
                                 <?= $form->field($modelCounterservice, "[{$index}]sound_stationid",['showLabels'=>false])->textInput([
                                     'placeholder' => 'เครื่องเล่นเสียงที่'
                                 ]); ?>
                             </div>
-                            */?>
+                            */ ?>
 
-                           
-                        </div><!-- End FormGroup /-->
 
-                        <div class="form-group">
-                            <?= Html::activeLabel($modelCounterservice, "[{$index}]counterservice_status", ['label' => 'สถานะ','class'=>'col-sm-2 control-label']) ?>
-                            <div class="col-sm-4">
-                                <?= $form->field($modelCounterservice, "[{$index}]counterservice_status",['showLabels'=>false])->widget(Select2::classname(), [
-                                    'data' => [0 => 'Disabled', 1 => 'Enabled'],
-                                    'options' => ['placeholder' => 'สถานะ...'],
-                                    'pluginOptions' => [
-                                        'allowClear' => true
-                                    ],
-                                    'theme' => Select2::THEME_BOOTSTRAP,
-                                ]) ?>
-                            </div>
+                    </div><!-- End FormGroup /-->
 
-                            <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_id", ['label' => 'เสียงหมายเลข','class'=>'col-sm-1 control-label']) ?>
-                            <div class="col-sm-4">
-                                <?= $form->field($modelCounterservice, "[{$index}]sound_id",['showLabels'=>false])->widget(Select2::classname(), [
-                                    'data' => ArrayHelper::map(
-                                        (new \yii\db\Query())
+                    <div class="form-group">
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]counterservice_status", ['label' => 'สถานะ', 'class' => 'col-sm-2 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]counterservice_status", ['showLabels' => false])->widget(Select2::classname(), [
+                                'data' => [0 => 'Disabled', 1 => 'Enabled'],
+                                'options' => ['placeholder' => 'สถานะ...'],
+                                'pluginOptions' => [
+                                    'allowClear' => true
+                                ],
+                                'theme' => Select2::THEME_BOOTSTRAP,
+                            ]) ?>
+                        </div>
+
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_id", ['label' => 'เสียงหมายเลข', 'class' => 'col-sm-1 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]sound_id", ['showLabels' => false])->widget(Select2::classname(), [
+                                'data' => ArrayHelper::map(
+                                    (new \yii\db\Query())
                                         ->select(['CONCAT(tb_sound.sound_name,\' \',\'(\',tb_sound.sound_th,\')\') AS sound_name', 'tb_sound.sound_id'])
                                         ->from('tb_sound')
                                         ->where('sound_name NOT LIKE :query')
-                                        ->addParams([':query'=>'%Service%'])
-                                        ->all(),'sound_id','sound_name'),
-                                    'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
-                                    'pluginOptions' => [
-                                        'allowClear' => true
-                                    ],
-                                    'theme' => Select2::THEME_BOOTSTRAP,
-                                ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
-                            </div>
-                        </div><!-- End FormGroup /-->
+                                        ->addParams([':query' => '%Service%'])
+                                        ->all(),
+                                    'sound_id',
+                                    'sound_name'
+                                ),
+                                'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
+                                'pluginOptions' => [
+                                    'allowClear' => true
+                                ],
+                                'theme' => Select2::THEME_BOOTSTRAP,
+                            ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
+                        </div>
+                    </div><!-- End FormGroup /-->
 
-                    </div><!-- End Body Panel /-->
-                </div><!-- End Panel /-->
-            <?php endforeach; ?>
-        </div><!-- End Body Panel /-->
-    </div><!-- End Panel /-->
-    <?php DynamicFormWidget::end(); ?>
+                    <div class="form-group">
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_en_id", ['class' => 'col-sm-2 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]sound_en_id", ['showLabels' => false])->widget(Select2::classname(), [
+                                'data' => ArrayHelper::map(
+                                    (new \yii\db\Query())
+                                        ->select(['CONCAT(tb_sound.sound_name,\' \',\'(\',tb_sound.sound_th,\')\') AS sound_name', 'tb_sound.sound_id'])
+                                        ->from('tb_sound')
+                                        ->where('sound_name NOT LIKE :query')
+                                        ->addParams([':query' => '%Service%'])
+                                        ->all(),
+                                    'sound_id',
+                                    'sound_name'
+                                ),
+                                'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
+                                'pluginOptions' => [
+                                    'allowClear' => true
+                                ],
+                                'theme' => Select2::THEME_BOOTSTRAP,
+                            ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
+                        </div>
 
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12" style="text-align: right;">
-            <div class="form-group">
-                <div class="col-sm-12">
-                    <?= Html::button(Icon::show('close').'CLOSE',['class' => 'btn btn-default','data-dismiss' => 'modal']); ?>
-                    <?= Html::submitButton(Icon::show('save').'SAVE',['class' => 'btn btn-primary']); ?>
-                </div>
+                        <?= Html::activeLabel($modelCounterservice, "[{$index}]sound_service_en_id", ['class' => 'col-sm-1 control-label']) ?>
+                        <div class="col-sm-4">
+                            <?= $form->field($modelCounterservice, "[{$index}]sound_service_en_id", ['showLabels' => false])->widget(Select2::classname(), [
+                                'data' => ArrayHelper::map(
+                                    (new \yii\db\Query())
+                                        ->select(['CONCAT(tb_sound.sound_name,\' \',\'(\',tb_sound.sound_th,\')\') AS sound_name', 'tb_sound.sound_id'])
+                                        ->from('tb_sound')
+                                        ->where('sound_name LIKE :query')
+                                        ->addParams([':query' => '%Service%'])
+                                        ->all(),
+                                    'sound_id',
+                                    'sound_name'
+                                ),
+                                'options' => ['placeholder' => 'เลือกไฟล์เสียง...'],
+                                'pluginOptions' => [
+                                    'allowClear' => true
+                                ],
+                                'theme' => Select2::THEME_BOOTSTRAP,
+                            ])->hint('<small class="text-danger">Prompt1 = เสียงผู้หญิง , Prompt2 = เสียงผู้ชาย</small>') ?>
+                        </div>
+                    </div>
+
+
+                </div><!-- End Body Panel /-->
+            </div><!-- End Panel /-->
+        <?php endforeach; ?>
+    </div><!-- End Body Panel /-->
+</div><!-- End Panel /-->
+<?php DynamicFormWidget::end(); ?>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12" style="text-align: right;">
+        <div class="form-group">
+            <div class="col-sm-12">
+                <?= Html::button(Icon::show('close') . 'CLOSE', ['class' => 'btn btn-default', 'data-dismiss' => 'modal']); ?>
+                <?= Html::submitButton(Icon::show('save') . 'SAVE', ['class' => 'btn btn-primary']); ?>
             </div>
         </div>
     </div>
+</div>
 
 <?php ActiveForm::end(); ?>
 
 <?php
-$this->registerJs(<<<JS
+$this->registerJs(
+    <<<JS
 //Form Event
 var table = $('#tb-counter').DataTable();
 var \$form = $('#form-counter');

@@ -107,6 +107,10 @@ footer.bg-white.iq-footer {
     /* display:none; */
 }
 
+footer {
+    display:none;
+}
+
 CSS;
 $this->registerCss($css);
 
@@ -152,8 +156,17 @@ $this->registerJsFile(
     </div>
 </div>
 */ ?>
+<div class="row">
+    <div class="col-md-6 col-lg-6">
+    </div>
+    <div class="col-md-6 col-lg-6" style="padding-top: 45px;text-align: right;">
+        <button id="btn-th" titel="ภาษาไทย" type="button" class="btn btn-outline-light"> <?= Html::img('/img/th.svg', ['width' => '65px']) ?></button>
+        <button id="btn-en" titel="English" type="button" class="btn btn-outline-light"> <?= Html::img('/img/us.svg', ['width' => '65px']) ?></button>
+    </div>
+</div>
 <div id="app" class="kiosk-container">
 
+    <?php /*
     <!-- begin:: Section Home -->
     <section v-if="!action" class="section-home">
 
@@ -230,118 +243,8 @@ $this->registerJsFile(
             </div>
         </div>
     </section>
-    <section v-if="action === 'select-language'" class="section-home">
+    */ ?>
 
-        <!-- begin: Title -->
-        <div class="row" style="padding-top: 20%;">
-            <div class="col-md-12 col-lg-12 col-sm-12">
-                <div class="sawatdee text-center" style="padding-top: 46px;">
-                    <h1 class="text-center">
-                        {{ $t("แผนกเวชระเบียน ยินดีให้บริการค่ะ") }}
-                    </h1>
-                    <div class="sawatdee-img">
-                        <?= Html::img($themeAsset . '/images/kiosk/sawatdee.gif', ['style' => 'margin-left: 10rem;']) ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end: Title -->
-        <div class="row">
-            <div class="col-md-12 col-lg-12 col-sm-12">
-                <section>
-                    <h1 class="text-center">
-                        {{ $t("ทำรายการด้วย") }}
-                    </h1>
-                </section>
-            </div>
-        </div>
-        <br>
-        <br>
-        <div class="row">
-            <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
-                <a href="#" class="button-effect" @click.prevent="onSelectAction('scan-idcard')">
-                    <div class="iq-card card-section-1">
-                        <div class="iq-card-body">
-                            <div class="d-flex">
-                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
-                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
-                                        <h4>{{ $t("Scan National ID Card") }}</h4>
-                                    </span>
-                                </div>
-                                <div>
-                                    <?= Html::img($themeAsset . '/images/kiosk/thai-id-card.png', ['width' => '100px']) ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
-                <a href="#" class="button-effect" @click.prevent="onSelectAction('hn-or-idcard')">
-                    <div class="iq-card card-section-1">
-                        <div class="iq-card-body">
-                            <div class="d-flex">
-                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
-                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
-                                        <h4>{{ $t("Enter your ID Card Number") }} </h4>
-                                    </span>
-                                </div>
-                                <div>
-                                    <?= Html::img($themeAsset . '/images/kiosk/keypad.png', ['width' => '65px']) ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
-                <a href="#" class="button-effect" @click.prevent="onSelectAction('no-idcard')">
-                    <div class="iq-card card-section-1">
-                        <div class="iq-card-body">
-                            <div class="d-flex">
-                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
-                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
-                                        <h4>{{ $t("รับคิว(กรณีไม่มีบัตรประชาชน)") }}</h4>
-                                    </span>
-                                </div>
-                                <?php /*
-                <div>
-                  <?= Html::img($themeAsset . '/images/kiosk/thai-id-card.png', ['width' => '100px']) ?>
-                </div>
-                */ ?>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <br>
-        <div class="row">
-            <div class="col-md-3 col-lg-3 col-sm-12">
-            </div>
-            <div class="col-md-6 col-lg-6 col-sm-12" style="padding-top: 120px">
-                <a href="#" class="button-effect" @click.prevent="onCancelAction()">
-                    <div class="iq-card card-section-2" style="background: #dc3545;">
-                        <div class="iq-card-body" style="padding: 10px;">
-                            <div class="d-flex">
-                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
-                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option text-center">
-                                        <h4 class="text-white"><i class="fas fa-arrow-left"></i> {{ $t("Cancel") }}</h4>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-2 col-lg-2 col-sm-12">
-            </div>
-        </div>
-    </section>
-    <!-- end:: Section Home -->
 
     <!-- begin:: สแกนบัตรประชาชน -->
     <section v-if="action === 'scan-idcard' && !patient" class="section-scan-idcard">
@@ -385,7 +288,7 @@ $this->registerJsFile(
     <!-- end:: สแกนบัตรประชาชน -->
 
     <!-- Begin:: ป้อนเลข HN หรือ เลขบัตรประชาชน -->
-    <section v-if="action === 'hn-or-idcard' && !patient && !right" class="section-scan-idcard">
+    <section v-if="!patient && !right && action === 'hn-or-idcard'" class="section-scan-idcard">
         <div v-cloak class="row">
             <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 140px;">
                 <div class="text-center" style="padding-top: 46px;">
@@ -439,7 +342,7 @@ $this->registerJsFile(
             </div>
             <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 115px"></div>
             <div class="col-md-4 col-lg-4 col-sm-12" style="padding-top: 115px">
-                <a href="#" class="button-effect" @click.prevent="onConfirmSearch()">
+                <!-- <a href="#" class="button-effect" @click.prevent="onConfirmSearch()">
                     <div class="iq-card card-section-2" style="background: #28a745;">
                         <div class="iq-card-body" style="padding: 10px;">
                             <div class="d-flex">
@@ -451,7 +354,7 @@ $this->registerJsFile(
                             </div>
                         </div>
                     </div>
-                </a>
+                </a> -->
             </div>
         </div>
     </section>
@@ -552,7 +455,7 @@ $this->registerJsFile(
     </section>
     <!-- end:: ข้อมูลผู้ป่วย -->
 
-    <section v-if="patient || right || action === 'no-idcard'">
+    <section v-if="(patient || right) || action !== 'hn-or-idcard'">
         <div v-cloak class="row pt-5">
             <div class="col-md-12 col-lg-12 col-sm-12" style="padding-top: 15px;">
                 <div class="service-title">
@@ -568,7 +471,7 @@ $this->registerJsFile(
                                         <div class="d-flex flex-column flex-grow-1 gutter-b m-auto">
                                             <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option">
                                                 <h4 :class="{ 'text-white': service_id !== item.serviceid, 'text-success': service_id === item.serviceid }">
-                                                    {{ index + 1 }}. {{ $t(item.btn_kiosk_name) }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
+                                                    {{ index + 2 }}. {{ $t(item.btn_kiosk_name) }} <i v-show="service_id === item.serviceid" class="far fa-check-circle"></i>
                                                 </h4>
                                             </span>
                                         </div>
@@ -585,7 +488,7 @@ $this->registerJsFile(
         <br>
         <div class="row">
             <div class="col-md-4 col-lg-4 col-sm-12">
-                <a href="#" class="button-effect" @click.prevent="onCancelAction()">
+                <a v-if="(patient || right) && !service_id" href="#" class="button-effect" @click.prevent="onCancelAction()">
                     <div class="iq-card card-section-2" style="background: #dc3545;">
                         <div class="iq-card-body" style="padding: 10px;">
                             <div class="d-flex">
@@ -601,7 +504,7 @@ $this->registerJsFile(
             </div>
             <div class="col-md-4 col-lg-4 col-sm-12"></div>
             <div class="col-md-4 col-lg-4 col-sm-12">
-                <!-- <a href="#" class="button-effect" @click.prevent="onCreateQueue()" :style="disabledStyle">
+                <!-- <a  href="#" class="button-effect" @click.prevent="onCreateQueue()" :style="disabledStyle">
                     <div class="iq-card card-section-2" :style="{ background: '#28a745', opacity: opacity }">
                         <div class="iq-card-body" style="padding: 10px;">
                             <div class="d-flex">
@@ -618,6 +521,56 @@ $this->registerJsFile(
         </div>
 
     </section>
+
+    <div v-if="!patient && !right && action !== 'hn-or-idcard'" v-cloak class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12">
+            <div class="service-title">
+                <h1>หรือทำรายการโดย</h1>
+            </div>
+            <div class="text-center">
+                <?= Html::img($themeAsset . '/images/kiosk/Thai-smart-card.png', ['style' => 'width:100px']) ?>
+                <h4>
+                    {{ $t(loadingMsg) }}
+                </h4>
+
+                <div v-if="loading" class="lds-dual-ring"></div>
+            </div>
+        </div>
+    </div>
+
+    <section v-if="!patient && !right && action !== 'hn-or-idcard'" class="section-home">
+        <div class="row">
+
+            <div class="col-xl-12 col-sm-12 animated animate__zoomIn faster">
+                <a href="#" class="button-effect" @click.prevent="onSelectAction('hn-or-idcard')">
+                    <div class="iq-card card-section-1">
+                        <div class="iq-card-body">
+                            <div class="d-flex">
+                                <div class="d-flex flex-column flex-grow-1 gutter-b m-auto ">
+                                    <span class="card-title font-weight-bolder text-dark-75 font-size-h5 mb-2 card-title-option ">
+                                        <h4>{{ $t("Enter your ID Card Number") }} </h4>
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <?= Html::img($themeAsset . '/images/kiosk/keypad.png', ['width' => '65px']) ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- end:: Section Home -->
+
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-sm-12">
+            <marquee direction="left" scrollamount="5" style="font-size: 40px; color: #a579ed;">
+                <?php echo $news_ticker['news_ticker_detail'] ?>
+            </marquee>
+        </div>
+    </div>
 
 </div>
 

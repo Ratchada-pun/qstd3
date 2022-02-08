@@ -37,8 +37,8 @@ class TbCounterservice extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['counterservice_name', 'counterservice_callnumber','sound_id','counterservice_status','sound_service_id'], 'required'],
-            [['counterservice_callnumber', 'counterservice_type', 'servicegroupid', 'userid', 'sound_stationid', 'sound_id','service_order'], 'integer'],
+            [['counterservice_name', 'counterservice_callnumber', 'sound_id', 'counterservice_status', 'sound_service_id'], 'required'],
+            [['counterservice_callnumber', 'counterservice_type', 'servicegroupid', 'userid', 'sound_stationid', 'sound_id', 'service_order', 'sound_en_id', 'sound_service_en_id'], 'integer'],
             [['counterservice_name'], 'string', 'max' => 100],
             [['serviceid'], 'string', 'max' => 20],
             [['counterservice_status'], 'string', 'max' => 10],
@@ -64,7 +64,9 @@ class TbCounterservice extends \yii\db\ActiveRecord
             'sound_id' => 'ไฟล์เสียงหมายเลข',
             'counterservice_status' => 'สถานะ',
             'sound_service_id' => 'เสียงบริการ',
-            'service_order' => 'จัดเรียง'
+            'service_order' => 'จัดเรียง',
+            'sound_en_id' => 'ไฟล์เสียงหมายเลข(ENG)',
+            'sound_service_en_id' => 'ไฟล์เสียงบริการ(ENG)',
         ];
     }
 

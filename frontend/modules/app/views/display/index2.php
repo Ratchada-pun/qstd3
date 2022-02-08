@@ -23,6 +23,27 @@ $this->registerCss('
     body {
         background-color: ' . $config['background_color'] . ';
     }
+    .table {
+        margin-bottom: 0px;
+    }
+    table thead tr th  {
+        margin: 0 !important;
+        line-height: 1!important;
+    }
+    table tbody tr td,
+    
+    table tbody tr td span {
+        margin: 0 !important;
+        line-height: 0.7!important;
+    }
+    table tbody tr {
+        padding: 0 !important;
+        margin: 0 !important;
+        line-height: 0.7!important;
+    }
+    table tbody tr td span {
+        font-size: 25rem!important;
+    }
     table.table-display thead tr {
         width: 50%;
         border-radius: 15px;
@@ -171,24 +192,24 @@ $formatter = Yii::$app->formatter;
     <table class="table table-display" width="100%">
         <thead>
             <tr>
-                <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
+                <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>; font-size: 8rem;" class="th-left">
                     <div style="display: flex;">
-                        <div style="width: 50%;text-align: left;">
+                        <div style="width: 50%;text-align: left; margin-left: 2%;">
                             โรงพยาบาลสิรินธร
-                            <h3>
+                            <h3 style="font-size: 8rem;">
                                 Sirindhorn Hospital
                             </h3>
                         </div>
-                        <div style="width: 50%">
+                        <div style="width: 50%; margin-right: 2%;">
                             <div class="caption clock">
-                                <h2 class="mb-0 line-height text-cyan time" style="text-align: right;">
+                                <h1 class="mb-0 line-height text-cyan time" style="text-align: right;font-size: 6rem;">
                                     <span id="kiosk-date">
                                         <?= $formatter->asDate('now', 'php:lที่ d F ') . ($formatter->asDate('now', 'php:Y') + 543) ?>
                                     </span>
-                                </h2>
-                                <h3 class="mb-0 line-height text-cyan time text-right">
-                                    เวลา <span class="time__hours"><?= $formatter->asDate('now', 'php:H') ?></span><span class="time__min"><?= $formatter->asDate('now', 'php:i') ?></span><span class="time__sec"><?= $formatter->asDate('now', 'php:s') ?></span> น.
-                                </h3>
+                                </h1>
+                                <h1 class="mb-0 line-height text-cyan time text-right;font-size: 6rem;">
+                                    เวลา <span class="time__hours" style="font-size: 6rem;"><?= $formatter->asDate('now', 'php:H') ?></span><span style="font-size: 6rem;" class="time__min"><?= $formatter->asDate('now', 'php:i') ?></span><span style="font-size: 6rem;" class="time__sec"><?= $formatter->asDate('now', 'php:s') ?></span> น.
+                                </h1>
                             </div>
                         </div>
                     </div>
@@ -200,13 +221,13 @@ $formatter = Yii::$app->formatter;
         <div class="row">
 
             <div class="col-xs-8 col-sm-8 col-md-8">
-                <table class="table table-display" id="table-display" width="100%">
+                <table  class="table table-display" id="table-display" width="100%">
                     <thead>
                         <tr>
                             <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
                                 <div style="display: flex;">
-                                    <div style="width: 50%"><?= $config['table_title_left'] ?></div>
-                                    <div style="width: 50%"><?= $config['table_title_right'] ?></div>
+                                    <div style="width: 50%;font-size: 12rem;"><?= $config['table_title_left'] ?></div>
+                                    <div style="width: 50%;font-size: 12rem;"><?= $config['table_title_right'] ?></div>
                                 </div>
                             </th>
 
@@ -220,7 +241,7 @@ $formatter = Yii::$app->formatter;
                     <tbody>
                         <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
                             <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
-                                <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -230,51 +251,51 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; width: 80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -284,31 +305,31 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
@@ -321,7 +342,7 @@ $formatter = Yii::$app->formatter;
                 </table>
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
-                <table class="table table-display2" id="table-display2" width="100%">
+                <table  class="table table-display2" id="table-display2" width="100%">
                     <thead>
                         <tr>
                             <th style="width: 50%;color: <?= $config['title_latest_right_color']; ?>" class="th-left">#</th>
@@ -342,8 +363,8 @@ $formatter = Yii::$app->formatter;
                         <tr>
                             <th style="width: 100%;color: <?= $config['table_title_left_color']; ?>" class="th-left">
                                 <div style="display: flex;">
-                                    <div style="width: 50%"><?= $config['table_title_left'] ?></div>
-                                    <div style="width: 50%"><?= $config['table_title_right'] ?></div>
+                                    <div style="width: 50%;font-size: 12rem;"><?= $config['table_title_left'] ?></div>
+                                    <div style="width: 50%;font-size: 12rem;"><?= $config['table_title_right'] ?></div>
                                 </div>
                             </th>
 
@@ -357,7 +378,7 @@ $formatter = Yii::$app->formatter;
                     <tbody>
                         <tr v-for="(item, key) in filteredQueues" :id="item.caller_ids" :data-key="item.caller_ids" role="row" class="odd">
                             <td colspan="2" class=" dt-center dt-head-nowrap th-left td-left">
-                                <table v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_pic === 1 && config.pt_name === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -367,51 +388,51 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:60%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 1 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; width: 80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td rowspan="2" style="border-top:0px; width: 20%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr style="border:0px;">
                                             <td style="border-top:0px; text-align:center;width:80%">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.pt_name }}
                                                 </span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table   v-if="config.pt_name === 0 && config.pt_pic === 1" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
                                             <td rowspan="2" style="border-top:0px;vertical-align: middle; width:20%">
@@ -421,31 +442,31 @@ $formatter = Yii::$app->formatter;
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;text-align:left;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 40%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-                                <table v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
+                                <table  v-if="config.pt_name === 0 && config.pt_pic === 0" class="table" style="background-color: inherit;margin-bottom: 0px;">
                                     <tbody>
                                         <tr style="border:0px;">
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.q_num }}
                                                 </span>
                                             </td>
 
                                             <td style="border-top:0px; width: 50%;vertical-align: middle;">
-                                                <span :class="item.q_num">
+                                                <span :class="item.q_num" style="font-size: 12rem;">
                                                     {{ item.counterservice_callnumber }}
                                                 </span>
                                             </td>

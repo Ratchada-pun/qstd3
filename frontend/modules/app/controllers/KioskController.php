@@ -468,7 +468,25 @@ class KioskController extends \yii\web\Controller
       $attr['{' . $value . '}'] = $model->{$value};
     }
 
-    $template = strtr($ticket->template, ArrayHelper::merge([
+    $template = '';
+
+    if ($model['locale'] == 'th') {
+      $template = $ticket->template_th;
+    }
+    if ($model['locale'] == 'en') {
+      $template = $ticket->template_en;
+    }
+    // บัตรคิวฟอร์มเล็ก 
+    if (empty($model['cid'])) {
+      if ($model['locale'] == 'th') {
+        $template = $ticket->template_th_small;
+      }
+      if ($model['locale'] == 'en') {
+        $template = $ticket->template_en_small;
+      }
+    }
+
+    $template = strtr($template, ArrayHelper::merge([
       '{hos_name_th}' => $ticket->hos_name_th,
       '{q_hn}' => $model->q_hn,
       '{pt_name}' => $model->pt_name,
@@ -479,7 +497,7 @@ class KioskController extends \yii\web\Controller
       '{rx_q}' => $model->rx_q,
       '{pharmacy_drug_name}' => ArrayHelper::getValue($modelDrugDispensing, 'pharmacy_drug_name', ''), //ชื่อร้านขายยา
       '{pt_visit_type}' => '',
-      '{service_name}' => $service['service_name'],
+      '{service_name}' => Yii::t('app.frontend', $service['service_name'], [], $model['locale']),
       '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i'),
       '{user_print}' => Yii::$app->user->isGuest ? 'Kiosk' : Yii::$app->user->identity->profile->name,
       '{qwaiting}' => $count,
