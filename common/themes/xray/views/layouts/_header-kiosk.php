@@ -56,7 +56,7 @@ CSS;
      </div>
      <nav class="navbar navbar-expand-lg navbar-light p-0" style="min-height: 100px;">
        <div class="iq-search-bar">
-         <?= Html::img('http://192.168.100.253/uploads/sirintorn.png', ['width' => '80px', 'height' => '80px']) ?>
+         <?= Html::img('/img/sirintorn.png', ['width' => '80px', 'height' => '80px']) ?>
        </div>
        <br>
        <div class="kiosk-title">
