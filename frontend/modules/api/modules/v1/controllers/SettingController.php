@@ -4,8 +4,10 @@ namespace frontend\modules\api\modules\v1\controllers;
 
 use common\models\KeyStorageItem;
 use frontend\modules\app\models\TbService;
+use Yii;
 use yii\data\ActiveDataFilter;
 use yii\data\ActiveDataProvider;
+use yii\helpers\ArrayHelper;
 use yii\rest\ActiveController;
 
 /**
@@ -31,7 +33,7 @@ class SettingController extends ActiveController
         // re-add authentication filter
         $behaviors['authenticator'] = $auth;
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options', 'messages'];
 
         return $behaviors;
     }
@@ -74,5 +76,29 @@ class SettingController extends ActiveController
         return new ActiveDataProvider([
             'query' => $query,
         ]);
+    }
+
+    public function actionMessages()
+    {
+        $rows = (new \yii\db\Query())
+            ->select([
+                'i18n_source_message.category',
+                'i18n_source_message.message',
+                'i18n_message.id',
+                'i18n_message.`language`',
+                'i18n_message.translation'
+            ])
+            ->from('i18n_source_message')
+            ->innerJoin('i18n_message', 'i18n_source_message.id = i18n_message.id')
+            ->where(['i18n_source_message.category' => 'app.frontend'])
+            ->all();
+        $groups = ArrayHelper::index($rows, null, 'language');
+        $result = [];
+        foreach ($groups as $locale => $items) {
+            $result[$locale] = [
+                'message' => ArrayHelper::map($items, 'message', 'translation')
+            ];
+        }
+        return $result;
     }
 }

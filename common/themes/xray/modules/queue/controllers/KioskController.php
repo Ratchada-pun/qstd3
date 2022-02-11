@@ -55,7 +55,6 @@ class KioskController extends Controller
     }
 
     public function actionPrintTicket($id) //บัตรคิว
-
     {
         $model = $this->findModelQueue($id);
         $service = $this->findModelService($model['serviceid']);
@@ -112,6 +111,70 @@ class KioskController extends Controller
         ], $attr));
 
         return $this->renderAjax('print-ticket', [
+            'model' => $model,
+            'ticket' => $ticket,
+            'template' => $template,
+            'service' => $service,
+        ]);
+    }
+
+    public function actionPrintTicket2($id) //บัตรคิว
+    {
+        $model = $this->findModelQueue($id);
+        $service = $this->findModelService($model['serviceid']);
+        $ticket = $this->findModelTicket($service['prn_profileid']);
+        $y = \Yii::$app->formatter->asDate('now', 'php:Y');
+
+        $sql = 'SELECT
+        count( `tb_quequ`.`q_ids` )
+        FROM
+          `tb_quequ`
+        WHERE
+          q_status_id = 1
+          AND serviceid = :serviceid
+          AND q_ids < :q_ids
+          AND DATE( tb_quequ.q_timestp ) = CURRENT_DATE';
+        $params = [':serviceid' => $model['serviceid'], ':q_ids' => $id];
+        $count = Yii::$app->db->createCommand($sql)
+            ->bindValues($params)
+            ->queryScalar();
+
+        $attr = [];
+        $keys = array_keys($model->attributeLabels());
+        foreach ($keys as $value) {
+            $attr['{' . $value . '}'] = $model->{$value};
+        }
+
+        $template = '';
+
+        if ($model['locale'] == 'th') {
+            $template = $ticket->template_th;
+        }
+        if ($model['locale'] == 'en') {
+            $template = $ticket->template_en;
+        }
+        // บัตรคิวฟอร์มเล็ก 
+        if (empty($model['cid'])) {
+            if ($model['locale'] == 'th') {
+                $template = $ticket->template_th_small;
+            }
+            if ($model['locale'] == 'en') {
+                $template = $ticket->template_en_small;
+            }
+        }
+
+        $template = strtr($template, ArrayHelper::merge([
+            '{hos_name_th}' => $ticket->hos_name_th,
+            '{pt_name}' => $model->pt_name,
+            '{q_num}' => $model->q_num,
+            '{service_name}' => Yii::t('app.frontend', $service['service_name'], [], $model['locale']),
+            '{time}' => \Yii::$app->formatter->asDate('now', 'php:d M ' . substr($y, 2)) . ' ' . \Yii::$app->formatter->asDate('now', 'php:H:i'),
+            '{user_print}' => Yii::$app->user->isGuest ? 'Kiosk' : Yii::$app->user->identity->profile->name,
+            '{qwaiting}' => $count,
+            '/img/logo/logo.jpg' => $ticket->logo_path ? $ticket->logo_base_url . '/' . $ticket->logo_path : '/img/logo/logo.jpg',
+        ], $attr));
+
+        return $this->renderAjax('print-ticket2', [
             'model' => $model,
             'ticket' => $ticket,
             'template' => $template,
