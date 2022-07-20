@@ -1104,6 +1104,18 @@ $js = <<<JS
 
     getLastQueue();
 
+    var loadingWaiting = false;
+    dt_tbwaiting
+    .on('preXhr.dt', function ( e, settings, data ) {
+        loadingWaiting = true;
+    })
+    // .on('xhr.dt', function ( e, settings, json, xhr ) {
+    //     loadingWaiting = false;
+    // } )
+    .on( 'error.dt', function ( e, settings, techNote, message ) {
+        loadingWaiting = false;
+    } )
+
     socket
     .on("register", (res) => {
         dt_tbwaiting.ajax.reload();
@@ -1129,6 +1141,7 @@ $js = <<<JS
     var timerId = [];
 
     dt_tbwaiting.on('xhr.dt', function ( e, settings, json, xhr ) {
+        loadingWaiting = false;
         for (let i = 0; i < timerId.length; i++) {
             const timer = timerId[i];
             window.clearInterval(timer);
