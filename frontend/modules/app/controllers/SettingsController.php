@@ -2219,62 +2219,65 @@ class SettingsController extends \yii\web\Controller
         $request = Yii::$app->request;
 
         if ($request->isAjax) {
-            $modelQueue = TbQuequ::find()->all();
-            foreach ($modelQueue as $key => $data) {
-                $model = new TbQuequData();
-                $model->q_ids = $data['q_ids'];
-                $model->q_num = $data['q_num'];
-                $model->q_timestp = $data['q_timestp'];
-                $model->pt_id = $data['pt_id'];
-                $model->q_vn = $data['q_vn'];
-                $model->q_hn = $data['q_hn'];
-                $model->pt_name = $data['pt_name'];
-                $model->pt_visit_type_id = $data['pt_visit_type_id'];
-                $model->pt_appoint_sec_id = $data['pt_appoint_sec_id'];
-                $model->serviceid = $data['serviceid'];
-                $model->servicegroupid = $data['servicegroupid'];
-                $model->q_status_id = $data['q_status_id'];
-                $model->doctor_id = $data['doctor_id'];
-                $model->created_at = $data['created_at'];
-                $model->updated_at = $data['updated_at'];
-                $model->save(false);
-            }
-            $modelCaller = TbCaller::find()->all();
-            foreach ($modelCaller as $key => $data) {
-                $model = new TbCallerData();
-                $model->caller_ids = $data['caller_ids'];
-                $model->q_ids = $data['q_ids'];
-                $model->qtran_ids = $data['qtran_ids'];
-                $model->servicegroupid = $data['servicegroupid'];
-                $model->counter_service_id = $data['counter_service_id'];
-                $model->call_timestp = $data['call_timestp'];
-                $model->created_by = $data['created_by'];
-                $model->created_at = $data['created_at'];
-                $model->updated_by = $data['updated_by'];
-                $model->updated_at = $data['updated_at'];
-                $model->call_status = $data['call_status'];
-                $model->save(false);
-            }
-            $modelTrans = TbQtrans::find()->all();
-            foreach ($modelTrans as $key => $data) {
-                $model = new TbQtransData();
-                $model->ids = $data['ids'];
-                $model->q_ids = $data['q_ids'];
-                $model->servicegroupid = $data['servicegroupid'];
-                $model->counter_service_id = $data['counter_service_id'];
-                $model->doctor_id = $data['doctor_id'];
-                $model->checkin_date = $data['checkin_date'];
-                $model->checkout_date = $data['checkout_date'];
-                $model->service_status_id = $data['service_status_id'];
-                $model->created_at = $data['created_at'];
-                $model->updated_at = $data['updated_at'];
-                $model->created_by = $data['created_by'];
-                $model->updated_by = $data['updated_by'];
-                $model->save(false);
-            }
-            TbCaller::deleteAll();
-            TbQtrans::deleteAll();
-            TbQuequ::deleteAll();
+            TbQuequ::deleteAll(['DATE(tb_quequ.q_timestp)' => date('Y-m-d')]);
+            TbCaller::deleteAll(['DATE(created_at)' => date('Y-m-d')]);
+            TbQtrans::deleteAll(['DATE(created_at)' => date('Y-m-d')]);
+            // $modelQueue = TbQuequ::find()->all();
+            // foreach ($modelQueue as $key => $data) {
+            //     $model = new TbQuequData();
+            //     $model->q_ids = $data['q_ids'];
+            //     $model->q_num = $data['q_num'];
+            //     $model->q_timestp = $data['q_timestp'];
+            //     $model->pt_id = $data['pt_id'];
+            //     $model->q_vn = $data['q_vn'];
+            //     $model->q_hn = $data['q_hn'];
+            //     $model->pt_name = $data['pt_name'];
+            //     $model->pt_visit_type_id = $data['pt_visit_type_id'];
+            //     $model->pt_appoint_sec_id = $data['pt_appoint_sec_id'];
+            //     $model->serviceid = $data['serviceid'];
+            //     $model->servicegroupid = $data['servicegroupid'];
+            //     $model->q_status_id = $data['q_status_id'];
+            //     $model->doctor_id = $data['doctor_id'];
+            //     $model->created_at = $data['created_at'];
+            //     $model->updated_at = $data['updated_at'];
+            //     $model->save(false);
+            // }
+            // $modelCaller = TbCaller::find()->all();
+            // foreach ($modelCaller as $key => $data) {
+            //     $model = new TbCallerData();
+            //     $model->caller_ids = $data['caller_ids'];
+            //     $model->q_ids = $data['q_ids'];
+            //     $model->qtran_ids = $data['qtran_ids'];
+            //     $model->servicegroupid = $data['servicegroupid'];
+            //     $model->counter_service_id = $data['counter_service_id'];
+            //     $model->call_timestp = $data['call_timestp'];
+            //     $model->created_by = $data['created_by'];
+            //     $model->created_at = $data['created_at'];
+            //     $model->updated_by = $data['updated_by'];
+            //     $model->updated_at = $data['updated_at'];
+            //     $model->call_status = $data['call_status'];
+            //     $model->save(false);
+            // }
+            // $modelTrans = TbQtrans::find()->all();
+            // foreach ($modelTrans as $key => $data) {
+            //     $model = new TbQtransData();
+            //     $model->ids = $data['ids'];
+            //     $model->q_ids = $data['q_ids'];
+            //     $model->servicegroupid = $data['servicegroupid'];
+            //     $model->counter_service_id = $data['counter_service_id'];
+            //     $model->doctor_id = $data['doctor_id'];
+            //     $model->checkin_date = $data['checkin_date'];
+            //     $model->checkout_date = $data['checkout_date'];
+            //     $model->service_status_id = $data['service_status_id'];
+            //     $model->created_at = $data['created_at'];
+            //     $model->updated_at = $data['updated_at'];
+            //     $model->created_by = $data['created_by'];
+            //     $model->updated_by = $data['updated_by'];
+            //     $model->save(false);
+            // }
+            // TbCaller::deleteAll();
+            // TbQtrans::deleteAll();
+            // TbQuequ::deleteAll();
             return Json::encode(['status' => '200', 'mesage' => 'success']);
         } else {
             throw new MethodNotAllowedHttpException('method not allowed.');
