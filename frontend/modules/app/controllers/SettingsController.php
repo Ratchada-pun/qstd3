@@ -2178,7 +2178,8 @@ class SettingsController extends \yii\web\Controller
         if ($request->isAjax) {
             $query = (new \yii\db\Query())
                 ->select(['tb_quequ.*'])
-                ->from('tb_quequ');
+                ->from('tb_quequ')
+                ->where('DATE(tb_quequ.q_timestp) = CURRENT_DATE');
 
             $dataProvider = new ActiveDataProvider([
                 'query' => $query,
