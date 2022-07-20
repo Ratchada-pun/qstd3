@@ -2172,6 +2172,7 @@ class SettingsController extends \yii\web\Controller
 
     public function actionDataQreset()
     {
+        ini_set("memory_limit", -1);
         $request = Yii::$app->request;
 
         if ($request->isAjax) {
