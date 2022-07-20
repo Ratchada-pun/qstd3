@@ -72,6 +72,7 @@ class CallingController extends \yii\web\Controller
             ],
         ];
     }
+    
     /**
      * @inheritdoc
      */
@@ -83,6 +84,7 @@ class CallingController extends \yii\web\Controller
 
         return parent::beforeAction($action);
     }
+
     public function actionIndex($profileid = null, $counterid = null)
     {
         $modelForm = new CallingForm();
@@ -97,6 +99,7 @@ class CallingController extends \yii\web\Controller
             'modelProfile' => $modelProfile,
         ]);
     }
+
     public function actionFindStatus()
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -3041,7 +3044,7 @@ class CallingController extends \yii\web\Controller
             throw new HttpException(404, 'sound_service_id ' . $sound_service_id . ' not found.');
         }
         $basePath = "/media/" . $modelSound['sound_path_name'];
-       
+
         if ($language == 'th') {
             $begin = [$basePath . "/please.wav"]; //เชิญหมายเลข
             $end = [

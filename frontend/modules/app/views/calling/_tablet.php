@@ -1104,23 +1104,41 @@ $js = <<<JS
 
     getLastQueue();
 
+    var loadingWaiting = false;
+    dt_tbwaiting
+    .on('preXhr.dt', function ( e, settings, data ) {
+        loadingWaiting = true;
+    })
+    // .on('xhr.dt', function ( e, settings, json, xhr ) {
+    //     loadingWaiting = false;
+    // } )
+    .on( 'error.dt', function ( e, settings, techNote, message ) {
+        loadingWaiting = false;
+    } )
+
     socket
     .on("register", (res) => {
-        dt_tbwaiting.ajax.reload();
-        toastr.warning(res.modelQueue.q_num, "คิวใหม่!", {
-            timeOut: 7000,
-            positionClass: "toast-top-right",
-            progressBar: true,
-            closeButton: true,
-        });
+        if(!loadingWaiting) {
+            dt_tbwaiting.ajax.reload();
+            toastr.warning(res.modelQueue.q_num, "คิวใหม่!", {
+                timeOut: 7000,
+                positionClass: "toast-top-right",
+                progressBar: true,
+                closeButton: true,
+            });
+        }
     })
     .on("setting", (res) => {
         if (res.model === "service_profile") {
-            dt_tbwaiting.ajax.reload();
+            if(!loadingWaiting) {
+                dt_tbwaiting.ajax.reload();
+            }
         }
     })
     .on("call", (res) => {
-        dt_tbwaiting.ajax.reload();
+        if(!loadingWaiting) {
+            dt_tbwaiting.ajax.reload();
+        }
     })
     .on("hold", (res) => {
         dt_tbhold.ajax.reload(); //โหลดข้อมูลพักคิวใหม่
@@ -1129,6 +1147,7 @@ $js = <<<JS
     var timerId = [];
 
     dt_tbwaiting.on('xhr.dt', function ( e, settings, json, xhr ) {
+        loadingWaiting = false;
         for (let i = 0; i < timerId.length; i++) {
             const timer = timerId[i];
             window.clearInterval(timer);
